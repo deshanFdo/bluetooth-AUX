@@ -1,0 +1,1061 @@
+<Window x:Class="AudioSwitch.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:AudioSwitch.Controls"
+        Title="Audio Switch"
+        Icon="pack://application:,,,/Assets/AudioSwitch.ico"
+        Width="384"
+        Height="560"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="{x:Null}"
+        ResizeMode="NoResize"
+        Topmost="True"
+        ShowInTaskbar="False"
+        FontFamily="Segoe UI Variable Text, Segoe UI"
+        UseLayoutRounding="True"
+        SnapsToDevicePixels="True">
+
+    <Window.Resources>
+        <Storyboard x:Key="BeaconPulseStoryboard" RepeatBehavior="Forever" AutoReverse="True" Timeline.DesiredFrameRate="24">
+            <DoubleAnimation Storyboard.TargetName="PillBeaconScale" Storyboard.TargetProperty="ScaleX" From="0.88" To="1.20" Duration="0:0:1.1">
+                <DoubleAnimation.EasingFunction>
+                    <SineEase EasingMode="EaseInOut"/>
+                </DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="PillBeaconScale" Storyboard.TargetProperty="ScaleY" From="0.88" To="1.20" Duration="0:0:1.1">
+                <DoubleAnimation.EasingFunction>
+                    <SineEase EasingMode="EaseInOut"/>
+                </DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+        </Storyboard>
+
+        <Style x:Key="GlassCardStyle" TargetType="Border">
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Background" Value="#44141C2B"/>
+            <Setter Property="BorderBrush" Value="#22FFFFFF"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+
+        <Style x:Key="IslandNavPillBtnStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Foreground" Value="#94A3B8"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Height" Value="23"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="Transparent">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <!-- Outer Grid has Null Background so empty pixels around the Island are 100% click-through -->
+    <Grid Background="{x:Null}">
+        <Border x:Name="IslandShell"
+                Width="120"
+                Height="14"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Top"
+                Margin="0,2,0,18"
+                CornerRadius="7"
+                BorderThickness="0"
+                ClipToBounds="True"
+                Background="#02000000"
+                RenderTransformOrigin="0.5,0"
+                MouseEnter="IslandShell_MouseEnter"
+                MouseLeave="IslandShell_MouseLeave"
+                MouseWheel="IslandShell_MouseWheel"
+                MouseMove="IslandShell_MouseMove"
+                LostMouseCapture="IslandShell_LostMouseCapture"
+                MouseLeftButtonDown="IslandShell_MouseLeftButtonDown"
+                MouseLeftButtonUp="IslandShell_MouseLeftButtonUp">
+            <Border.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform x:Name="IslandScale" ScaleX="1" ScaleY="1"/>
+                    <TranslateTransform x:Name="IslandTranslate" Y="0"/>
+                </TransformGroup>
+            </Border.RenderTransform>
+            <Border.BorderBrush>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                    <GradientStop Color="#80FFFFFF" Offset="0"/>
+                    <GradientStop Color="#3AFFFFFF" Offset="0.45"/>
+                    <GradientStop Color="#28FFFFFF" Offset="1"/>
+                </LinearGradientBrush>
+            </Border.BorderBrush>
+
+            <Grid>
+                <!-- Smoked Obsidian Apple HIG Dynamic Island Surface -->
+                <Border x:Name="GlassSurface" Opacity="0" IsHitTestVisible="False">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#EB06080D" Offset="0"/>
+                            <GradientStop Color="#DE0B0F19" Offset="0.5"/>
+                            <GradientStop Color="#EB05070B" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Border.Background>
+                </Border>
+
+                <!-- Diagonal Glass Reflection Sheen -->
+                <Border x:Name="GlassSheen" Opacity="0" IsHitTestVisible="False">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0.8,1">
+                            <GradientStop Color="#24FFFFFF" Offset="0"/>
+                            <GradientStop Color="#08FFFFFF" Offset="0.38"/>
+                            <GradientStop Color="#00FFFFFF" Offset="0.72"/>
+                        </LinearGradientBrush>
+                    </Border.Background>
+                </Border>
+
+                <!-- Subtle Ambient Route Glass Tint -->
+                <Border x:Name="AmbientGlassGlow" Opacity="0" IsHitTestVisible="False">
+                    <Border.Background>
+                        <RadialGradientBrush GradientOrigin="0.18,0.12" Center="0.18,0.12" RadiusX="0.75" RadiusY="0.75">
+                            <GradientStop x:Name="AmbientGlowColorStop" Color="#3B82F6" Offset="0"/>
+                            <GradientStop Color="#00000000" Offset="1"/>
+                        </RadialGradientBrush>
+                    </Border.Background>
+                </Border>
+
+                <!-- Top Specular Frost Sheen -->
+                <Border x:Name="TopSpecularSheen" Height="1" VerticalAlignment="Top" Opacity="0" IsHitTestVisible="False">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                            <GradientStop Color="#00FFFFFF" Offset="0"/>
+                            <GradientStop Color="#55FFFFFF" Offset="0.5"/>
+                            <GradientStop Color="#00FFFFFF" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Border.Background>
+                </Border>
+
+                <!-- STATE 0: THIN GLOWING TOP-EDGE LINE -->
+                <Grid x:Name="ThinLineView" VerticalAlignment="Top" Height="14" Cursor="Hand" Visibility="Visible">
+                    <Border x:Name="ThinLineBar"
+                            Width="96"
+                            Height="4"
+                            CornerRadius="2"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Top"
+                            Margin="0,1,0,0"
+                            Opacity="0.88">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                <GradientStop Color="#30FFFFFF" Offset="0"/>
+                                <GradientStop x:Name="ThinLineAccentStop" Color="#3B82F6" Offset="0.5"/>
+                                <GradientStop Color="#30FFFFFF" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Border.Background>
+                    </Border>
+                </Grid>
+
+                <!-- STATE 1: SWIPEABLE COMPACT DYNAMIC ISLAND PILLS (Hover Reveal) -->
+                <Grid x:Name="CompactPillView"
+                      Margin="9,0,9,0"
+                      VerticalAlignment="Center"
+                      Cursor="Hand"
+                      Visibility="Collapsed"
+                      Opacity="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Button Style="{StaticResource IconButtonStyle}"
+                            Width="20" Height="24"
+                            Content="‹"
+                            FontSize="13"
+                            ToolTip="Previous Island (or scroll wheel / swipe)"
+                            Click="PrevIslandBtn_Click"/>
+
+                    <!-- Swipeable Pill Content Viewport -->
+                    <Grid x:Name="PillCarouselHost" Grid.Column="1" ClipToBounds="True" Margin="2,0">
+                        <Grid.RenderTransform>
+                            <TranslateTransform x:Name="PillCarouselSlide" X="0"/>
+                        </Grid.RenderTransform>
+
+                        <!-- Pill Page 0: AUDIO -->
+                        <Grid x:Name="PillAudioPage" Visibility="Visible">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Grid Margin="0,0,7,0" VerticalAlignment="Center">
+                                <Border x:Name="PillAudioBadge" Width="24" Height="24" CornerRadius="12" Background="#2810B981" BorderBrush="#5510B981" BorderThickness="1">
+                                    <Path x:Name="PillAudioIconPath" Data="{StaticResource IconHeadphones}" Fill="#34D399" Width="13" Height="13" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <Border x:Name="PillBeaconDot"
+                                        Width="6" Height="6"
+                                        CornerRadius="3"
+                                        Background="#10B981"
+                                        HorizontalAlignment="Right"
+                                        VerticalAlignment="Bottom"
+                                        RenderTransformOrigin="0.5,0.5">
+                                    <Border.RenderTransform>
+                                        <ScaleTransform x:Name="PillBeaconScale" ScaleX="1" ScaleY="1"/>
+                                    </Border.RenderTransform>
+                                </Border>
+                            </Grid>
+
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock x:Name="PillRouteText" Text="AUX" FontSize="11.5" FontWeight="SemiBold" Foreground="#F8FAFC" TextTrimming="CharacterEllipsis" MaxWidth="128"/>
+                                <TextBlock x:Name="PillMicBadge" Text="Mic ready" FontSize="9.2" Foreground="#94A3B8" TextTrimming="CharacterEllipsis"/>
+                            </StackPanel>
+
+                            <StackPanel x:Name="CompactPillEqPanel" Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="6,0,2,0">
+                                <Border x:Name="EqWrap1" Width="3" Height="14" CornerRadius="1.5" Background="#60A5FA" Margin="0,0,2.5,0" RenderTransformOrigin="0.5,1">
+                                    <Border.RenderTransform><ScaleTransform x:Name="EqBar1" ScaleX="1" ScaleY="0.25"/></Border.RenderTransform>
+                                </Border>
+                                <Border x:Name="EqWrap2" Width="3" Height="14" CornerRadius="1.5" Background="#34D399" Margin="0,0,2.5,0" RenderTransformOrigin="0.5,1">
+                                    <Border.RenderTransform><ScaleTransform x:Name="EqBar2" ScaleX="1" ScaleY="0.4"/></Border.RenderTransform>
+                                </Border>
+                                <Border x:Name="EqWrap3" Width="3" Height="14" CornerRadius="1.5" Background="#A855F7" RenderTransformOrigin="0.5,1">
+                                    <Border.RenderTransform><ScaleTransform x:Name="EqBar3" ScaleX="1" ScaleY="0.25"/></Border.RenderTransform>
+                                </Border>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- Pill Page 1: SPOTIFY / MEDIA -->
+                        <Grid x:Name="PillMediaPage" Visibility="Collapsed">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Border Width="24" Height="24" CornerRadius="12" Background="#281DB954" BorderBrush="#664ADE80" BorderThickness="1" ClipToBounds="True" Margin="0,0,7,0">
+                                    <Grid>
+                                        <Path x:Name="PillMediaFallbackIcon" Data="{StaticResource IconMusic}" Fill="#4ADE80" Width="12" Height="12" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        <Image x:Name="PillMediaArt" Stretch="UniformToFill" Visibility="Collapsed"/>
+                                    </Grid>
+                                </Border>
+
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                    <TextBlock x:Name="PillMediaTitle" Text="Nothing Playing" FontSize="11.3" FontWeight="SemiBold" Foreground="#F8FAFC" TextTrimming="CharacterEllipsis" MaxWidth="136"/>
+                                    <TextBlock x:Name="PillMediaArtist" Text="Spotify / Media" FontSize="9.2" Foreground="#94A3B8" TextTrimming="CharacterEllipsis" MaxWidth="136"/>
+                                </StackPanel>
+
+                                <Button x:Name="PillPlayBtn"
+                                        Grid.Column="2"
+                                        Style="{StaticResource GlassActionButtonStyle}"
+                                        Width="24" Height="24"
+                                        Padding="0"
+                                        Margin="6,0,2,0"
+                                        Click="MediaPlayPauseBtn_Click">
+                                    <Path x:Name="PillPlayIcon" Data="{StaticResource IconPlay}" Fill="#FFFFFF" Width="10" Height="10" Stretch="Uniform"/>
+                                </Button>
+                            </Grid>
+
+                            <Border Grid.Row="1" Height="2" CornerRadius="1" Background="#1FFFFFFF" Margin="1,2,3,0" ClipToBounds="True">
+                                <Border x:Name="PillMediaProgressFill" Background="#4ADE80" CornerRadius="1" RenderTransformOrigin="0,0.5">
+                                    <Border.RenderTransform>
+                                        <ScaleTransform x:Name="PillMediaProgressScale" ScaleX="0" ScaleY="1"/>
+                                    </Border.RenderTransform>
+                                </Border>
+                            </Border>
+                        </Grid>
+
+                        <!-- Pill Page 2: BATTERY CIRCLES -->
+                        <Grid x:Name="PillBatteryPage" Visibility="Collapsed">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <controls:CircularGauge x:Name="PillLaptopRing"
+                                                        Width="24" Height="24"
+                                                        RingThickness="2.6"
+                                                        CompactMode="True"
+                                                        GlyphData="{StaticResource IconLaptop}"
+                                                        RingBrush="#34D399"/>
+                                <TextBlock x:Name="PillLaptopPctText" Text="--%" FontSize="11.5" FontWeight="SemiBold" Typography.NumeralAlignment="Tabular" Foreground="#F8FAFC" VerticalAlignment="Center" Margin="5,0,10,0"/>
+
+                                <StackPanel x:Name="PillBtRingGroup" Orientation="Horizontal" VerticalAlignment="Center" Visibility="Collapsed">
+                                    <controls:CircularGauge x:Name="PillBtRing"
+                                                            Width="24" Height="24"
+                                                            RingThickness="2.6"
+                                                            CompactMode="True"
+                                                            GlyphData="{StaticResource IconHeadphones}"
+                                                            RingBrush="#60A5FA"/>
+                                    <TextBlock x:Name="PillBtPctText" Text="--%" FontSize="11.5" FontWeight="SemiBold" Typography.NumeralAlignment="Tabular" Foreground="#93C5FD" VerticalAlignment="Center" Margin="5,0,0,0"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Grid>
+                    </Grid>
+
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                        <!-- Mini Page Dots -->
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="2,0,2,0">
+                            <Ellipse x:Name="PillDot0" Width="4.5" Height="4.5" Fill="#FFFFFF" Margin="1.5,0"/>
+                            <Ellipse x:Name="PillDot1" Width="4.5" Height="4.5" Fill="#45FFFFFF" Margin="1.5,0"/>
+                            <Ellipse x:Name="PillDot2" Width="4.5" Height="4.5" Fill="#45FFFFFF" Margin="1.5,0"/>
+                        </StackPanel>
+                        <Button Style="{StaticResource IconButtonStyle}"
+                                Width="20" Height="24"
+                                Content="›"
+                                FontSize="13"
+                                ToolTip="Next Island (or scroll wheel / swipe)"
+                                Click="NextIslandBtn_Click"/>
+                    </StackPanel>
+                </Grid>
+
+                <!-- STATE 2: EXPANDED INTERACTIVE DYNAMIC ISLANDS (Click Reveal) -->
+                <StackPanel x:Name="ExpandedDeckView"
+                            Margin="12,10,12,11"
+                            Visibility="Collapsed"
+                            Opacity="0">
+                    <StackPanel.RenderTransform>
+                        <TranslateTransform x:Name="ExpandedSlide" Y="-6"/>
+                    </StackPanel.RenderTransform>
+
+                    <!-- Header (Drag here to move across screens) -->
+                    <Grid x:Name="ExpandedHeaderBar" Background="Transparent" Margin="0,0,0,6">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border x:Name="HeaderIconCircle"
+                                    Width="26" Height="26"
+                                    CornerRadius="13"
+                                    Background="#283B82F6"
+                                    BorderBrush="#5560A5FA"
+                                    BorderThickness="1"
+                                    Margin="0,0,8,0">
+                                <Path x:Name="HeaderIconPath"
+                                      Data="{StaticResource IconHeadphones}"
+                                      Fill="#60A5FA"
+                                      Width="12" Height="12"
+                                      Stretch="Uniform"
+                                      HorizontalAlignment="Center"
+                                      VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock x:Name="IslandTitleText" Text="Audio Island" FontSize="13" FontWeight="Bold" Foreground="#F8FAFC"/>
+                                <TextBlock x:Name="HeaderSubtitle" Text="Checking audio routing..." FontSize="9.8" Foreground="#94A3B8" TextTrimming="CharacterEllipsis" MaxWidth="168"/>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Button x:Name="SwapButton"
+                                    Style="{StaticResource IconButtonStyle}"
+                                    ToolTip="Quick Swap Output: AUX &lt;-&gt; Bluetooth"
+                                    Click="SwapButton_Click">
+                                <Path Data="{StaticResource IconSwap}" Fill="#94A3B8" Width="12" Height="12" Stretch="Uniform"/>
+                            </Button>
+                            <Button x:Name="PinButton"
+                                    Style="{StaticResource IconButtonStyle}"
+                                    ToolTip="Lock Island Open"
+                                    Content="📌"
+                                    FontSize="11"
+                                    Click="PinButton_Click"/>
+                            <Button x:Name="CustomizeBtn"
+                                    Style="{StaticResource IconButtonStyle}"
+                                    ToolTip="Customize Islands"
+                                    Content="⚙"
+                                    FontSize="12.5"
+                                    Click="CustomizeBtn_Click"/>
+                            <Button Style="{StaticResource IconButtonStyle}"
+                                    ToolTip="Collapse to Top Line"
+                                    Content="⌃"
+                                    FontSize="12.5"
+                                    Click="CollapseButton_Click"/>
+                            <Button Style="{StaticResource IconButtonStyle}"
+                                    ToolTip="Exit"
+                                    Content="✕"
+                                    FontSize="11.5"
+                                    Click="CloseButton_Click"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Top iOS 3-Island Switcher Strip -->
+                    <Border x:Name="IslandSwitcherStrip"
+                            CornerRadius="11"
+                            Background="#52080B12"
+                            BorderBrush="#24FFFFFF"
+                            BorderThickness="1"
+                            Padding="3"
+                            Margin="0,0,0,6">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Border x:Name="IslandNavIndicator"
+                                    Grid.Column="0"
+                                    CornerRadius="8"
+                                    Height="23">
+                                <Border.Background>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                        <GradientStop Color="#2563EB" Offset="0"/>
+                                        <GradientStop Color="#1D4ED8" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </Border.Background>
+                                <Border.RenderTransform>
+                                    <TranslateTransform x:Name="IslandNavSlide" X="0"/>
+                                </Border.RenderTransform>
+                            </Border>
+
+                            <Button x:Name="NavAudioBtn" Grid.Column="0" Style="{StaticResource IslandNavPillBtnStyle}" Foreground="#FFFFFF" Click="NavAudioBtn_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <Path Data="{StaticResource IconHeadphones}" Fill="#FFFFFF" Width="12" Height="12" Stretch="Uniform" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="Audio" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                            <Button x:Name="NavMediaBtn" Grid.Column="1" Style="{StaticResource IslandNavPillBtnStyle}" Click="NavMediaBtn_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <Path Data="{StaticResource IconMusic}" Fill="#4ADE80" Width="12" Height="12" Stretch="Uniform" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="Spotify" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                            <Button x:Name="NavBatteryBtn" Grid.Column="2" Style="{StaticResource IslandNavPillBtnStyle}" Click="NavBatteryBtn_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <Path Data="{StaticResource IconBolt}" Fill="#34D399" Width="11" Height="12" Stretch="Uniform" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="Battery" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                        </Grid>
+                    </Border>
+
+                    <!-- MAIN CAROUSEL CONTENT (3 Swipeable Islands) -->
+                    <Grid x:Name="MainDeckHost" ClipToBounds="True">
+                        <Grid.RenderTransform>
+                            <TranslateTransform x:Name="DeckCarouselSlide" X="0"/>
+                        </Grid.RenderTransform>
+
+                        <!-- ISLAND PAGE 0: AUDIO SWITCHER -->
+                        <StackPanel x:Name="AudioIslandPage" Visibility="Visible">
+                            <!-- Outputs | Microphones Sub-Tabs -->
+                            <Border CornerRadius="9"
+                                    Background="#40090D16"
+                                    BorderBrush="#26FFFFFF"
+                                    BorderThickness="1"
+                                    Padding="2"
+                                    Margin="0,0,0,6">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <Border x:Name="TabIndicator" Grid.Column="0" CornerRadius="7" Height="22">
+                                        <Border.Background>
+                                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                                <GradientStop Color="#2563EB" Offset="0"/>
+                                                <GradientStop Color="#1D4ED8" Offset="1"/>
+                                            </LinearGradientBrush>
+                                        </Border.Background>
+                                        <Border.RenderTransform>
+                                            <TranslateTransform x:Name="TabIndicatorSlide" X="0"/>
+                                        </Border.RenderTransform>
+                                    </Border>
+
+                                    <Button x:Name="OutputTabBtn" Grid.Column="0" Height="22" FontSize="11" Style="{StaticResource SegmentTabButtonStyle}" Foreground="#FFFFFF" Content="Outputs" Click="OutputTabBtn_Click"/>
+                                    <Button x:Name="MicTabBtn" Grid.Column="1" Height="22" FontSize="11" Style="{StaticResource SegmentTabButtonStyle}" Content="Microphones" Click="MicTabBtn_Click"/>
+                                </Grid>
+                            </Border>
+
+                            <!-- PANEL 1: OUTPUTS -->
+                            <StackPanel x:Name="OutputsPanel" Visibility="Visible">
+                                <StackPanel.RenderTransform>
+                                    <TranslateTransform x:Name="OutputsPanelSlide" X="0"/>
+                                </StackPanel.RenderTransform>
+
+                                <!-- AUX / Wired Card -->
+                                <Border x:Name="AuxCard" Style="{StaticResource GlassCardStyle}" Padding="8,6" Margin="0,0,0,5">
+                                    <StackPanel>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <Border Width="28" Height="28" CornerRadius="14" Background="#3210B981" BorderBrush="#5510B981" BorderThickness="1" Margin="0,0,8,0">
+                                                <Path Data="{StaticResource IconHeadphones}" Fill="#34D399" Width="13" Height="13" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+
+                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="AUX" FontSize="11.8" FontWeight="SemiBold" Foreground="#F1F5F9"/>
+                                                    <Border x:Name="AuxBadge" CornerRadius="5" Padding="5,1" Margin="6,0,0,0" Background="#064E3B" Visibility="Collapsed">
+                                                        <TextBlock x:Name="AuxBadgeText" Text="ON" FontSize="8.5" FontWeight="Bold" Foreground="#34D399"/>
+                                                    </Border>
+                                                    <TextBlock x:Name="AuxStatusText" Text="Plug 3.5mm" FontSize="9.2" Foreground="#94A3B8" Margin="6,0,0,0" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                                </StackPanel>
+                                                <TextBlock x:Name="AuxDeviceName" Text="No AUX device" FontSize="10.2" Foreground="#CBD5E1" TextTrimming="CharacterEllipsis"/>
+                                            </StackPanel>
+
+                                            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                                <ToggleButton x:Name="AuxMuteToggle" Style="{StaticResource MutePillButtonStyle}" Margin="0,0,5,0" Click="AuxMuteToggle_Click"/>
+                                                <ToggleButton x:Name="AuxToggle" Style="{StaticResource PillToggleStyle}" Click="AuxToggle_Click"/>
+                                            </StackPanel>
+                                        </Grid>
+
+                                        <Grid x:Name="AuxVolumeRow" Margin="0,5,0,0" Visibility="Collapsed">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="32"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="Vol" FontSize="9.5" Foreground="#94A3B8" VerticalAlignment="Center" Margin="2,0,5,0"/>
+                                            <Slider x:Name="AuxVolumeSlider" Grid.Column="1" Margin="2,0,5,0" Foreground="#10B981" Style="{StaticResource FancySliderStyle}" ValueChanged="AuxVolumeSlider_ValueChanged"/>
+                                            <TextBlock x:Name="AuxVolumeLabel" Grid.Column="2" Text="0%" FontSize="10.2" Typography.NumeralAlignment="Tabular" Foreground="#CBD5E1" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                                        </Grid>
+
+                                        <Border x:Name="AuxMeterTrack" Height="2.5" CornerRadius="1.2" Background="#36FFFFFF" Margin="0,4,0,0" Visibility="Collapsed">
+                                            <Border Height="2.5" CornerRadius="1.2" HorizontalAlignment="Stretch" RenderTransformOrigin="0,0.5">
+                                                <Border.Background>
+                                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                                        <GradientStop Color="#10B981" Offset="0"/>
+                                                        <GradientStop Color="#34D399" Offset="1"/>
+                                                    </LinearGradientBrush>
+                                                </Border.Background>
+                                                <Border.RenderTransform><ScaleTransform x:Name="AuxMeterScale" ScaleX="0" ScaleY="1"/></Border.RenderTransform>
+                                            </Border>
+                                        </Border>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Bluetooth Output Card -->
+                                <Border x:Name="BtCard" Style="{StaticResource GlassCardStyle}" Padding="8,6" Margin="0,0,0,5">
+                                    <StackPanel>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <Border Width="28" Height="28" CornerRadius="14" Background="#323B82F6" BorderBrush="#5560A5FA" BorderThickness="1" Margin="0,0,8,0">
+                                                <Path Data="{StaticResource IconBluetooth}" Fill="#60A5FA" Width="13" Height="13" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+
+                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="Bluetooth" FontSize="11.8" FontWeight="SemiBold" Foreground="#F1F5F9"/>
+                                                    <Border x:Name="BtBadge" CornerRadius="5" Padding="5,1" Margin="6,0,0,0" Background="#172554" Visibility="Collapsed">
+                                                        <TextBlock x:Name="BtBadgeText" Text="ON" FontSize="8.5" FontWeight="Bold" Foreground="#60A5FA"/>
+                                                    </Border>
+                                                    <TextBlock x:Name="BtStatusText" Text="Pair headset" FontSize="9.2" Foreground="#94A3B8" Margin="6,0,0,0" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                                </StackPanel>
+                                                <ComboBox x:Name="BtDeviceSelector" Margin="0,2,6,0" Style="{StaticResource DarkComboBoxStyle}" Visibility="Collapsed" SelectionChanged="BtDeviceSelector_SelectionChanged" DropDownClosed="ComboBox_DropDownClosed"/>
+                                                <TextBlock x:Name="BtDeviceName" Text="No Bluetooth paired" FontSize="10.2" Foreground="#CBD5E1" TextTrimming="CharacterEllipsis"/>
+                                            </StackPanel>
+
+                                            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                                <ToggleButton x:Name="BtMuteToggle" Style="{StaticResource MutePillButtonStyle}" Margin="0,0,5,0" Click="BtMuteToggle_Click"/>
+                                                <ToggleButton x:Name="BtToggle" Style="{StaticResource PillToggleStyle}" Click="BtToggle_Click"/>
+                                            </StackPanel>
+                                        </Grid>
+
+                                        <Grid x:Name="BtVolumeRow" Margin="0,5,0,0" Visibility="Collapsed">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="32"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="Vol" FontSize="9.5" Foreground="#94A3B8" VerticalAlignment="Center" Margin="2,0,5,0"/>
+                                            <Slider x:Name="BtVolumeSlider" Grid.Column="1" Margin="2,0,5,0" Foreground="#3B82F6" Style="{StaticResource FancySliderStyle}" ValueChanged="BtVolumeSlider_ValueChanged"/>
+                                            <TextBlock x:Name="BtVolumeLabel" Grid.Column="2" Text="0%" FontSize="10.2" Typography.NumeralAlignment="Tabular" Foreground="#CBD5E1" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                                        </Grid>
+
+                                        <Border x:Name="BtMeterTrack" Height="2.5" CornerRadius="1.2" Background="#36FFFFFF" Margin="0,4,0,0" Visibility="Collapsed">
+                                            <Border Height="2.5" CornerRadius="1.2" HorizontalAlignment="Stretch" RenderTransformOrigin="0,0.5">
+                                                <Border.Background>
+                                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                                        <GradientStop Color="#2563EB" Offset="0"/>
+                                                        <GradientStop Color="#38BDF8" Offset="1"/>
+                                                    </LinearGradientBrush>
+                                                </Border.Background>
+                                                <Border.RenderTransform><ScaleTransform x:Name="BtMeterScale" ScaleX="0" ScaleY="1"/></Border.RenderTransform>
+                                            </Border>
+                                        </Border>
+
+                                        <Button x:Name="BtConnectSettingsBtn" Content="Connect Bluetooth" Margin="0,5,0,0" Padding="8,3" FontSize="10" Style="{StaticResource GlassActionButtonStyle}" Foreground="#93C5FD" Visibility="Collapsed" Click="BtConnectSettingsBtn_Click"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Built-in Speakers Card -->
+                                <Border x:Name="SpeakersCard" Style="{StaticResource GlassCardStyle}" Background="#5C151D2D" Padding="8,6" Margin="0,0,0,5">
+                                    <StackPanel>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <Border Width="28" Height="28" CornerRadius="14" Background="#32F59E0B" BorderBrush="#55F59E0B" BorderThickness="1" Margin="0,0,8,0">
+                                                <Path Data="{StaticResource IconSpeaker}" Fill="#FBBF24" Width="13" Height="13" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+
+                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="Speakers" FontSize="11.5" FontWeight="SemiBold" Foreground="#E2E8F0"/>
+                                                    <TextBlock x:Name="SpeakersStatus" Text="Standby" FontSize="9.2" Foreground="#94A3B8" Margin="6,0,0,0" VerticalAlignment="Center"/>
+                                                </StackPanel>
+                                                <TextBlock x:Name="SpeakersName" Text="Laptop Speakers" FontSize="10.2" Foreground="#CBD5E1" TextTrimming="CharacterEllipsis"/>
+                                            </StackPanel>
+
+                                            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                                <ToggleButton x:Name="SpeakersMuteToggle" Style="{StaticResource MutePillButtonStyle}" Margin="0,0,5,0" Click="SpeakersMuteToggle_Click"/>
+                                                <ToggleButton x:Name="SpeakersToggle" Style="{StaticResource PillToggleStyle}" Click="SpeakersToggle_Click"/>
+                                            </StackPanel>
+                                        </Grid>
+
+                                        <Grid x:Name="SpeakersVolumeRow" Margin="0,5,0,0" Visibility="Collapsed">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="32"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="Vol" FontSize="9.5" Foreground="#94A3B8" VerticalAlignment="Center" Margin="2,0,5,0"/>
+                                            <Slider x:Name="SpeakersVolumeSlider" Grid.Column="1" Margin="2,0,5,0" Foreground="#F59E0B" Style="{StaticResource FancySliderStyle}" ValueChanged="SpeakersVolumeSlider_ValueChanged"/>
+                                            <TextBlock x:Name="SpeakersVolumeLabel" Grid.Column="2" Text="0%" FontSize="10.2" Typography.NumeralAlignment="Tabular" Foreground="#CBD5E1" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                                        </Grid>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Multi-Output Mirror Checkboxes Card (Zero Scrollbars - Compact 2-Column Grid) -->
+                                <Border x:Name="MultiOutputCard" Style="{StaticResource GlassCardStyle}" Background="#4E121B2D" Padding="8,6" Margin="0,0,0,5">
+                                    <StackPanel>
+                                        <Grid Margin="0,0,0,4">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                <Path Data="{StaticResource IconMirror}" Fill="#22D3EE" Width="11" Height="11" Stretch="Uniform" Margin="0,0,5,0"/>
+                                                <TextBlock Text="Multi-Output" FontSize="11.2" FontWeight="SemiBold" Foreground="#F1F5F9"/>
+                                                <Border x:Name="MultiBadge" CornerRadius="5" Padding="5,1" Margin="6,0,0,0" Background="#164E63" Visibility="Collapsed">
+                                                    <TextBlock Text="MIRROR" FontSize="8" FontWeight="Bold" Foreground="#22D3EE"/>
+                                                </Border>
+                                            </StackPanel>
+                                            <Button x:Name="StopMultiBtn" Grid.Column="1" Content="Single" Style="{StaticResource GlassActionButtonStyle}" FontSize="9.5" Padding="7,1.5" Visibility="Collapsed" Click="StopMultiBtn_Click"/>
+                                        </Grid>
+
+                                        <ItemsControl x:Name="MultiOutputItems">
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <UniformGrid Columns="2"/>
+                                                </ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Grid Margin="0,1,4,2">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <CheckBox IsChecked="{Binding IsChecked, Mode=TwoWay}"
+                                                                  IsEnabled="{Binding IsCheckable}"
+                                                                  Style="{StaticResource MultiDeviceCheckBoxStyle}"
+                                                                  Foreground="{Binding TextBrush}"
+                                                                  FontSize="10"
+                                                                  Click="MultiDeviceCheckBox_Click">
+                                                            <TextBlock Text="{Binding DisplayLabel}" TextTrimming="CharacterEllipsis" MaxWidth="106"/>
+                                                        </CheckBox>
+                                                        <ToggleButton Grid.Column="1" IsChecked="{Binding IsMuted, Mode=OneWay}" IsEnabled="{Binding IsCheckable}" Tag="{Binding Id}" Style="{StaticResource MutePillButtonStyle}" Width="22" Height="19" FontSize="9" Margin="3,0,0,0" Click="MultiRowMuteToggle_Click"/>
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+
+                                        <StackPanel x:Name="SyncDelayRow" Margin="0,4,0,0" Visibility="Collapsed">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="40"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="Delay" FontSize="9.5" Foreground="#22D3EE" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                                <Slider x:Name="SyncDelaySlider" Grid.Column="1" Minimum="0" Maximum="350" Value="170" Foreground="#06B6D4" Style="{StaticResource FancySliderStyle}" ValueChanged="SyncDelaySlider_ValueChanged"/>
+                                                <TextBlock x:Name="SyncDelayLabel" Grid.Column="2" Text="170 ms" FontSize="9.8" Typography.NumeralAlignment="Tabular" Foreground="#E2E8F0" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                                            </Grid>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+
+                            <!-- PANEL 2: MICROPHONES -->
+                            <StackPanel x:Name="MicsPanel" Visibility="Collapsed">
+                                <StackPanel.RenderTransform>
+                                    <TranslateTransform x:Name="MicsPanelSlide" X="0"/>
+                                </StackPanel.RenderTransform>
+
+                                <Border Style="{StaticResource GlassCardStyle}" Background="#6B131928" Padding="8,6" Margin="0,0,0,5">
+                                    <StackPanel>
+                                        <Grid Margin="0,0,0,4">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock x:Name="ActiveMicHeaderLabel" Text="Active Mic Level" FontSize="10.2" FontWeight="SemiBold" Foreground="#E2E8F0" TextTrimming="CharacterEllipsis"/>
+                                            <TextBlock x:Name="ActiveMicDbLabel" Grid.Column="1" Text="0%" FontSize="9.8" Typography.NumeralAlignment="Tabular" Foreground="#C084FC" Margin="6,0,0,0"/>
+                                        </Grid>
+                                        <Border Height="4" CornerRadius="2" Background="#28FFFFFF">
+                                            <Border CornerRadius="2" HorizontalAlignment="Stretch" RenderTransformOrigin="0,0.5">
+                                                <Border.Background>
+                                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                                        <GradientStop Color="#8B5CF6" Offset="0"/>
+                                                        <GradientStop Color="#EC4899" Offset="0.7"/>
+                                                        <GradientStop Color="#F43F5E" Offset="1"/>
+                                                    </LinearGradientBrush>
+                                                </Border.Background>
+                                                <Border.RenderTransform><ScaleTransform x:Name="ActiveMicMeterScale" ScaleX="0" ScaleY="1"/></Border.RenderTransform>
+                                            </Border>
+                                        </Border>
+                                    </StackPanel>
+                                </Border>
+
+                                <Border x:Name="AuxMicCard" Style="{StaticResource GlassCardStyle}" Padding="8,6" Margin="0,0,0,5" Visibility="Collapsed">
+                                    <StackPanel>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Border Width="28" Height="28" CornerRadius="14" Background="#32A855F7" BorderBrush="#55A855F7" BorderThickness="1" Margin="0,0,8,0">
+                                                <Path Data="{StaticResource IconMic}" Fill="#E879F9" Width="13" Height="13" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="AUX Mic" FontSize="11.5" FontWeight="SemiBold" Foreground="#F1F5F9"/>
+                                                    <Border x:Name="AuxMicBadge" CornerRadius="5" Padding="5,1" Margin="6,0,0,0" Background="#3B0764" Visibility="Collapsed">
+                                                        <TextBlock Text="LIVE" FontSize="8.5" FontWeight="Bold" Foreground="#E879F9"/>
+                                                    </Border>
+                                                    <TextBlock x:Name="AuxMicStatus" Text="Unavailable" FontSize="9.2" Foreground="#94A3B8" Margin="6,0,0,0" VerticalAlignment="Center"/>
+                                                </StackPanel>
+                                                <TextBlock x:Name="AuxMicName" Text="No wired mic" FontSize="10.2" Foreground="#CBD5E1" TextTrimming="CharacterEllipsis"/>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                                <ToggleButton x:Name="AuxMicMuteToggle" Style="{StaticResource MutePillButtonStyle}" Margin="0,0,5,0" Click="AuxMicMuteToggle_Click"/>
+                                                <ToggleButton x:Name="AuxMicToggle" Style="{StaticResource PillToggleStyle}" Click="AuxMicToggle_Click"/>
+                                            </StackPanel>
+                                        </Grid>
+                                        <Grid x:Name="AuxMicVolumeRow" Margin="0,5,0,0" Visibility="Collapsed">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="32"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="Gain" FontSize="9.5" Foreground="#94A3B8" VerticalAlignment="Center" Margin="2,0,5,0"/>
+                                            <Slider x:Name="AuxMicSlider" Grid.Column="1" Margin="2,0,5,0" Foreground="#A855F7" Style="{StaticResource FancySliderStyle}" ValueChanged="AuxMicSlider_ValueChanged"/>
+                                            <TextBlock x:Name="AuxMicVolLabel" Grid.Column="2" Text="0%" FontSize="10.2" Typography.NumeralAlignment="Tabular" Foreground="#CBD5E1" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                                        </Grid>
+                                    </StackPanel>
+                                </Border>
+
+                                <Border x:Name="BtMicCard" Style="{StaticResource GlassCardStyle}" Padding="8,6" Margin="0,0,0,5">
+                                    <StackPanel>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Border Width="28" Height="28" CornerRadius="14" Background="#323B82F6" BorderBrush="#55C084FC" BorderThickness="1" Margin="0,0,8,0">
+                                                <Path Data="{StaticResource IconBluetooth}" Fill="#C084FC" Width="13" Height="13" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="Bluetooth Mic" FontSize="11.5" FontWeight="SemiBold" Foreground="#F1F5F9"/>
+                                                    <Border x:Name="BtMicBadge" CornerRadius="5" Padding="5,1" Margin="6,0,0,0" Background="#3B0764" Visibility="Collapsed">
+                                                        <TextBlock Text="LIVE" FontSize="8.5" FontWeight="Bold" Foreground="#E879F9"/>
+                                                    </Border>
+                                                    <TextBlock x:Name="BtMicStatus" Text="Hands-Free" FontSize="9.2" Foreground="#94A3B8" Margin="6,0,0,0" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                                </StackPanel>
+                                                <ComboBox x:Name="BtMicSelector" Margin="0,2,6,0" Style="{StaticResource DarkComboBoxStyle}" Visibility="Collapsed" SelectionChanged="BtMicSelector_SelectionChanged" DropDownClosed="ComboBox_DropDownClosed"/>
+                                                <TextBlock x:Name="BtMicName" Text="No Bluetooth mic" FontSize="10.2" Foreground="#CBD5E1" TextTrimming="CharacterEllipsis"/>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                                <ToggleButton x:Name="BtMicMuteToggle" Style="{StaticResource MutePillButtonStyle}" Margin="0,0,5,0" Click="BtMicMuteToggle_Click"/>
+                                                <ToggleButton x:Name="BtMicToggle" Style="{StaticResource PillToggleStyle}" Click="BtMicToggle_Click"/>
+                                            </StackPanel>
+                                        </Grid>
+                                        <Grid x:Name="BtMicVolumeRow" Margin="0,5,0,0" Visibility="Collapsed">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="32"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="Gain" FontSize="9.5" Foreground="#94A3B8" VerticalAlignment="Center" Margin="2,0,5,0"/>
+                                            <Slider x:Name="BtMicSlider" Grid.Column="1" Margin="2,0,5,0" Foreground="#C084FC" Style="{StaticResource FancySliderStyle}" ValueChanged="BtMicSlider_ValueChanged"/>
+                                            <TextBlock x:Name="BtMicVolLabel" Grid.Column="2" Text="0%" FontSize="10.2" Typography.NumeralAlignment="Tabular" Foreground="#CBD5E1" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                                        </Grid>
+                                    </StackPanel>
+                                </Border>
+
+                                <Border x:Name="BuiltInMicCard" Style="{StaticResource GlassCardStyle}" Background="#5C151D2D" Padding="8,6" Margin="0,0,0,5">
+                                    <StackPanel>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Border Width="28" Height="28" CornerRadius="14" Background="#32A855F7" BorderBrush="#55A855F7" BorderThickness="1" Margin="0,0,8,0">
+                                                <Path Data="{StaticResource IconMic}" Fill="#C084FC" Width="13" Height="13" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="Laptop Mic" FontSize="11.5" FontWeight="SemiBold" Foreground="#E2E8F0"/>
+                                                    <TextBlock x:Name="BuiltInMicStatus" Text="Standby" FontSize="9.2" Foreground="#94A3B8" Margin="6,0,0,0" VerticalAlignment="Center"/>
+                                                </StackPanel>
+                                                <TextBlock x:Name="BuiltInMicName" Text="Laptop Microphone Array" FontSize="10.2" Foreground="#CBD5E1" TextTrimming="CharacterEllipsis"/>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                                <ToggleButton x:Name="BuiltInMicMuteToggle" Style="{StaticResource MutePillButtonStyle}" Margin="0,0,5,0" Click="BuiltInMicMuteToggle_Click"/>
+                                                <ToggleButton x:Name="BuiltInMicToggle" Style="{StaticResource PillToggleStyle}" Click="BuiltInMicToggle_Click"/>
+                                            </StackPanel>
+                                        </Grid>
+                                        <Grid x:Name="BuiltInMicVolumeRow" Margin="0,5,0,0" Visibility="Collapsed">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="32"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="Gain" FontSize="9.5" Foreground="#94A3B8" VerticalAlignment="Center" Margin="2,0,5,0"/>
+                                            <Slider x:Name="BuiltInMicSlider" Grid.Column="1" Margin="2,0,5,0" Foreground="#A855F7" Style="{StaticResource FancySliderStyle}" ValueChanged="BuiltInMicSlider_ValueChanged"/>
+                                            <TextBlock x:Name="BuiltInMicVolLabel" Grid.Column="2" Text="0%" FontSize="10.2" Typography.NumeralAlignment="Tabular" Foreground="#CBD5E1" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                                        </Grid>
+                                    </StackPanel>
+                                </Border>
+
+                                <Border x:Name="OtherMicCard" Style="{StaticResource GlassCardStyle}" Background="#5C151D2D" Padding="8,6" Margin="0,0,0,5" Visibility="Collapsed">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Margin="0,0,8,0">
+                                            <TextBlock Text="Other / Virtual Mic" FontSize="9.5" Foreground="#94A3B8" Margin="0,0,0,2"/>
+                                            <ComboBox x:Name="OtherMicSelector" Style="{StaticResource DarkComboBoxStyle}" SelectionChanged="OtherMicSelector_SelectionChanged" DropDownClosed="ComboBox_DropDownClosed"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Bottom">
+                                            <ToggleButton x:Name="OtherMicMuteToggle" Style="{StaticResource MutePillButtonStyle}" Margin="0,0,5,0" Click="OtherMicMuteToggle_Click"/>
+                                            <ToggleButton x:Name="OtherMicToggle" Style="{StaticResource PillToggleStyle}" Click="OtherMicToggle_Click"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+
+                                <CheckBox x:Name="ShowAuxMicCheck" IsChecked="False" Content="Show AUX jack mic (wired headset)" Foreground="#94A3B8" FontSize="9.8" Margin="2,0,0,5" Checked="ShowAuxMicCheck_Changed" Unchecked="ShowAuxMicCheck_Changed"/>
+                            </StackPanel>
+
+                            <!-- Options & Live Status Footer -->
+                            <Border CornerRadius="10" Background="#46090D16" BorderBrush="#26FFFFFF" BorderThickness="1" Padding="8,5">
+                                <StackPanel>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <CheckBox x:Name="AutoMuteCheck" IsChecked="True" Content="Auto-mute idle" Foreground="#CBD5E1" FontSize="10" VerticalContentAlignment="Center" Checked="AutoMuteCheck_Changed" Unchecked="AutoMuteCheck_Changed"/>
+                                        <CheckBox x:Name="HardDisableAuxCheck" Grid.Column="1" IsChecked="False" Content="Disable AUX" ToolTip="Disable the AUX endpoint in Windows when turned off" Foreground="#CBD5E1" FontSize="10" VerticalContentAlignment="Center" Checked="HardDisableAuxCheck_Changed" Unchecked="HardDisableAuxCheck_Changed"/>
+                                    </Grid>
+                                    <TextBlock x:Name="StatusBanner" Text="Click &amp; drag left/right to slide islands" FontSize="9.5" Foreground="#93C5FD" TextTrimming="CharacterEllipsis" Margin="0,2,0,0"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+
+                        <!-- ISLAND PAGE 1: SPOTIFY / MEDIA ISLAND -->
+                        <StackPanel x:Name="MediaIslandPage" Visibility="Collapsed">
+                            <Border Style="{StaticResource GlassCardStyle}" Background="#4A0D131F" Padding="10" Margin="0,0,0,6">
+                                <StackPanel>
+                                    <Grid Margin="0,0,0,8">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <Border Width="48" Height="48" CornerRadius="8" Background="#321DB954" BorderBrush="#3CFFFFFF" BorderThickness="1" ClipToBounds="True" Margin="0,0,10,0">
+                                            <Grid>
+                                                <Path x:Name="MediaFallbackIcon" Data="{StaticResource IconMusic}" Fill="#4ADE80" Width="22" Height="22" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                <Image x:Name="MediaAlbumArt" Stretch="UniformToFill" Visibility="Collapsed"/>
+                                            </Grid>
+                                        </Border>
+
+                                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                            <StackPanel Orientation="Horizontal" Margin="0,0,0,2">
+                                                <Border x:Name="MediaSourceBadge" CornerRadius="5" Padding="6,1.5" Margin="0,0,6,0" Background="#14532D" Visibility="Collapsed">
+                                                    <TextBlock x:Name="MediaSourceText" Text="Spotify" FontSize="8.8" FontWeight="Bold" Foreground="#4ADE80"/>
+                                                </Border>
+                                                <TextBlock x:Name="MediaStatusTag" Text="Nothing Playing" FontSize="9.8" Foreground="#94A3B8" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                            <TextBlock x:Name="MediaTitleText" Text="Play Spotify, YouTube, or any media" FontSize="12.5" FontWeight="Bold" Foreground="#F8FAFC" TextTrimming="CharacterEllipsis"/>
+                                            <TextBlock x:Name="MediaArtistText" Text="Live controls appear automatically" FontSize="10.5" Foreground="#CBD5E1" TextTrimming="CharacterEllipsis" Margin="0,1,0,0"/>
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <!-- Real-time SMTC Timeline Progress Bar -->
+                                    <StackPanel Margin="0,0,0,8">
+                                        <Border Height="3.5" CornerRadius="1.8" Background="#22FFFFFF" ClipToBounds="True">
+                                            <Border x:Name="MediaProgressFill" CornerRadius="1.8" RenderTransformOrigin="0,0.5">
+                                                <Border.Background>
+                                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                                        <GradientStop x:Name="MediaProgressStart" Color="#22C55E" Offset="0"/>
+                                                        <GradientStop x:Name="MediaProgressEnd" Color="#4ADE80" Offset="1"/>
+                                                    </LinearGradientBrush>
+                                                </Border.Background>
+                                                <Border.RenderTransform>
+                                                    <ScaleTransform x:Name="MediaProgressScale" ScaleX="0" ScaleY="1"/>
+                                                </Border.RenderTransform>
+                                            </Border>
+                                        </Border>
+                                        <Grid Margin="0,3,0,0">
+                                            <TextBlock x:Name="MediaElapsedText" Text="0:00" FontSize="9.2" Typography.NumeralAlignment="Tabular" Foreground="#94A3B8" HorizontalAlignment="Left"/>
+                                            <TextBlock x:Name="MediaDurationText" Text="--:--" FontSize="9.2" Typography.NumeralAlignment="Tabular" Foreground="#94A3B8" HorizontalAlignment="Right"/>
+                                        </Grid>
+                                    </StackPanel>
+
+                                    <!-- iOS Circular Transport Bar -->
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                        <Button x:Name="MediaPrevBtn" Style="{StaticResource GlassActionButtonStyle}" Width="34" Height="34" Padding="0" Margin="0,0,12,0" ToolTip="Previous" Click="MediaPrevBtn_Click">
+                                            <Path Data="{StaticResource IconPrev}" Fill="#E2E8F0" Width="13" Height="13" Stretch="Uniform"/>
+                                        </Button>
+                                        <Button x:Name="MediaPlayPauseBtn" Style="{StaticResource GlassActionButtonStyle}" Width="40" Height="40" Padding="0" Background="#E6FFFFFF" BorderBrush="#FFFFFF" ToolTip="Play / Pause" Click="MediaPlayPauseBtn_Click">
+                                            <Path x:Name="MediaPlayPauseIcon" Data="{StaticResource IconPlay}" Fill="#0F172A" Width="14" Height="14" Stretch="Uniform"/>
+                                        </Button>
+                                        <Button x:Name="MediaNextBtn" Style="{StaticResource GlassActionButtonStyle}" Width="34" Height="34" Padding="0" Margin="12,0,0,0" ToolTip="Next" Click="MediaNextBtn_Click">
+                                            <Path Data="{StaticResource IconNext}" Fill="#E2E8F0" Width="13" Height="13" Stretch="Uniform"/>
+                                        </Button>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Quick Listening Output Strip inside Spotify Island -->
+                            <Border Style="{StaticResource GlassCardStyle}" Background="#400B101B" Padding="9,6">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Width="24" Height="24" CornerRadius="12" Background="#283B82F6" Margin="0,0,8,0">
+                                        <Path Data="{StaticResource IconHeadphones}" Fill="#60A5FA" Width="11" Height="11" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                        <TextBlock Text="Listening On" FontSize="9" Foreground="#94A3B8"/>
+                                        <TextBlock x:Name="MediaOutputRouteText" Text="AUX" FontSize="11" FontWeight="SemiBold" Foreground="#F1F5F9" TextTrimming="CharacterEllipsis"/>
+                                    </StackPanel>
+                                    <Button Grid.Column="2" Content="Swap ⇄" FontSize="10" Padding="9,3" Style="{StaticResource GlassActionButtonStyle}" Click="SwapButton_Click"/>
+                                </Grid>
+                            </Border>
+                        </StackPanel>
+
+                        <!-- ISLAND PAGE 2: BATTERY CIRCLES & SYSTEM -->
+                        <StackPanel x:Name="BatteryIslandPage" Visibility="Collapsed">
+                            <!-- iOS Circular Battery Rings -->
+                            <Border Style="{StaticResource GlassCardStyle}" Background="#4A0D131F" Padding="9,7" Margin="0,0,0,6">
+                                <StackPanel>
+                                    <TextBlock Text="Devices &amp; Power" FontSize="10.8" FontWeight="SemiBold" Foreground="#CBD5E1" Margin="0,0,0,6"/>
+                                    <WrapPanel HorizontalAlignment="Center">
+                                        <StackPanel x:Name="LaptopRingCard" Width="82" Margin="3,0,3,2" HorizontalAlignment="Center">
+                                            <controls:CircularGauge x:Name="DeckLaptopRing"
+                                                                    Width="54" Height="54"
+                                                                    RingThickness="4.2"
+                                                                    GlyphData="{StaticResource IconLaptop}"
+                                                                    RingBrush="#34D399"
+                                                                    HorizontalAlignment="Center"/>
+                                            <TextBlock x:Name="DeckLaptopStateText" Text="Laptop" FontSize="10" FontWeight="SemiBold" Foreground="#F1F5F9" HorizontalAlignment="Center" Margin="0,4,0,0"/>
+                                            <TextBlock x:Name="DeckLaptopSubText" Text="Checking..." FontSize="9" Foreground="#94A3B8" HorizontalAlignment="Center"/>
+                                        </StackPanel>
+
+                                        <ItemsControl x:Name="DeckBtBatteryRings">
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel Width="82" Margin="3,0,3,2" HorizontalAlignment="Center">
+                                                        <controls:CircularGauge Width="54" Height="54"
+                                                                                RingThickness="4.2"
+                                                                                Percent="{Binding Percent}"
+                                                                                DisplayText="{Binding PercentText}"
+                                                                                GlyphData="{StaticResource IconHeadphones}"
+                                                                                RingBrush="#60A5FA"
+                                                                                HorizontalAlignment="Center"/>
+                                                        <TextBlock Text="{Binding Name}" FontSize="10" FontWeight="SemiBold" Foreground="#F1F5F9" TextTrimming="CharacterEllipsis" MaxWidth="78" HorizontalAlignment="Center" Margin="0,4,0,0"/>
+                                                        <TextBlock Text="Bluetooth" FontSize="9" Foreground="#93C5FD" HorizontalAlignment="Center"/>
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </WrapPanel>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- System Performance Rings + Clock -->
+                            <Border Style="{StaticResource GlassCardStyle}" Background="#480E1422" Padding="9,7">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Margin="0,0,10,0" HorizontalAlignment="Center">
+                                        <controls:CircularGauge x:Name="DeckRamRing" Width="48" Height="48" RingThickness="4" GlyphData="{StaticResource IconChip}" RingBrush="#A855F7"/>
+                                        <TextBlock Text="RAM" FontSize="9.5" FontWeight="Medium" Foreground="#CBD5E1" HorizontalAlignment="Center" Margin="0,3,0,0"/>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="1" Margin="0,0,10,0" HorizontalAlignment="Center">
+                                        <controls:CircularGauge x:Name="DeckCpuRing" Width="48" Height="48" RingThickness="4" GlyphData="{StaticResource IconBolt}" RingBrush="#22D3EE"/>
+                                        <TextBlock Text="CPU" FontSize="9.5" FontWeight="Medium" Foreground="#CBD5E1" HorizontalAlignment="Center" Margin="0,3,0,0"/>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right">
+                                        <TextBlock x:Name="DeckClockText" Text="12:00 PM" FontSize="17" FontWeight="Bold" Typography.NumeralAlignment="Tabular" Foreground="#F8FAFC" HorizontalAlignment="Right"/>
+                                        <TextBlock x:Name="DeckDateText" Text="Today" FontSize="9.8" Foreground="#94A3B8" HorizontalAlignment="Right"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- CUSTOMIZE WIDGETS DRAWER -->
+                    <StackPanel x:Name="CustomizePanel" Visibility="Collapsed">
+                        <StackPanel.RenderTransform>
+                            <TranslateTransform x:Name="CustomizePanelSlide" X="0"/>
+                        </StackPanel.RenderTransform>
+
+                        <Border Style="{StaticResource GlassCardStyle}" Padding="9,7" Margin="0,0,0,6">
+                            <StackPanel>
+                                <TextBlock Text="Dynamic Islands" FontSize="11.2" FontWeight="SemiBold" Foreground="#F8FAFC" Margin="0,0,0,5"/>
+                                <CheckBox x:Name="OptMediaPlayerCheck" Content="Spotify / Media Island" FontSize="10.2" Margin="0,0,0,3" Checked="CustomizeOption_Changed" Unchecked="CustomizeOption_Changed"/>
+                                <CheckBox x:Name="OptLaptopBatCheck" Content="Battery &amp; System Island" FontSize="10.2" Margin="0,0,0,3" Checked="CustomizeOption_Changed" Unchecked="CustomizeOption_Changed"/>
+                                <CheckBox x:Name="OptBtBatCheck" Content="Bluetooth Headset Battery Rings" FontSize="10.2" Margin="0,0,0,3" Checked="CustomizeOption_Changed" Unchecked="CustomizeOption_Changed"/>
+                                <CheckBox x:Name="OptSysStatsCheck" Content="Clock, RAM &amp; CPU Rings" FontSize="10.2" Margin="0,0,0,3" Checked="CustomizeOption_Changed" Unchecked="CustomizeOption_Changed"/>
+                                <CheckBox x:Name="OptSpeakersCheck" Content="Laptop Speakers Card" FontSize="10.2" Margin="0,0,0,3" Checked="CustomizeOption_Changed" Unchecked="CustomizeOption_Changed"/>
+                                <CheckBox x:Name="OptMultiOutputCheck" Content="Multi-Output Checkboxes" FontSize="10.2" Checked="CustomizeOption_Changed" Unchecked="CustomizeOption_Changed"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource GlassCardStyle}" Padding="9,7" Margin="0,0,0,6">
+                            <StackPanel>
+                                <TextBlock Text="Hover Pill" FontSize="11.2" FontWeight="SemiBold" Foreground="#F8FAFC" Margin="0,0,0,5"/>
+                                <CheckBox x:Name="OptPillEqCheck" Content="Live Audio Equalizer Bars" FontSize="10.2" Margin="0,0,0,3" Checked="CustomizeOption_Changed" Unchecked="CustomizeOption_Changed"/>
+                                <CheckBox x:Name="OptPillMediaCheck" Content="Sync Active Song on Pill Switch" FontSize="10.2" Margin="0,0,0,3" Checked="CustomizeOption_Changed" Unchecked="CustomizeOption_Changed"/>
+                                <CheckBox x:Name="OptPillBatCheck" Content="Show Mini Rings on Battery Pill" FontSize="10.2" Checked="CustomizeOption_Changed" Unchecked="CustomizeOption_Changed"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Button Content="Reset" FontSize="10.2" Padding="10,4" Style="{StaticResource GlassActionButtonStyle}" HorizontalAlignment="Left" Click="ResetCustomizeBtn_Click"/>
+                            <Button Grid.Column="1" Content="← Done" FontSize="10.2" Padding="12,4" Style="{StaticResource GlassActionButtonStyle}" Background="#552563EB" BorderBrush="#7760A5FA" Foreground="#FFFFFF" Click="CustomizeDoneBtn_Click"/>
+                        </Grid>
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>
