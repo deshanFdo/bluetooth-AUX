@@ -91,9 +91,9 @@
                 </LinearGradientBrush>
             </Border.BorderBrush>
 
-            <Grid>
+            <Grid x:Name="IslandContentGrid" SizeChanged="IslandContentGrid_SizeChanged">
                 <!-- Smoked Obsidian Apple HIG Dynamic Island Surface -->
-                <Border x:Name="GlassSurface" Opacity="0" IsHitTestVisible="False">
+                <Border x:Name="GlassSurface" CornerRadius="19" Opacity="0" IsHitTestVisible="False">
                     <Border.Background>
                         <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
                             <GradientStop Color="#EB06080D" Offset="0"/>
@@ -104,7 +104,7 @@
                 </Border>
 
                 <!-- Diagonal Glass Reflection Sheen -->
-                <Border x:Name="GlassSheen" Opacity="0" IsHitTestVisible="False">
+                <Border x:Name="GlassSheen" CornerRadius="19" Opacity="0" IsHitTestVisible="False">
                     <Border.Background>
                         <LinearGradientBrush StartPoint="0,0" EndPoint="0.8,1">
                             <GradientStop Color="#24FFFFFF" Offset="0"/>
@@ -115,7 +115,7 @@
                 </Border>
 
                 <!-- Subtle Ambient Route Glass Tint -->
-                <Border x:Name="AmbientGlassGlow" Opacity="0" IsHitTestVisible="False">
+                <Border x:Name="AmbientGlassGlow" CornerRadius="19" Opacity="0" IsHitTestVisible="False">
                     <Border.Background>
                         <RadialGradientBrush GradientOrigin="0.18,0.12" Center="0.18,0.12" RadiusX="0.75" RadiusY="0.75">
                             <GradientStop x:Name="AmbientGlowColorStop" Color="#3B82F6" Offset="0"/>
@@ -135,7 +135,7 @@
                     </Border.Background>
                 </Border>
 
-                <!-- STATE 0: THIN GLOWING TOP-EDGE LINE -->
+                <!-- STATE 0: THIN GLOWING TOP-EDGE LINE (Near-invisible when resting) -->
                 <Grid x:Name="ThinLineView" VerticalAlignment="Top" Height="14" Cursor="Hand" Visibility="Visible">
                     <Border x:Name="ThinLineBar"
                             Width="96"

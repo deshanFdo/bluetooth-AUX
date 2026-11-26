@@ -32,8 +32,8 @@ public partial class MainWindow : Window
 
     private const double LineWidth = 120;
     private const double LineHeight = 14;
-    private const double PillWidth = 286;
-    private const double PillHeight = 38;
+    private const double PillWidth = 282;
+    private const double PillHeight = 40;
     private const double ExpandedWidth = 348;
 
     private readonly AudioRouterService _router = new();
@@ -462,10 +462,11 @@ public partial class MainWindow : Window
         }
 
         double corner = _state == IslandState.ExpandedDeck
-            ? Math.Clamp(h * 0.5, 19, 24)
-            : Math.Clamp(h * 0.5, 7, 19);
+            ? Math.Clamp(h * 0.5, 20, 26)
+            : Math.Clamp(h * 0.5, 7, 20);
         IslandShell.CornerRadius = new CornerRadius(corner);
         IslandShell.Margin = new Thickness(0, Math.Max(0, _springMarginTop.Value), 0, 18);
+        UpdateRoundedInnerClip(corner);
 
         double g = Math.Clamp(_springGlass.Value, 0, 1);
         GlassSurface.Opacity = g;
@@ -507,6 +508,26 @@ public partial class MainWindow : Window
                 IslandShell.BorderThickness = new Thickness(0);
             }
         }
+    }
+
+    private void IslandContentGrid_SizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        double radius = _state == IslandState.ExpandedDeck ? 26 : IslandShell.CornerRadius.TopLeft;
+        UpdateRoundedInnerClip(radius);
+    }
+
+    private void UpdateRoundedInnerClip(double outerCorner)
+    {
+        double cw = IslandContentGrid.ActualWidth;
+        double ch = IslandContentGrid.ActualHeight;
+        if (cw <= 0 || ch <= 0) return;
+
+        double innerR = Math.Max(0, outerCorner - IslandShell.BorderThickness.Left);
+        var innerRadius = new CornerRadius(innerR);
+        GlassSurface.CornerRadius = innerRadius;
+        GlassSheen.CornerRadius = innerRadius;
+        AmbientGlassGlow.CornerRadius = innerRadius;
+        IslandContentGrid.Clip = new RectangleGeometry(new Rect(0, 0, cw, ch), innerR, innerR);
     }
 
     private void IslandShell_MouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
