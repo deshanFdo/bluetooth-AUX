@@ -1,0 +1,39 @@
+<UserControl x:Class="AudioSwitch.Controls.CircularGauge"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Width="66"
+             Height="66">
+    <Grid>
+        <!-- Subtle Track Circle -->
+        <Ellipse Stroke="#26FFFFFF"
+                 StrokeThickness="{Binding RingThickness, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                 Fill="#200E1525"/>
+
+        <!-- Progress Arc -->
+        <Path x:Name="ProgressArc"
+              Stroke="{Binding RingBrush, RelativeSource={RelativeSource AncestorType=UserControl}}"
+              StrokeThickness="{Binding RingThickness, RelativeSource={RelativeSource AncestorType=UserControl}}"
+              StrokeStartLineCap="Round"
+              StrokeEndLineCap="Round"
+              IsHitTestVisible="False"/>
+
+        <!-- Center Icon + Value -->
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Path x:Name="CenterGlyph"
+                  Data="{Binding GlyphData, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                  Fill="{Binding RingBrush, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                  Width="13"
+                  Height="13"
+                  Stretch="Uniform"
+                  HorizontalAlignment="Center"
+                  Margin="0,0,0,2"/>
+            <TextBlock x:Name="ValueText"
+                       Text="{Binding DisplayText, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                       FontSize="12"
+                       FontWeight="Bold"
+                       Typography.NumeralAlignment="Tabular"
+                       Foreground="#F8FAFC"
+                       HorizontalAlignment="Center"/>
+        </StackPanel>
+    </Grid>
+</UserControl>
