@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 import { ArrowDownToLine } from "lucide-react";
 import DynamicIslandDemo from "@/components/DynamicIslandDemo";
 import CopyShaButton from "@/components/CopyShaButton";
@@ -7,6 +8,7 @@ const INSTALLER_URL =
   "https://0hwpieezbnk7w7cc.public.blob.vercel-storage.com/v1.0.0/AudioSwitch-Setup.exe";
 const PORTABLE_URL =
   "https://0hwpieezbnk7w7cc.public.blob.vercel-storage.com/v1.0.0/AudioSwitch.exe";
+const GITHUB_URL = "https://github.com/deshanFdo/bluetooth-AUX";
 const SHA256_SETUP =
   "9CE219E878D6BE8DEE72C0E611B48E7325B38E1D89D0DFAF60E906DE1B0FFAB9";
 
@@ -41,6 +43,7 @@ const JSON_LD = {
       fileSize: "74.4MB",
       downloadUrl: INSTALLER_URL,
       url: "https://audio-switch.vercel.app",
+      sameAs: [GITHUB_URL],
       description:
         "iOS-style top-of-screen Dynamic Island for Windows 10/11 to switch AUX headphones, Bluetooth headsets, speakers, and microphones, mirror multi-output audio with FIFO sync delay, control Spotify/browser media, and monitor Bluetooth headset battery rings at ~0% idle CPU.",
       author: {
@@ -96,6 +99,14 @@ export default function HomePage() {
             </a>
             <a href="#install" className="hidden transition hover:text-white sm:inline">
               Install
+            </a>
+            <a
+              href={GITHUB_URL}
+              target="_blank"
+              rel="noreferrer"
+              className="hidden transition hover:text-white sm:inline"
+            >
+              GitHub
             </a>
             <a
               href={INSTALLER_URL}
@@ -274,10 +285,24 @@ export default function HomePage() {
       </main>
 
       <footer className="border-t border-white/[0.07] py-6 text-center text-xs text-neutral-500">
-        Audio Switch v1.0.0 · Built by Deshan Fernando ·{" "}
-        <a href="/llms.txt" className="underline decoration-white/20 underline-offset-4 hover:text-neutral-300">
-          llms.txt
-        </a>
+        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-center gap-x-4 gap-y-2 px-6">
+          <span>Audio Switch v1.0.0 · Deshan Fernando</span>
+          <Link href="/about" className="hover:text-neutral-300">
+            About
+          </Link>
+          <Link href="/privacy" className="hover:text-neutral-300">
+            Privacy
+          </Link>
+          <Link href="/contact" className="hover:text-neutral-300">
+            Contact
+          </Link>
+          <a href={GITHUB_URL} target="_blank" rel="noreferrer" className="hover:text-neutral-300">
+            GitHub
+          </a>
+          <a href="/llms.txt" className="hover:text-neutral-300">
+            llms.txt
+          </a>
+        </div>
       </footer>
     </div>
   );
