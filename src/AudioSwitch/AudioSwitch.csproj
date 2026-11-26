@@ -14,8 +14,10 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <NoWarn>WFAC010</NoWarn>
     <PublishSingleFile>true</PublishSingleFile>
-    <SelfContained>false</SelfContained>
-    <PublishReadyToRun>true</PublishReadyToRun>
+    <SelfContained>true</SelfContained>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <PublishReadyToRun>false</PublishReadyToRun>
   </PropertyGroup>
 
   <ItemGroup>

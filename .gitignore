@@ -3,7 +3,7 @@ obj/
 .vs/
 *.user
 *.pdb
-dist/AudioSwitch-Setup.exe
+dist/
 dist-test/
 web/node_modules/
 web/.next/

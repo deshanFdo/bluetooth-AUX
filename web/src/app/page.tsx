@@ -8,7 +8,7 @@ const INSTALLER_URL =
 const PORTABLE_URL =
   "https://0hwpieezbnk7w7cc.public.blob.vercel-storage.com/v1.0.0/AudioSwitch.exe";
 const SHA256_SETUP =
-  "C19C3FC444342B322B0D83F3DD0D100070339AD54EB709986B218EB766BFA133";
+  "9CE219E878D6BE8DEE72C0E611B48E7325B38E1D89D0DFAF60E906DE1B0FFAB9";
 
 export default function HomePage() {
   return (
@@ -66,7 +66,7 @@ export default function HomePage() {
             >
               <ArrowDownToLine className="h-4 w-4" />
               Download Installer
-              <span className="font-mono text-xs font-normal text-neutral-600">70.9 MB</span>
+              <span className="font-mono text-xs font-normal text-neutral-600">74.4 MB</span>
             </a>
 
             <a
