@@ -14,12 +14,12 @@
   "redirects": [
     {
       "source": "/download",
-      "destination": "https://0hwpieezbnk7w7cc.public.blob.vercel-storage.com/v1.0.0/AudioSwitch-Setup.exe",
+      "destination": "https://0hwpieezbnk7w7cc.public.blob.vercel-storage.com/v1.0.1/AudioSwitch-Setup.exe",
       "permanent": false
     },
     {
       "source": "/portable",
-      "destination": "https://0hwpieezbnk7w7cc.public.blob.vercel-storage.com/v1.0.0/AudioSwitch.exe",
+      "destination": "https://0hwpieezbnk7w7cc.public.blob.vercel-storage.com/v1.0.1/AudioSwitch.exe",
       "permanent": false
     }
   ]

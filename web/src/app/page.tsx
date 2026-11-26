@@ -5,14 +5,18 @@ import DynamicIslandDemo from "@/components/DynamicIslandDemo";
 import CopyShaButton from "@/components/CopyShaButton";
 
 const INSTALLER_URL =
-  "https://0hwpieezbnk7w7cc.public.blob.vercel-storage.com/v1.0.0/AudioSwitch-Setup.exe";
+  "https://0hwpieezbnk7w7cc.public.blob.vercel-storage.com/v1.0.1/AudioSwitch-Setup.exe";
 const PORTABLE_URL =
-  "https://0hwpieezbnk7w7cc.public.blob.vercel-storage.com/v1.0.0/AudioSwitch.exe";
+  "https://0hwpieezbnk7w7cc.public.blob.vercel-storage.com/v1.0.1/AudioSwitch.exe";
 const GITHUB_URL = "https://github.com/deshanFdo/bluetooth-AUX";
 const SHA256_SETUP =
-  "9CE219E878D6BE8DEE72C0E611B48E7325B38E1D89D0DFAF60E906DE1B0FFAB9";
+  "1E29E4025A906669D2A32578EC925306B3B80FCABDF3054C7FB7FC1BA09843E0";
 
 const FAQS = [
+  {
+    q: "How do I listen through an already-connected Bluetooth headset without unplugging my AUX cable?",
+    a: "Hover the top edge of your screen, click the Audio Switch pill, and toggle Bluetooth on. It switches your Windows default output in <1ms and can mute the idle 3.5mm jack automatically — so you never have to unplug your AUX cable again.",
+  },
   {
     q: "How do I play audio on Bluetooth headphones and wired AUX at the same time in Windows 11 without delay?",
     a: "Audio Switch includes Multi-Output Mirroring backed by user-mode WASAPI loopback capture and a configurable 0–350 ms FIFO sync delay slider (170 ms default), delaying wired AUX output slightly so it lines up with wireless Bluetooth latency.",
@@ -39,7 +43,7 @@ const JSON_LD = {
       name: "Audio Switch",
       applicationCategory: "UtilitiesApplication",
       operatingSystem: "Windows 10, Windows 11 (x64)",
-      softwareVersion: "1.0.0",
+      softwareVersion: "1.0.1",
       fileSize: "74.4MB",
       downloadUrl: INSTALLER_URL,
       url: "https://audio-switch.vercel.app",
@@ -90,7 +94,7 @@ export default function HomePage() {
           <div className="flex items-center gap-2.5">
             <span className="h-2 w-2 rounded-full bg-emerald-400" />
             <span className="text-sm font-semibold tracking-tight text-white">Audio Switch</span>
-            <span className="font-mono text-[11px] text-neutral-500">v1.0.0</span>
+            <span className="font-mono text-[11px] text-neutral-500">v1.0.1</span>
           </div>
 
           <div className="flex items-center gap-6 text-xs text-neutral-400">
@@ -132,9 +136,9 @@ export default function HomePage() {
           </h1>
 
           <p className="mx-auto mt-5 max-w-xl text-[15.5px] leading-relaxed text-neutral-400">
-            Keep a barely-there indicator at the top of your monitor. Hover to expand a compact
-            pill, click to switch AUX, Bluetooth headsets, speakers, and microphones — or slide
-            into Spotify and battery rings.
+            No longer need to unplug your 3.5mm AUX cable from your computer just to listen through
+            a Bluetooth headset that&apos;s already connected — switch between AUX, Bluetooth,
+            speakers, and mics right from here, or slide into Spotify and battery rings.
           </p>
 
           <div className="mt-8 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:flex-wrap sm:items-center">
@@ -259,7 +263,7 @@ export default function HomePage() {
               <div className="min-w-0 rounded-xl border border-white/[0.08] bg-black/50 p-3">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <span className="font-mono text-[10px] uppercase tracking-wider text-neutral-500">
-                    SHA-256 (AudioSwitch-Setup.exe)
+                    SHA-256 (v1.0.1 Installer)
                   </span>
                   <CopyShaButton value={SHA256_SETUP} />
                 </div>
@@ -286,7 +290,7 @@ export default function HomePage() {
 
       <footer className="border-t border-white/[0.07] py-6 text-center text-xs text-neutral-500">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-center gap-x-4 gap-y-2 px-6">
-          <span>Audio Switch v1.0.0 · Deshan Fernando</span>
+          <span>Audio Switch v1.0.1 · Deshan Fernando</span>
           <Link href="/about" className="hover:text-neutral-300">
             About
           </Link>

@@ -14,7 +14,7 @@ const PUBLIC_PASSTHROUGH_PATHS = new Set([
 
 const HOME_MARKDOWN = `# Audio Switch — Dynamic Island for Windows 10 / 11
 
-Lightweight top-of-screen Dynamic Island audio switcher, multi-output sync mirror, live Spotify controller, and Bluetooth battery monitor for Windows 10 and Windows 11 (x64) running at ~0% idle CPU.
+No longer need to unplug your 3.5mm AUX cable from your computer just to listen through an already-connected Bluetooth headset — switch between wired AUX, Bluetooth headsets, speakers, and microphones right from a compact top-of-screen Dynamic Island at ~0% idle CPU.
 
 - **Homepage:** https://audio-switch.vercel.app
 - **Download Windows Installer (74.4 MB, Self-Contained):** https://audio-switch.vercel.app/download

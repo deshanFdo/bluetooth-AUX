@@ -18,8 +18,9 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://audio-switch.vercel.app"),
   title: "Audio Switch — Dynamic Island Audio Switcher & Multi-Output for Windows 11",
   description:
-    "Free lightweight Dynamic Island for Windows 10/11. Switch AUX headphones, Bluetooth headsets, speakers & mics in <1ms, play Bluetooth + wired audio together with sync delay, control Spotify, and monitor headset battery at ~0% idle CPU.",
+    "Free lightweight Dynamic Island for Windows 10/11. Stop unplugging your 3.5mm AUX cable just to listen through an already-connected Bluetooth headset — switch outputs & mics in <1ms, mirror audio with sync delay, control Spotify, and monitor headset battery at ~0% idle CPU.",
   keywords: [
+    "switch AUX and Bluetooth audio without unplugging Windows",
     "Windows 11 Dynamic Island",
     "switch AUX and Bluetooth audio Windows 11",
     "play audio on Bluetooth and wired headphones at same time Windows",

@@ -16,7 +16,7 @@ internal sealed record InstallOptions(
 internal static class InstallerService
 {
     public const string AppDisplayName = "Audio Switch";
-    public const string AppVersion = "1.0.0";
+    public const string AppVersion = "1.0.1";
     public const string PublisherName = "Deshan Fernando";
     public const string RepoUrl = "https://github.com/deshanFdo/bluetooth-AUX";
 
