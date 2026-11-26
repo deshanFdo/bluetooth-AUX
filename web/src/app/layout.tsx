@@ -1,16 +1,23 @@
 import type { Metadata } from "next";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-sans",
+  display: "swap",
+});
+
+const mono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
-  title: "Audio Switch — iOS Dynamic Island Audio & Media Control for Windows 11",
+  title: "Audio Switch — Dynamic Island Audio Control for Windows",
   description:
-    "Unobtrusive top-of-screen Dynamic Island for Windows 10/11. Switch AUX, Bluetooth, Speakers & Microphones, mirror multi-output audio with sync delay, control Spotify, and monitor Bluetooth headset battery rings at ~0% idle CPU.",
-  openGraph: {
-    title: "Audio Switch — Dynamic Island for Windows 11",
-    description:
-      "Instant AUX, Bluetooth & Multi-Output audio switcher, live Spotify island, and Bluetooth battery monitor at ~0% resting CPU.",
-    type: "website",
-  },
+    "Switch AUX, Bluetooth headsets, speakers, and mics from a small top-of-screen Dynamic Island. Mirror devices with sync delay, control Spotify, and monitor battery rings at ~0% idle CPU.",
 };
 
 export default function RootLayout({
@@ -19,8 +26,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
-      <body className="antialiased selection:bg-blue-500/30 selection:text-white">
+    <html lang="en" className={`${inter.variable} ${mono.variable} dark`}>
+      <body className="bg-[#050507] font-sans text-[#f4f4f6] antialiased selection:bg-white/20 selection:text-white">
         {children}
       </body>
     </html>

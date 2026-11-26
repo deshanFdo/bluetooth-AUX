@@ -8,45 +8,44 @@
 
 html,
 body {
-  background-color: #04060b;
-  color: #f8fafc;
+  background-color: #050507;
+  color: #f4f4f6;
   scroll-behavior: smooth;
-  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  font-family: var(--font-sans), "Segoe UI Variable Text", system-ui, sans-serif;
+}
+
+code,
+pre,
+.font-mono {
+  font-family: var(--font-mono), ui-monospace, monospace;
 }
 
 .tabular-nums {
   font-variant-numeric: tabular-nums;
 }
 
-.obsidian-glass {
-  background: linear-gradient(145deg, rgba(6, 8, 13, 0.94), rgba(11, 15, 25, 0.89), rgba(5, 7, 11, 0.94));
-  backdrop-filter: blur(22px);
-  -webkit-backdrop-filter: blur(22px);
+.island-obsidian {
+  background: rgba(8, 10, 15, 0.94);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
 }
 
-.island-keyline {
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.24),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.1),
-    0 24px 60px -15px rgba(0, 0, 0, 0.8);
-}
-
-@keyframes eqPulse {
+@keyframes eqBar {
   0%,
   100% {
-    transform: scaleY(0.32);
+    transform: scaleY(0.28);
   }
   50% {
     transform: scaleY(1);
   }
 }
 
-.animate-eq-1 {
-  animation: eqPulse 0.85s ease-in-out infinite;
+.eq-1 {
+  animation: eqBar 0.8s ease-in-out infinite;
 }
-.animate-eq-2 {
-  animation: eqPulse 0.65s ease-in-out 0.2s infinite;
+.eq-2 {
+  animation: eqBar 0.62s ease-in-out 0.18s infinite;
 }
-.animate-eq-3 {
-  animation: eqPulse 0.95s ease-in-out 0.35s infinite;
+.eq-3 {
+  animation: eqBar 0.92s ease-in-out 0.32s infinite;
 }
