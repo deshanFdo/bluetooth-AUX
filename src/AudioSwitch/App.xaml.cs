@@ -18,13 +18,52 @@ public partial class App : System.Windows.Application
     [DllImport("kernel32.dll")]
     private static extern bool AttachConsole(int dwProcessId);
 
-    protected override void OnStartup(StartupEventArgs e)
+    protected override async void OnStartup(StartupEventArgs e)
     {
         if (e.Args.Contains("--diag", StringComparer.OrdinalIgnoreCase))
         {
             AttachConsole(-1);
             RunDiagnostics();
             Shutdown(0);
+            return;
+        }
+
+        if (e.Args.Contains("--uninstall", StringComparer.OrdinalIgnoreCase))
+        {
+            bool silent = e.Args.Contains("--silent", StringComparer.OrdinalIgnoreCase);
+            if (!silent)
+            {
+                var confirm = System.Windows.MessageBox.Show(
+                    "Remove Audio Switch, its shortcuts, and Windows startup entry?",
+                    "Uninstall Audio Switch",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Question);
+                if (confirm != MessageBoxResult.Yes)
+                {
+                    Shutdown(0);
+                    return;
+                }
+            }
+
+            await InstallerService.UninstallAsync();
+            if (!silent)
+            {
+                System.Windows.MessageBox.Show(
+                    "Audio Switch has been uninstalled.",
+                    "Audio Switch",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+            }
+            Shutdown(0);
+            return;
+        }
+
+        if (InstallerService.IsLaunchedAsSetup(e.Args))
+        {
+            base.OnStartup(e);
+            var setupWindow = new SetupWindow();
+            MainWindow = setupWindow;
+            setupWindow.Show();
             return;
         }
 
