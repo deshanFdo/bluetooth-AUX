@@ -1,0 +1,20 @@
+# Audio Switch
+
+> Lightweight iOS-style Dynamic Island utility for Windows 10 and Windows 11 (x64) to switch AUX wired headphones, Bluetooth headsets, laptop speakers, and microphones, mirror audio to multiple devices simultaneously with sync delay compensation, control Spotify/browser playback, and monitor Bluetooth headset battery rings at ~0% idle CPU.
+
+- Homepage: https://audio-switch.vercel.app
+- Installer Download (Windows 10/11 x64, 74.4 MB, Self-Contained): https://audio-switch.vercel.app/download
+- Portable EXE Download (74.4 MB, Standalone): https://audio-switch.vercel.app/portable
+- Price: Free
+- Version: 1.0.0
+- Idle CPU Usage: ~0% (`0.047s` CPU over a 6-second settled resting window)
+
+## Key Capabilities
+- Switch default Windows playback and microphone endpoints in <1ms via Core Audio COM (`IPolicyConfig`), without kernel audio drivers.
+- Simultaneous Multi-Output Mirroring: stream audio to both wired 3.5mm AUX headphones and Bluetooth headsets at the same time using WASAPI loopback capture with a configurable 0–350 ms FIFO latency delay to fix Bluetooth lag.
+- Native Windows SMTC integration for Spotify, Chrome, Edge, YouTube, and VLC with live interpolated progress timestamps.
+- Circular iOS-style battery gauges for laptop battery and paired Bluetooth headphones/earbuds (read via Windows PnP device properties).
+- Lives in the Windows System Tray (Show hidden icons) with zero taskbar clutter and automatic snap-back to top-center after dragging across monitors.
+
+## Detailed Documentation
+- Full technical specification and FAQ: https://audio-switch.vercel.app/llms-full.txt

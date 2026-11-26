@@ -1,0 +1,25 @@
+# Audio Switch — Complete Technical Reference (v1.0.0)
+
+URL: https://audio-switch.vercel.app
+Direct Windows Installer (`AudioSwitch-Setup.exe`): https://audio-switch.vercel.app/download
+Portable Executable (`AudioSwitch.exe`): https://audio-switch.vercel.app/portable
+SHA-256 (`AudioSwitch-Setup.exe`): 9CE219E878D6BE8DEE72C0E611B48E7325B38E1D89D0DFAF60E906DE1B0FFAB9
+
+## Summary
+Audio Switch solves four common Windows 10/11 desktop audio problems in a single native C# / WPF single-file executable (`net8.0-windows10.0.19041.0`, self-contained x64, zero `.NET` runtime prerequisites):
+1. Fast switching between 3.5mm AUX headphones, Bluetooth headsets, speakers, and microphones without opening Windows Sound Settings.
+2. Playing audio to wired AUX headphones/speakers and Bluetooth headphones simultaneously while compensating for Bluetooth A2DP latency (`0–350 ms` circular FIFO buffer in user-mode WASAPI loopback).
+3. Providing an iOS-inspired Dynamic Island floating at the top edge of the active screen: rests unobtrusively (`~0%` CPU, all background samplers and timers stopped), reveals a rounded capsule on hover, and expands when clicked with horizontal click-and-drag sliding across three views: Audio, Spotify/Media, and Battery/System.
+4. Showing Bluetooth headset battery percentages alongside laptop charge, RAM, CPU, and clock.
+
+## Installation & Removal
+- Per-user install location: `%LocalAppData%\Programs\AudioSwitch\AudioSwitch.exe` (no UAC admin prompt required).
+- Includes Start Menu shortcut, optional Desktop shortcut, optional Run-on-Windows-Startup registry entry (`HKCU\Software\Microsoft\Windows\CurrentVersion\Run`), and native Windows Settings -> Installed Apps uninstaller (`AudioSwitch.exe --uninstall`).
+
+## Frequently Asked Questions
+- How do I play audio on Bluetooth and AUX wired headphones at the same time in Windows 11 without echo?
+  Audio Switch uses WASAPI loopback capture on the primary endpoint and feeds checked secondary endpoints through a ring-buffered `0–350 ms` sync delay slider (`170 ms` default) so wired AUX output waits for Bluetooth wireless latency.
+- Does Audio Switch need .NET or virtual audio cables like VB-Cable installed separately?
+  No. The installer bundles the .NET 8 desktop runtime and native WPF libraries inside one `74.4 MB` self-contained binary and uses native Windows Core Audio APIs rather than virtual audio drivers.
+- How much CPU does Audio Switch use in the background?
+  At rest, timers and WASAPI peak meters are completely stopped (`~0%` steady CPU; measured `0.047s` CPU over 6 wall-clock seconds).

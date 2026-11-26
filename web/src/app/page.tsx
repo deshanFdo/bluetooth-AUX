@@ -10,9 +10,77 @@ const PORTABLE_URL =
 const SHA256_SETUP =
   "9CE219E878D6BE8DEE72C0E611B48E7325B38E1D89D0DFAF60E906DE1B0FFAB9";
 
+const FAQS = [
+  {
+    q: "How do I play audio on Bluetooth headphones and wired AUX at the same time in Windows 11 without delay?",
+    a: "Audio Switch includes Multi-Output Mirroring backed by user-mode WASAPI loopback capture and a configurable 0–350 ms FIFO sync delay slider (170 ms default), delaying wired AUX output slightly so it lines up with wireless Bluetooth latency.",
+  },
+  {
+    q: "Does Audio Switch require installing .NET Runtime or VB-Cable?",
+    a: "No. AudioSwitch-Setup.exe (74.4 MB) bundles the .NET 8 desktop runtime and native WPF libraries into a single self-contained file and uses Windows Core Audio COM directly without virtual audio drivers.",
+  },
+  {
+    q: "How much CPU does it use when minimized or gaming?",
+    a: "Practically zero (~0.047s CPU over 6 seconds measured at rest). Peak meters, telemetry polling, and spring loops stop completely once the pill rests at the top edge.",
+  },
+  {
+    q: "Can I see Bluetooth headphone battery percentage and control Spotify from the pill?",
+    a: "Yes. Click and drag horizontally on the pill or expanded island to slide between Audio routing, Spotify/Chrome/Edge playback controls with live SMTC progress tracking, and circular Laptop + Bluetooth battery rings.",
+  },
+];
+
+const JSON_LD = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "SoftwareApplication",
+      name: "Audio Switch",
+      applicationCategory: "UtilitiesApplication",
+      operatingSystem: "Windows 10, Windows 11 (x64)",
+      softwareVersion: "1.0.0",
+      fileSize: "74.4MB",
+      downloadUrl: INSTALLER_URL,
+      url: "https://audio-switch.vercel.app",
+      description:
+        "iOS-style top-of-screen Dynamic Island for Windows 10/11 to switch AUX headphones, Bluetooth headsets, speakers, and microphones, mirror multi-output audio with FIFO sync delay, control Spotify/browser media, and monitor Bluetooth headset battery rings at ~0% idle CPU.",
+      author: {
+        "@type": "Person",
+        name: "Deshan Fernando",
+      },
+      offers: {
+        "@type": "Offer",
+        price: "0",
+        priceCurrency: "USD",
+      },
+      featureList: [
+        "Instant AUX wired headphone, Bluetooth headset, speaker, and microphone switching via Core Audio COM",
+        "Simultaneous multi-output WASAPI mirroring with 0-350ms sync delay compensation",
+        "Native Windows SMTC Spotify and browser media controls with interpolated progress bar",
+        "Laptop and Bluetooth headset battery percentage rings",
+        "System tray mode with ~0% idle CPU and Windows Settings uninstaller",
+      ],
+    },
+    {
+      "@type": "FAQPage",
+      mainEntity: FAQS.map((item) => ({
+        "@type": "Question",
+        name: item.q,
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: item.a,
+        },
+      })),
+    },
+  ],
+};
+
 export default function HomePage() {
   return (
     <div className="min-h-screen overflow-x-hidden bg-[#050507] text-[#f4f4f6]">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }}
+      />
       {/* Minimal Top Bar */}
       <header className="border-b border-white/[0.07]">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
@@ -191,10 +259,25 @@ export default function HomePage() {
             </div>
           </div>
         </section>
+        {/* Concise FAQ (AEO / GEO Structured Answers) */}
+        <section id="faq" className="mt-16 border-t border-white/[0.08] pt-12">
+          <h2 className="text-base font-semibold text-white">Frequently asked questions</h2>
+          <div className="mt-6 grid gap-x-10 gap-y-6 md:grid-cols-2">
+            {FAQS.map((item) => (
+              <div key={item.q}>
+                <h3 className="text-sm font-medium text-neutral-100">{item.q}</h3>
+                <p className="mt-1.5 text-xs leading-relaxed text-neutral-400">{item.a}</p>
+              </div>
+            ))}
+          </div>
+        </section>
       </main>
 
       <footer className="border-t border-white/[0.07] py-6 text-center text-xs text-neutral-500">
-        Audio Switch v1.0.0 · Built by Deshan Fernando
+        Audio Switch v1.0.0 · Built by Deshan Fernando ·{" "}
+        <a href="/llms.txt" className="underline decoration-white/20 underline-offset-4 hover:text-neutral-300">
+          llms.txt
+        </a>
       </footer>
     </div>
   );
