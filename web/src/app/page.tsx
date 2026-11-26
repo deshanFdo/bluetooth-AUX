@@ -5,7 +5,6 @@ import {
   CheckCircle2,
   Cpu,
   Download,
-  Github,
   Headphones,
   Layers,
   MonitorSmartphone,
@@ -17,10 +16,9 @@ import {
 import DynamicIslandDemo from "@/components/DynamicIslandDemo";
 
 const INSTALLER_URL =
-  "https://github.com/deshanFdo/bluetooth-AUX/releases/latest/download/AudioSwitch-Setup.exe";
+  "https://0hwpieezbnk7w7cc.public.blob.vercel-storage.com/v1.0.0/AudioSwitch-Setup.exe";
 const PORTABLE_URL =
-  "https://github.com/deshanFdo/bluetooth-AUX/releases/latest/download/AudioSwitch.exe";
-const GITHUB_URL = "https://github.com/deshanFdo/bluetooth-AUX";
+  "https://0hwpieezbnk7w7cc.public.blob.vercel-storage.com/v1.0.0/AudioSwitch.exe";
 const SHA256_SETUP =
   "C19C3FC444342B322B0D83F3DD0D100070339AD54EB709986B218EB766BFA133";
 
@@ -92,19 +90,14 @@ export default function HomePage() {
             <a href="#install" className="transition hover:text-white">
               Install Guide
             </a>
-            <a
-              href={GITHUB_URL}
-              target="_blank"
-              rel="noreferrer"
-              className="flex items-center gap-1.5 transition hover:text-white"
-            >
-              <Github className="h-3.5 w-3.5" />
-              GitHub
+            <a href="#verify" className="transition hover:text-white">
+              SHA-256
             </a>
           </nav>
 
           <a
             href={INSTALLER_URL}
+            download="AudioSwitch-Setup.exe"
             className="flex items-center gap-1.5 rounded-full bg-white px-4 py-1.5 text-xs font-semibold text-slate-950 shadow transition hover:scale-[1.03] hover:bg-slate-100"
           >
             <Download className="h-3.5 w-3.5" />
@@ -140,6 +133,7 @@ export default function HomePage() {
             <div className="flex flex-wrap items-center gap-3 pt-1">
               <a
                 href={INSTALLER_URL}
+                download="AudioSwitch-Setup.exe"
                 className="group flex items-center gap-2.5 rounded-2xl bg-gradient-to-r from-blue-600 to-emerald-600 px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-blue-600/25 transition hover:scale-[1.02] hover:brightness-110"
               >
                 <Download className="h-4 w-4 transition group-hover:translate-y-0.5" />
@@ -151,19 +145,17 @@ export default function HomePage() {
 
               <a
                 href={PORTABLE_URL}
+                download="AudioSwitch.exe"
                 className="flex items-center gap-2 rounded-2xl border border-white/15 bg-white/5 px-4 py-3.5 text-sm font-medium text-slate-200 transition hover:bg-white/10 hover:text-white"
               >
                 Portable EXE
               </a>
 
               <a
-                href={GITHUB_URL}
-                target="_blank"
-                rel="noreferrer"
+                href="#install"
                 className="flex items-center gap-2 rounded-2xl border border-white/10 bg-transparent px-4 py-3.5 text-sm font-medium text-slate-400 transition hover:border-white/20 hover:text-white"
               >
-                <Github className="h-4 w-4" />
-                Source
+                Install Guide
               </a>
             </div>
 
@@ -311,7 +303,7 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="rounded-xl border border-white/10 bg-black/40 p-3">
+            <div id="verify" className="rounded-xl border border-white/10 bg-black/40 p-3">
               <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
                 Installer SHA-256 (v1.0.0)
               </p>
@@ -325,15 +317,8 @@ export default function HomePage() {
 
       <footer className="border-t border-white/10 py-8 text-center text-xs text-slate-500">
         <p>
-          Audio Switch v1.0.0 • Open-Source Windows Dynamic Island Utility •{" "}
-          <a
-            href={GITHUB_URL}
-            target="_blank"
-            rel="noreferrer"
-            className="text-slate-300 underline-offset-4 hover:underline"
-          >
-            github.com/deshanFdo/bluetooth-AUX
-          </a>
+          Audio Switch v1.0.0 • Standalone Windows 10/11 Dynamic Island Utility • Built by Deshan
+          Fernando
         </p>
       </footer>
     </div>
