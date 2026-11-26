@@ -97,14 +97,14 @@ export default function DynamicIslandDemo() {
       <div className="relative mx-auto overflow-hidden rounded-2xl border border-white/[0.11] bg-[#0b0d12] shadow-[0_32px_90px_-20px_rgba(0,0,0,0.95)]">
         {/* Top subtle wallpaper backdrop mimicking a clean Windows 11 desktop */}
         <div
-          className="relative flex min-h-[390px] flex-col justify-between px-4 pb-3 pt-2"
+          className="relative flex min-h-[390px] flex-col justify-between px-3 pb-3 pt-2 sm:px-4"
           style={{
             background:
               "radial-gradient(120% 90% at 50% 0%, rgba(30, 41, 59, 0.38) 0%, rgba(11, 13, 18, 0.98) 72%)",
           }}
         >
           {/* Floating Dynamic Island anchored top-center */}
-          <div className="flex flex-col items-center">
+          <div className="flex w-full flex-col items-center">
             <div
               onMouseEnter={() => {
                 if (stage === "rest") setStage("pill");
@@ -112,9 +112,14 @@ export default function DynamicIslandDemo() {
               onPointerDown={onDown}
               onPointerMove={onMove}
               onPointerUp={onUp}
-              className="island-obsidian relative select-none overflow-hidden transition-all duration-300 ease-out"
+              className="island-obsidian relative max-w-full select-none overflow-hidden transition-all duration-300 ease-out"
               style={{
-                width: stage === "rest" ? 104 : stage === "pill" ? 282 : 348,
+                width:
+                  stage === "rest"
+                    ? "104px"
+                    : stage === "pill"
+                    ? "min(100%, 282px)"
+                    : "min(100%, 348px)",
                 minHeight: stage === "rest" ? 4 : stage === "pill" ? 40 : 262,
                 borderRadius: stage === "rest" ? 2 : stage === "pill" ? 20 : 24,
                 marginTop: stage === "rest" ? 0 : 4,

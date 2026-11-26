@@ -12,7 +12,7 @@ const SHA256_SETUP =
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-[#050507] text-[#f4f4f6]">
+    <div className="min-h-screen overflow-x-hidden bg-[#050507] text-[#f4f4f6]">
       {/* Minimal Top Bar */}
       <header className="border-b border-white/[0.07]">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
@@ -58,11 +58,11 @@ export default function HomePage() {
             into Spotify and battery rings.
           </p>
 
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+          <div className="mt-8 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:flex-wrap sm:items-center">
             <a
               href={INSTALLER_URL}
               download="AudioSwitch-Setup.exe"
-              className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-black transition hover:bg-neutral-200"
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-black transition hover:bg-neutral-200"
             >
               <ArrowDownToLine className="h-4 w-4" />
               Download Installer
@@ -72,7 +72,7 @@ export default function HomePage() {
             <a
               href={PORTABLE_URL}
               download="AudioSwitch.exe"
-              className="inline-flex items-center rounded-full border border-white/15 px-5 py-3 text-sm font-medium text-neutral-200 transition hover:border-white/30 hover:text-white"
+              className="inline-flex items-center justify-center rounded-full border border-white/15 px-5 py-3 text-sm font-medium text-neutral-200 transition hover:border-white/30 hover:text-white"
             >
               Portable .exe
             </a>
@@ -131,10 +131,10 @@ export default function HomePage() {
         {/* Specs & Install Sheet */}
         <section
           id="install"
-          className="mt-20 rounded-2xl border border-white/[0.09] bg-[#0a0c10] p-6 sm:p-8"
+          className="mt-20 overflow-hidden rounded-2xl border border-white/[0.09] bg-[#0a0c10] p-5 sm:p-8"
         >
           <div className="grid gap-8 md:grid-cols-2">
-            <div>
+            <div className="min-w-0">
               <h2 className="text-lg font-semibold text-white">Install &amp; SmartScreen</h2>
               <ol className="mt-4 space-y-3 text-sm text-neutral-300">
                 <li>
@@ -143,7 +143,7 @@ export default function HomePage() {
                   <a
                     href={INSTALLER_URL}
                     download="AudioSwitch-Setup.exe"
-                    className="underline decoration-white/30 underline-offset-4 hover:text-white"
+                    className="break-words underline decoration-white/30 underline-offset-4 hover:text-white"
                   >
                     AudioSwitch-Setup.exe
                   </a>
@@ -163,20 +163,22 @@ export default function HomePage() {
               </ol>
             </div>
 
-            <div className="flex flex-col justify-between gap-4 border-t border-white/[0.07] pt-6 md:border-l md:border-t-0 md:pl-8 md:pt-0">
-              <dl className="grid grid-cols-2 gap-y-3 text-xs">
+            <div className="flex min-w-0 flex-col justify-between gap-4 border-t border-white/[0.07] pt-6 md:border-l md:border-t-0 md:pl-8 md:pt-0">
+              <dl className="grid grid-cols-1 gap-y-3 text-xs sm:grid-cols-[132px_minmax(0,1fr)] sm:gap-x-4">
                 <dt className="text-neutral-500">Install directory</dt>
-                <dd className="font-mono text-neutral-200">%LocalAppData%\Programs\AudioSwitch</dd>
+                <dd className="min-w-0 break-all font-mono text-neutral-200">
+                  %LocalAppData%\Programs\AudioSwitch
+                </dd>
                 <dt className="text-neutral-500">Architecture</dt>
-                <dd className="text-neutral-200">Windows 10 / 11 · x64</dd>
+                <dd className="min-w-0 text-neutral-200">Windows 10 / 11 · x64</dd>
                 <dt className="text-neutral-500">Measured idle CPU</dt>
-                <dd className="font-mono text-neutral-200">0.047s / 6s resting</dd>
+                <dd className="min-w-0 font-mono text-neutral-200">0.047s / 6s resting</dd>
                 <dt className="text-neutral-500">License / Cost</dt>
-                <dd className="text-neutral-200">Free</dd>
+                <dd className="min-w-0 text-neutral-200">Free</dd>
               </dl>
 
-              <div className="rounded-xl border border-white/[0.08] bg-black/50 p-3">
-                <div className="flex items-center justify-between gap-2">
+              <div className="min-w-0 rounded-xl border border-white/[0.08] bg-black/50 p-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
                   <span className="font-mono text-[10px] uppercase tracking-wider text-neutral-500">
                     SHA-256 (AudioSwitch-Setup.exe)
                   </span>
