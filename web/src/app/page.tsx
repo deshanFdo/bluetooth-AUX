@@ -5,12 +5,12 @@ import DynamicIslandDemo from "@/components/DynamicIslandDemo";
 import CopyShaButton from "@/components/CopyShaButton";
 
 const INSTALLER_URL =
-  "https://0hwpieezbnk7w7cc.public.blob.vercel-storage.com/v1.0.1/AudioSwitch-Setup.exe";
+  "https://0hwpieezbnk7w7cc.public.blob.vercel-storage.com/v1.0.2/AudioSwitch-Setup.exe";
 const PORTABLE_URL =
-  "https://0hwpieezbnk7w7cc.public.blob.vercel-storage.com/v1.0.1/AudioSwitch.exe";
+  "https://0hwpieezbnk7w7cc.public.blob.vercel-storage.com/v1.0.2/AudioSwitch.exe";
 const GITHUB_URL = "https://github.com/deshanFdo/bluetooth-AUX";
 const SHA256_SETUP =
-  "1E29E4025A906669D2A32578EC925306B3B80FCABDF3054C7FB7FC1BA09843E0";
+  "181DEE6346257AA1E62CA3D28E0B1849B7145B2579E0DE02E0D195F917B73C";
 
 const FAQS = [
   {
@@ -43,7 +43,7 @@ const JSON_LD = {
       name: "Audio Switch",
       applicationCategory: "UtilitiesApplication",
       operatingSystem: "Windows 10, Windows 11 (x64)",
-      softwareVersion: "1.0.1",
+      softwareVersion: "1.0.2",
       fileSize: "74.4MB",
       downloadUrl: INSTALLER_URL,
       url: "https://audio-switch.vercel.app",
@@ -94,7 +94,7 @@ export default function HomePage() {
           <div className="flex items-center gap-2.5">
             <span className="h-2 w-2 rounded-full bg-emerald-400" />
             <span className="text-sm font-semibold tracking-tight text-white">Audio Switch</span>
-            <span className="font-mono text-[11px] text-neutral-500">v1.0.1</span>
+            <span className="font-mono text-[11px] text-neutral-500">v1.0.2</span>
           </div>
 
           <div className="flex items-center gap-6 text-xs text-neutral-400">
@@ -263,7 +263,7 @@ export default function HomePage() {
               <div className="min-w-0 rounded-xl border border-white/[0.08] bg-black/50 p-3">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <span className="font-mono text-[10px] uppercase tracking-wider text-neutral-500">
-                    SHA-256 (v1.0.1 Installer)
+                    SHA-256 (v1.0.2 Installer)
                   </span>
                   <CopyShaButton value={SHA256_SETUP} />
                 </div>
@@ -290,7 +290,7 @@ export default function HomePage() {
 
       <footer className="border-t border-white/[0.07] py-6 text-center text-xs text-neutral-500">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-center gap-x-4 gap-y-2 px-6">
-          <span>Audio Switch v1.0.1 · Deshan Fernando</span>
+          <span>Audio Switch v1.0.2 · Deshan Fernando</span>
           <Link href="/about" className="hover:text-neutral-300">
             About
           </Link>

@@ -2392,6 +2392,7 @@ public partial class MainWindow : Window
             }
             else
             {
+                DeckBtBatteryRings.ItemsSource = null;
                 DeckBtBatteryRings.Visibility = Visibility.Collapsed;
                 PillBtRingGroup.Visibility = Visibility.Collapsed;
             }
