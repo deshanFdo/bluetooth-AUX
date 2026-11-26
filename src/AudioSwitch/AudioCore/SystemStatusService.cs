@@ -33,6 +33,10 @@ internal sealed class SystemStatusService
     private static readonly DevPropKey DevPkeyBluetoothBattery =
         new(new Guid("104EA319-6EE2-4701-BD47-8DDBF425BBE5"), 2);
 
+    // DEVPKEY_Device_IsConnected (DEVPROP_TYPE_BOOLEAN = 17)
+    private static readonly DevPropKey DevPkeyIsConnected =
+        new(new Guid("83DA6326-97A6-4088-9453-A1923F573B29"), 15);
+
     private ulong _prevIdle;
     private ulong _prevKernel;
     private ulong _prevUser;
@@ -89,12 +93,18 @@ internal sealed class SystemStatusService
         {
             var devData = new SpDevInfoData { cbSize = (uint)Marshal.SizeOf<SpDevInfoData>() };
             var batteryKey = DevPkeyBluetoothBattery;
+            var connectedKey = DevPkeyIsConnected;
             var nameKey = DevPkeyFriendlyName;
             var descKey = DevPkeyDeviceDesc;
             byte[] buf = new byte[512];
 
             for (uint index = 0; SetupDiEnumDeviceInfo(devInfo, index, ref devData); index++)
             {
+                if (!IsDeviceConnected(devInfo, ref devData, ref connectedKey, buf))
+                {
+                    continue;
+                }
+
                 if (!SetupDiGetDevicePropertyW(
                         devInfo,
                         ref devData,
@@ -135,6 +145,29 @@ internal sealed class SystemStatusService
         {
             SetupDiDestroyDeviceInfoList(devInfo);
         }
+    }
+
+    private static bool IsDeviceConnected(
+        IntPtr devInfo,
+        ref SpDevInfoData devData,
+        ref DevPropKey connectedKey,
+        byte[] buf)
+    {
+        if (!SetupDiGetDevicePropertyW(
+                devInfo,
+                ref devData,
+                ref connectedKey,
+                out uint propType,
+                buf,
+                (uint)buf.Length,
+                out uint reqSize,
+                0))
+        {
+            return false;
+        }
+
+        // DEVPROP_TYPE_BOOLEAN = 0x11 (17)
+        return reqSize >= 1 && (propType == 17 || propType == 3 || propType == 7) && buf[0] != 0;
     }
 
     private static string? ReadStringProperty(

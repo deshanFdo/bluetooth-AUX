@@ -1,8 +1,8 @@
 # Audio Switch — Dynamic Island Audio & Media Control for Windows
 
 **Live Website & Download:** https://audio-switch.vercel.app  
-**Direct Windows Installer (`v1.0.1`, 74.4 MB, Self-Contained):** https://audio-switch.vercel.app/download  
-**Portable Executable (`v1.0.1`, 74.4 MB):** https://audio-switch.vercel.app/portable
+**Direct Windows Installer (`v1.0.2`, 74.4 MB, Self-Contained):** https://audio-switch.vercel.app/download  
+**Portable Executable (`v1.0.2`, 74.4 MB):** https://audio-switch.vercel.app/portable
 
 Audio Switch is a lightweight Windows 10 / 11 desktop utility that eliminates having to manually unplug your 3.5mm AUX cable just to listen through an already-connected Bluetooth headset. It lives quietly in the Windows System Tray (**Hidden Icons**) and reveals an iOS-inspired **Dynamic Island** at the top center of your active monitor.
 
@@ -54,8 +54,8 @@ Diagnostics check (lists detected endpoints, COM interface probe, and Bluetooth 
 .\dist\AudioSwitch.exe --diag
 ```
 
-### Installer SHA-256 (`v1.0.1`)
+### Installer SHA-256 (`v1.0.2`)
 
 ```text
-1E29E4025A906669D2A32578EC925306B3B80FCABDF3054C7FB7FC1BA09843E0  AudioSwitch-Setup.exe
+181DEE6346257AA1E62CA3D28E0B1849B7145B2579E0DE02E0D195F917B73C  AudioSwitch-Setup.exe
 ```
