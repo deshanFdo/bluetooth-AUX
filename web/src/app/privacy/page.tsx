@@ -25,12 +25,12 @@ export default function PrivacyPage() {
       <p className="mt-4 text-sm leading-relaxed text-neutral-400">
         User preferences and install verification seals are encrypted locally and unreadable as
         plaintext: on Windows,{" "}
-        <code className="break-all text-neutral-200">%LocalAppData%\AudioSwitch\settings.dat</code>{" "}
+        <code className="break-all text-neutral-200">%LocalAppData%\WaveDock\settings.dat</code>{" "}
         and <code className="text-neutral-200">install.sig</code> use{" "}
         <strong className="font-medium text-neutral-200">Windows DPAPI</strong> (
         <code className="text-neutral-200">CryptProtectData</code>, CurrentUser scope) with{" "}
         <code className="text-neutral-200">ReadOnly</code> protection on the installed binary; on
-        Linux, <code className="break-all text-neutral-200">~/.config/AudioSwitch/settings.dat</code>{" "}
+        Linux, <code className="break-all text-neutral-200">~/.config/WaveDock/settings.dat</code>{" "}
         and <code className="text-neutral-200">install.sig</code> use{" "}
         <strong className="font-medium text-neutral-200">AES-256-GCM</strong> authenticated
         encryption with an owner-only (<code className="text-neutral-200">0600</code>) key and{" "}
@@ -51,7 +51,7 @@ export default function PrivacyPage() {
         to execute without Authenticode/PGP signing, every release publishes{" "}
         <strong className="font-medium text-neutral-200">SHA-256 checksums</strong> on the homepage
         and GitHub so you can verify downloaded installers before running them. Uninstalling via
-        Windows Installed Apps, <code className="text-neutral-200">sudo apt purge audioswitch</code>,
+        Windows Installed Apps, <code className="text-neutral-200">sudo apt purge wavedock</code>,
         or <code className="text-neutral-200">--uninstall</code> deletes all application and config files.
       </p>
       <p className="mt-4 text-sm leading-relaxed text-neutral-400">

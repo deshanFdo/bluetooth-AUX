@@ -14,10 +14,15 @@ internal sealed class IslandSettings
 
     private static readonly string SettingsDir = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+        "WaveDock");
+
+    private static readonly string LegacySettingsDir = Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         "AudioSwitch");
 
     private static readonly string EncryptedSettingsPath = Path.Combine(SettingsDir, "settings.dat");
-    private static readonly string LegacyPlainPath = Path.Combine(SettingsDir, "settings.json");
+    private static readonly string LegacyEncryptedPath = Path.Combine(LegacySettingsDir, "settings.dat");
+    private static readonly string LegacyPlainPath = Path.Combine(LegacySettingsDir, "settings.json");
 
     public bool ShowMediaPlayer { get; set; } = true;
     public bool ShowLaptopBattery { get; set; } = true;
@@ -52,6 +57,17 @@ internal sealed class IslandSettings
                 if (plain != null)
                 {
                     return JsonSerializer.Deserialize<IslandSettings>(plain, SafeJsonOptions) ?? new IslandSettings();
+                }
+            }
+            else if (File.Exists(LegacyEncryptedPath))
+            {
+                byte[] protectedBytes = File.ReadAllBytes(LegacyEncryptedPath);
+                byte[]? plain = UnprotectBytes(protectedBytes);
+                if (plain != null)
+                {
+                    var migrated = JsonSerializer.Deserialize<IslandSettings>(plain, SafeJsonOptions) ?? new IslandSettings();
+                    migrated.Save();
+                    return migrated;
                 }
             }
             else if (File.Exists(LegacyPlainPath))

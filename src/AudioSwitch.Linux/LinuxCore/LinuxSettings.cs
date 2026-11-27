@@ -11,6 +11,10 @@ internal sealed class LinuxSettings
 
     public static string ConfigDir => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+        "WaveDock");
+
+    public static string LegacyConfigDir => Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
         "AudioSwitch");
 
     private static string EncryptedPath => Path.Combine(ConfigDir, "settings.dat");

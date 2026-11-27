@@ -58,7 +58,7 @@
             <Border CornerRadius="12" Background="#460C1220" BorderBrush="#24FFFFFF" BorderThickness="1" Padding="12,10" Margin="0,0,0,12">
                 <StackPanel>
                     <TextBlock Text="Install Location" FontSize="10.2" FontWeight="SemiBold" Foreground="#94A3B8" Margin="0,0,0,3"/>
-                    <TextBlock x:Name="InstallPathText" Text="%LocalAppData%\Programs\AudioSwitch" FontSize="11" Foreground="#E2E8F0" TextTrimming="CharacterEllipsis"/>
+                    <TextBlock x:Name="InstallPathText" Text="%LocalAppData%\Programs\WaveDock" FontSize="11" Foreground="#E2E8F0" TextTrimming="CharacterEllipsis"/>
                 </StackPanel>
             </Border>
 

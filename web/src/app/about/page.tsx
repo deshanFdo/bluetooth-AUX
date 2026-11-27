@@ -42,7 +42,7 @@ export default function AboutPage() {
         Settings (<code className="text-neutral-200">settings.dat</code>) and installed binary seals
         (<code className="text-neutral-200">install.sig</code>) are protected with Windows DPAPI or
         Linux AES-256-GCM + read-only permissions, and everything removes cleanly via Installed Apps,{" "}
-        <code className="text-neutral-200">sudo apt purge audioswitch</code>, or{" "}
+        <code className="text-neutral-200">sudo apt purge wavedock</code>, or{" "}
         <code className="text-neutral-200">--uninstall</code>. Full source is published openly on{" "}
         <a
           href="https://github.com/deshanFdo/bluetooth-AUX"

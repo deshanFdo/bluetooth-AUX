@@ -50,22 +50,22 @@
   "redirects": [
     {
       "source": "/download",
-      "destination": "https://github.com/deshanFdo/bluetooth-AUX/releases/download/v1.3.0/AudioSwitch-Setup.exe",
+      "destination": "https://github.com/deshanFdo/bluetooth-AUX/releases/download/v1.3.0/WaveDock-Setup.exe",
       "permanent": false
     },
     {
       "source": "/portable",
-      "destination": "https://github.com/deshanFdo/bluetooth-AUX/releases/download/v1.3.0/AudioSwitch.exe",
+      "destination": "https://github.com/deshanFdo/bluetooth-AUX/releases/download/v1.3.0/WaveDock.exe",
       "permanent": false
     },
     {
       "source": "/download-deb",
-      "destination": "https://github.com/deshanFdo/bluetooth-AUX/releases/download/v1.3.0/audioswitch_1.3.0_amd64.deb",
+      "destination": "https://github.com/deshanFdo/bluetooth-AUX/releases/download/v1.3.0/wavedock_1.3.0_amd64.deb",
       "permanent": false
     },
     {
       "source": "/download-linux",
-      "destination": "https://github.com/deshanFdo/bluetooth-AUX/releases/download/v1.3.0/AudioSwitch-linux-x64.tar.gz",
+      "destination": "https://github.com/deshanFdo/bluetooth-AUX/releases/download/v1.3.0/WaveDock-linux-x64.tar.gz",
       "permanent": false
     }
   ]

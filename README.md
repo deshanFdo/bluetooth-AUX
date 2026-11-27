@@ -29,7 +29,7 @@ WaveDock is a lightweight desktop utility for **Windows 10/11** and **Ubuntu / D
 - **Hardened Local Security, Encryption & Zero-Leftover Uninstaller**
   - Local settings (`settings.dat`) and installed binary integrity seals (`install.sig`) are encrypted with Windows **DPAPI** (`CryptProtectData` + `ReadOnly` attribute) or Linux **AES-256-GCM** (`0500` / `root:root` binary lock).
   - Windows enforces `DefaultDllImportSearchPaths(System32)` (blocks DLL hijacking) and CurrentUser-only `NamedPipeServerStreamAcl`; Linux uses positional `ArgumentList` execution (zero shell interpolation) and validated `MPRIS2` D-Bus names.
-  - Uninstall cleanly via Windows **Installed Apps**, `sudo apt purge audioswitch`, or `AudioSwitch --uninstall`.
+  - Uninstall cleanly via Windows **Installed Apps**, `sudo apt purge wavedock`, or `WaveDock --uninstall`.
 - **Connected-Only Bluetooth Battery Rings & Telemetry**
   - Shows circular gauges exclusively for actively connected Bluetooth headsets (`DEVPKEY_Device_IsConnected` + ContainerId matching on Windows; `org.bluez.Battery1` + UPower on Linux) alongside laptop battery, RAM, CPU, and clock.
 - **Persistent Top-Edge Capsule (`~0%` Idle CPU)**
@@ -54,7 +54,7 @@ WaveDock is a lightweight desktop utility for **Windows 10/11** and **Ubuntu / D
 
 ```powershell
 dotnet publish src/AudioSwitch/AudioSwitch.csproj -c Release -r win-x64 -o dist
-.\dist\AudioSwitch.exe --diag
+.\dist\WaveDock.exe --diag
 ```
 
 ### Ubuntu / Debian Linux (`linux-x64`)
@@ -64,14 +64,14 @@ dotnet publish src/AudioSwitch.Linux/AudioSwitch.Linux.csproj -c Release -r linu
 python3 packaging/linux/build_packages.py
 
 # Install .deb or standalone tarball:
-sudo apt install ./dist-linux/audioswitch_1.3.0_amd64.deb
+sudo apt install ./dist-linux/wavedock_1.3.0_amd64.deb
 ```
 
 ### Artifact SHA-256 Checksums (`v1.3.0`)
 
 ```text
-3F3FD15181C871C8789E94D9C685C2ECAAB92BF165413239497853B3D585DF9B  AudioSwitch-Setup.exe (Windows v1.3.0)
-3F3FD15181C871C8789E94D9C685C2ECAAB92BF165413239497853B3D585DF9B  AudioSwitch.exe (Windows Portable v1.3.0)
-87FCE9DF8A6036FBFD2FB7345DA72A64D1F4D8CDC01CE10CA6B0A8458ED95601  audioswitch_1.3.0_amd64.deb (Linux v1.3.0)
-804DF760AF8F611912948DD906B086C790394AF9FC9F85CBF2561449177E6F87  AudioSwitch-linux-x64.tar.gz (Linux v1.3.0)
+BBB03B3F9CA762FED5813D7B4EE2CBFDAD7D30DE215FBCB15358DE2AE53A0E75  WaveDock-Setup.exe (Windows v1.3.0)
+BBB03B3F9CA762FED5813D7B4EE2CBFDAD7D30DE215FBCB15358DE2AE53A0E75  WaveDock.exe (Windows Portable v1.3.0)
+855F4B3A580BB7227A93114128F225810DC5698E376F9887FFD1559A204D0A22  wavedock_1.3.0_amd64.deb (Linux v1.3.0)
+8CA2441031F20B5FD288BD56D6A588E9DF3917A675FEA0E448C7CED7EA28DE6E  WaveDock-linux-x64.tar.gz (Linux v1.3.0)
 ```

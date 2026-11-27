@@ -24,19 +24,27 @@ internal static class InstallerService
     private static readonly byte[] InstallSealEntropy =
         Encoding.UTF8.GetBytes("AudioSwitch::InstallSeal::v1");
 
-    private const string UninstallRegKey = @"Software\Microsoft\Windows\CurrentVersion\Uninstall\AudioSwitch";
+    private const string UninstallRegKey = @"Software\Microsoft\Windows\CurrentVersion\Uninstall\WaveDock";
+    private const string LegacyUninstallRegKey = @"Software\Microsoft\Windows\CurrentVersion\Uninstall\AudioSwitch";
     private const string RunRegKey = @"Software\Microsoft\Windows\CurrentVersion\Run";
-    private const string RunValueName = "AudioSwitch";
+    private const string RunValueName = "WaveDock";
+    private const string LegacyRunValueName = "AudioSwitch";
 
     public static string DefaultInstallDir =>
-        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", "AudioSwitch");
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", "WaveDock");
 
     public static string SettingsDataDir =>
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "WaveDock");
+
+    private static string LegacyInstallDir =>
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", "AudioSwitch");
+
+    private static string LegacySettingsDataDir =>
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "AudioSwitch");
 
     public static string InstallSealPath => Path.Combine(SettingsDataDir, "install.sig");
 
-    public static string DefaultExePath => Path.Combine(DefaultInstallDir, "AudioSwitch.exe");
+    public static string DefaultExePath => Path.Combine(DefaultInstallDir, "WaveDock.exe");
 
     public static string StartMenuShortcutPath =>
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.StartMenu), "Programs", "WaveDock.lnk");
@@ -149,6 +157,7 @@ internal static class InstallerService
 
         using (var runKey = Registry.CurrentUser.CreateSubKey(RunRegKey))
         {
+            runKey.DeleteValue(LegacyRunValueName, throwOnMissingValue: false);
             if (options.LaunchOnStartup)
             {
                 runKey.SetValue(RunValueName, $"\"{targetExe}\"");
@@ -158,6 +167,7 @@ internal static class InstallerService
                 runKey.DeleteValue(RunValueName, throwOnMissingValue: false);
             }
         }
+        try { Registry.CurrentUser.DeleteSubKeyTree(LegacyUninstallRegKey, throwOnMissingSubKey: false); } catch { }
 
         progress?.Report((100, "Installation complete!"));
     }
@@ -175,14 +185,29 @@ internal static class InstallerService
         {
             using var runKey = Registry.CurrentUser.OpenSubKey(RunRegKey, writable: true);
             runKey?.DeleteValue(RunValueName, throwOnMissingValue: false);
+            runKey?.DeleteValue(LegacyRunValueName, throwOnMissingValue: false);
         }
         catch { }
 
         try
         {
             Registry.CurrentUser.DeleteSubKeyTree(UninstallRegKey, throwOnMissingSubKey: false);
+            Registry.CurrentUser.DeleteSubKeyTree(LegacyUninstallRegKey, throwOnMissingSubKey: false);
         }
         catch { }
+
+        foreach (string legacyDir in new[] { LegacySettingsDataDir, LegacyInstallDir })
+        {
+            try
+            {
+                if (Directory.Exists(legacyDir))
+                {
+                    ClearReadOnlyRecursive(legacyDir);
+                    Directory.Delete(legacyDir, recursive: true);
+                }
+            }
+            catch { }
+        }
 
         // Remove saved settings folder (%LocalAppData%\AudioSwitch)
         try
@@ -246,7 +271,7 @@ internal static class InstallerService
 
         string installDir = Path.GetFullPath(DefaultInstallDir).TrimEnd('\\');
         string settingsDir = Path.GetFullPath(SettingsDataDir).TrimEnd('\\');
-        string bundleCache = Path.Combine(Path.GetTempPath(), ".net", "AudioSwitch").TrimEnd('\\');
+        string bundleCache = Path.Combine(Path.GetTempPath(), ".net", "WaveDock").TrimEnd('\\');
 
         static bool IsSafeCmdPath(string p) =>
             !string.IsNullOrWhiteSpace(p)
@@ -307,15 +332,18 @@ internal static class InstallerService
 
     private static void CleanupSingleFileExtractionCache()
     {
-        try
+        foreach (string name in new[] { "WaveDock", "AudioSwitch" })
         {
-            string bundleCache = Path.Combine(Path.GetTempPath(), ".net", "AudioSwitch");
-            if (Directory.Exists(bundleCache))
+            try
             {
-                Directory.Delete(bundleCache, recursive: true);
+                string bundleCache = Path.Combine(Path.GetTempPath(), ".net", name);
+                if (Directory.Exists(bundleCache))
+                {
+                    Directory.Delete(bundleCache, recursive: true);
+                }
             }
+            catch { }
         }
-        catch { }
     }
 
     /// <summary>
@@ -440,7 +468,8 @@ internal static class InstallerService
             bool isAudioSwitch = false;
             try
             {
-                if (proc.ProcessName.Equals("AudioSwitch", StringComparison.OrdinalIgnoreCase))
+                if (proc.ProcessName.Equals("WaveDock", StringComparison.OrdinalIgnoreCase)
+                    || proc.ProcessName.Equals("AudioSwitch", StringComparison.OrdinalIgnoreCase))
                 {
                     isAudioSwitch = true;
                 }

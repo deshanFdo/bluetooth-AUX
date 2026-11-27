@@ -11,6 +11,10 @@ internal static class LinuxInstallerService
 
     public static string UserInstallDir => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+        "WaveDock");
+
+    private static string LegacyUserInstallDir => Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         "AudioSwitch");
 
     private static string InstallSealPath => Path.Combine(LinuxSettings.ConfigDir, "install.sig");
@@ -18,9 +22,19 @@ internal static class LinuxInstallerService
     public static string DesktopEntryPath => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         "applications",
-        "audioswitch.desktop");
+        "wavedock.desktop");
 
     public static string AutostartEntryPath => Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+        "autostart",
+        "wavedock.desktop");
+
+    private static string LegacyDesktopEntryPath => Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+        "applications",
+        "audioswitch.desktop");
+
+    private static string LegacyAutostartEntryPath => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
         "autostart",
         "audioswitch.desktop");
@@ -31,7 +45,7 @@ internal static class LinuxInstallerService
         if (string.IsNullOrWhiteSpace(exe)) return;
 
         Directory.CreateDirectory(UserInstallDir);
-        string targetExe = Path.Combine(UserInstallDir, "AudioSwitch");
+        string targetExe = Path.Combine(UserInstallDir, "WaveDock");
         if (!string.Equals(Path.GetFullPath(exe), Path.GetFullPath(targetExe), StringComparison.Ordinal))
         {
             if (OperatingSystem.IsLinux() && File.Exists(targetExe))
@@ -69,12 +83,14 @@ internal static class LinuxInstallerService
     {
         try { if (File.Exists(DesktopEntryPath)) File.Delete(DesktopEntryPath); } catch { }
         try { if (File.Exists(AutostartEntryPath)) File.Delete(AutostartEntryPath); } catch { }
+        try { if (File.Exists(LegacyDesktopEntryPath)) File.Delete(LegacyDesktopEntryPath); } catch { }
+        try { if (File.Exists(LegacyAutostartEntryPath)) File.Delete(LegacyAutostartEntryPath); } catch { }
 
         if (OperatingSystem.IsLinux())
         {
             try
             {
-                string targetExe = Path.Combine(UserInstallDir, "AudioSwitch");
+                string targetExe = Path.Combine(UserInstallDir, "WaveDock");
                 if (File.Exists(targetExe))
                 {
                     File.SetUnixFileMode(targetExe,
@@ -89,8 +105,10 @@ internal static class LinuxInstallerService
         }
 
         try { if (Directory.Exists(LinuxSettings.ConfigDir)) Directory.Delete(LinuxSettings.ConfigDir, recursive: true); } catch { }
+        try { if (Directory.Exists(LinuxSettings.LegacyConfigDir)) Directory.Delete(LinuxSettings.LegacyConfigDir, recursive: true); } catch { }
+        try { if (Directory.Exists(LegacyUserInstallDir)) Directory.Delete(LegacyUserInstallDir, recursive: true); } catch { }
 
-        bool runningSystemDeb = File.Exists("/usr/lib/audioswitch/AudioSwitch");
+        bool runningSystemDeb = File.Exists("/usr/lib/wavedock/WaveDock") || File.Exists("/usr/lib/audioswitch/AudioSwitch");
         string installDir = UserInstallDir;
         string? curExe = Environment.ProcessPath;
 
@@ -106,7 +124,7 @@ internal static class LinuxInstallerService
                 };
                 psi.ArgumentList.Add("-c");
                 psi.ArgumentList.Add("sleep 1; chmod -R u+w \"$1\" \"$2\" 2>/dev/null || true; rm -rf \"$1\" \"$2\"");
-                psi.ArgumentList.Add("audioswitch-uninstall");
+                psi.ArgumentList.Add("wavedock-uninstall");
                 psi.ArgumentList.Add(installDir);
                 psi.ArgumentList.Add(LinuxSettings.ConfigDir);
                 Process.Start(psi);
@@ -119,7 +137,8 @@ internal static class LinuxInstallerService
 
         if (runningSystemDeb && LinuxCommandRunner.CommandExists("pkexec"))
         {
-            LinuxCommandRunner.StartDetached("pkexec", ["apt-get", "purge", "-y", "audioswitch"]);
+            string pkg = File.Exists("/usr/lib/wavedock/WaveDock") ? "wavedock" : "audioswitch";
+            LinuxCommandRunner.StartDetached("pkexec", ["apt-get", "purge", "-y", pkg]);
         }
     }
 

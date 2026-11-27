@@ -2135,7 +2135,7 @@ public partial class MainWindow : Window
             case IslandPage.Media:
                 bool isSpotify = !_lastMedia.HasSession || _lastMedia.SourceApp.Contains("Spotify", StringComparison.OrdinalIgnoreCase);
                 Color mediaAccent = isSpotify ? Color.FromRgb(0x22, 0xC5, 0x5E) : Color.FromRgb(0x3B, 0x82, 0xF6);
-                IslandTitleText.Text = _lastMedia.HasSession ? _lastMedia.SourceApp : "Spotify & Media";
+                IslandTitleText.Text = _lastMedia.HasSession ? _lastMedia.SourceApp : "Media";
                 SetHeaderBadge("IconMusic", mediaAccent);
                 ApplyKeylineTint(mediaAccent);
                 break;

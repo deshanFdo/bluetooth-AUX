@@ -33,20 +33,20 @@ import CopyShaButton from "@/components/CopyShaButton";
 import DownloadButton from "@/components/DownloadButton";
 
 const INSTALLER_URL =
-  "https://github.com/deshanFdo/bluetooth-AUX/releases/download/v1.3.0/AudioSwitch-Setup.exe";
+  "https://github.com/deshanFdo/bluetooth-AUX/releases/download/v1.3.0/WaveDock-Setup.exe";
 const PORTABLE_URL =
-  "https://github.com/deshanFdo/bluetooth-AUX/releases/download/v1.3.0/AudioSwitch.exe";
+  "https://github.com/deshanFdo/bluetooth-AUX/releases/download/v1.3.0/WaveDock.exe";
 const DEB_URL =
-  "https://github.com/deshanFdo/bluetooth-AUX/releases/download/v1.3.0/audioswitch_1.3.0_amd64.deb";
+  "https://github.com/deshanFdo/bluetooth-AUX/releases/download/v1.3.0/wavedock_1.3.0_amd64.deb";
 const TAR_LINUX_URL =
-  "https://github.com/deshanFdo/bluetooth-AUX/releases/download/v1.3.0/AudioSwitch-linux-x64.tar.gz";
+  "https://github.com/deshanFdo/bluetooth-AUX/releases/download/v1.3.0/WaveDock-linux-x64.tar.gz";
 const GITHUB_URL = "https://github.com/deshanFdo/bluetooth-AUX";
 const SHA256_SETUP =
-  "3F3FD15181C871C8789E94D9C685C2ECAAB92BF165413239497853B3D585DF9B";
+  "BBB03B3F9CA762FED5813D7B4EE2CBFDAD7D30DE215FBCB15358DE2AE53A0E75";
 const SHA256_DEB =
-  "87FCE9DF8A6036FBFD2FB7345DA72A64D1F4D8CDC01CE10CA6B0A8458ED95601";
+  "855F4B3A580BB7227A93114128F225810DC5698E376F9887FFD1559A204D0A22";
 const SHA256_TAR_LINUX =
-  "804DF760AF8F611912948DD906B086C790394AF9FC9F85CBF2561449177E6F87";
+  "8CA2441031F20B5FD288BD56D6A588E9DF3917A675FEA0E448C7CED7EA28DE6E";
 
 const FAQS = [
   {
@@ -171,7 +171,7 @@ export default function HomePage() {
             </a>
             <a
               href={INSTALLER_URL}
-              download="AudioSwitch-Setup.exe"
+              download="WaveDock-Setup.exe"
               className="inline-flex items-center gap-1.5 rounded-full bg-white px-3.5 py-1.5 text-xs font-semibold text-black transition hover:bg-neutral-200"
             >
               <ArrowDownToLine className="h-3.5 w-3.5" />
@@ -203,14 +203,14 @@ export default function HomePage() {
           <div className="mt-8 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:flex-wrap sm:items-center">
             <DownloadButton
               href={INSTALLER_URL}
-              filename="AudioSwitch-Setup.exe"
+              filename="WaveDock-Setup.exe"
               label="Windows Installer"
               sizeBadge="74.4 MB"
             />
 
             <a
               href={DEB_URL}
-              download="audioswitch_1.3.0_amd64.deb"
+              download="wavedock_1.3.0_amd64.deb"
               className="inline-flex items-center justify-center gap-2 rounded-full border border-emerald-400/35 bg-emerald-400/10 px-5 py-3 text-sm font-medium text-emerald-200 transition hover:border-emerald-400/60 hover:bg-emerald-400/20 hover:text-white"
             >
               <Terminal className="h-4 w-4 text-emerald-400" />
@@ -220,7 +220,7 @@ export default function HomePage() {
 
             <a
               href={PORTABLE_URL}
-              download="AudioSwitch.exe"
+              download="WaveDock.exe"
               className="inline-flex items-center justify-center gap-2 rounded-full border border-white/15 px-4 py-3 text-sm font-medium text-neutral-200 transition hover:border-white/30 hover:text-white"
             >
               <Package className="h-4 w-4 text-neutral-400" />
@@ -229,7 +229,7 @@ export default function HomePage() {
 
             <a
               href={TAR_LINUX_URL}
-              download="AudioSwitch-linux-x64.tar.gz"
+              download="WaveDock-linux-x64.tar.gz"
               className="inline-flex items-center justify-center gap-2 rounded-full border border-white/15 px-4 py-3 text-sm font-medium text-neutral-200 transition hover:border-white/30 hover:text-white"
             >
               <Package className="h-4 w-4 text-neutral-400" />
@@ -411,10 +411,10 @@ export default function HomePage() {
                     <strong className="font-medium text-white">Windows (v1.3.0):</strong> Download{" "}
                     <a
                       href={INSTALLER_URL}
-                      download="AudioSwitch-Setup.exe"
+                      download="WaveDock-Setup.exe"
                       className="break-words underline decoration-white/30 underline-offset-4 hover:text-white"
                     >
-                      AudioSwitch-Setup.exe
+                      WaveDock-Setup.exe
                     </a>
                     , choose <strong className="font-medium text-white">More info → Run anyway</strong>{" "}
                     if SmartScreen prompts, and click Install.
@@ -427,14 +427,14 @@ export default function HomePage() {
                     Download{" "}
                     <a
                       href={DEB_URL}
-                      download="audioswitch_1.3.0_amd64.deb"
+                      download="wavedock_1.3.0_amd64.deb"
                       className="break-words underline decoration-white/30 underline-offset-4 hover:text-white"
                     >
-                      audioswitch_1.3.0_amd64.deb
+                      wavedock_1.3.0_amd64.deb
                     </a>{" "}
                     and run{" "}
                     <code className="break-all rounded bg-white/[0.06] px-1.5 py-0.5 text-xs text-emerald-300">
-                      sudo apt install ./audioswitch_1.3.0_amd64.deb
+                      sudo apt install ./wavedock_1.3.0_amd64.deb
                     </code>
                     .
                   </span>
@@ -445,10 +445,10 @@ export default function HomePage() {
                     <strong className="font-medium text-white">Generic Linux Tarball:</strong> Extract{" "}
                     <a
                       href={TAR_LINUX_URL}
-                      download="AudioSwitch-linux-x64.tar.gz"
+                      download="WaveDock-linux-x64.tar.gz"
                       className="break-words underline decoration-white/30 underline-offset-4 hover:text-white"
                     >
-                      AudioSwitch-linux-x64.tar.gz
+                      WaveDock-linux-x64.tar.gz
                     </a>{" "}
                     and run <code className="text-neutral-200">./install.sh</code> (no sudo).
                   </span>
@@ -463,7 +463,7 @@ export default function HomePage() {
                   Install paths
                 </dt>
                 <dd className="min-w-0 break-all font-mono text-neutral-200">
-                  %LocalAppData%\Programs\AudioSwitch · /usr/lib/audioswitch
+                  %LocalAppData%\Programs\WaveDock · /usr/lib/wavedock
                 </dd>
                 <dt className="flex items-center gap-1.5 text-neutral-500">
                   <Monitor className="h-3.5 w-3.5" />
@@ -477,7 +477,7 @@ export default function HomePage() {
                   Clean uninstall
                 </dt>
                 <dd className="min-w-0 font-mono text-neutral-200">
-                  Installed Apps · sudo apt purge audioswitch
+                  Installed Apps · sudo apt purge wavedock
                 </dd>
                 <dt className="flex items-center gap-1.5 text-neutral-500">
                   <Tag className="h-3.5 w-3.5" />

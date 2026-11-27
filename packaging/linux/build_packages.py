@@ -12,17 +12,17 @@ import time
 from pathlib import Path
 
 VERSION = "1.3.0"
-PACKAGE_NAME = "audioswitch"
+PACKAGE_NAME = "wavedock"
 ARCH = "amd64"
 
 ROOT = Path(__file__).resolve().parents[2]
 DIST_DIR = ROOT / "dist-linux"
-BIN_PATH = DIST_DIR / "AudioSwitch"
+BIN_PATH = DIST_DIR / "WaveDock"
 ICON_PATH = ROOT / "src" / "AudioSwitch.Linux" / "Assets" / "AudioSwitch.ico"
 INSTALL_SH = Path(__file__).resolve().parent / "install.sh"
 UNINSTALL_SH = Path(__file__).resolve().parent / "uninstall.sh"
 
-TAR_OUT = DIST_DIR / f"AudioSwitch-linux-x64.tar.gz"
+TAR_OUT = DIST_DIR / "WaveDock-linux-x64.tar.gz"
 DEB_OUT = DIST_DIR / f"{PACKAGE_NAME}_{VERSION}_{ARCH}.deb"
 
 
@@ -66,19 +66,19 @@ def build_tar_gz(binary_bytes: bytes, icon_bytes: bytes, mtime: int) -> None:
     readme_bytes = (
         f"WaveDock v{VERSION} (Linux x64)\n\n"
         "Quick User Install (no sudo):\n"
-        "  chmod +x install.sh AudioSwitch\n"
+        "  chmod +x install.sh WaveDock\n"
         "  ./install.sh\n\n"
         "Uninstall:\n"
         "  ./uninstall.sh\n"
-        "  # or ~/.local/share/AudioSwitch/AudioSwitch --uninstall\n"
+        "  # or ~/.local/share/WaveDock/WaveDock --uninstall\n"
     ).encode("utf-8")
 
     with tarfile.open(TAR_OUT, "w:gz", format=tarfile.GNU_FORMAT) as tf:
-        _add_tar_bytes(tf, "AudioSwitch-linux-x64/AudioSwitch", binary_bytes, 0o755, mtime)
-        _add_tar_bytes(tf, "AudioSwitch-linux-x64/install.sh", install_bytes, 0o755, mtime)
-        _add_tar_bytes(tf, "AudioSwitch-linux-x64/uninstall.sh", uninstall_bytes, 0o755, mtime)
-        _add_tar_bytes(tf, "AudioSwitch-linux-x64/AudioSwitch.ico", icon_bytes, 0o644, mtime)
-        _add_tar_bytes(tf, "AudioSwitch-linux-x64/README.txt", readme_bytes, 0o644, mtime)
+        _add_tar_bytes(tf, "WaveDock-linux-x64/WaveDock", binary_bytes, 0o755, mtime)
+        _add_tar_bytes(tf, "WaveDock-linux-x64/install.sh", install_bytes, 0o755, mtime)
+        _add_tar_bytes(tf, "WaveDock-linux-x64/uninstall.sh", uninstall_bytes, 0o755, mtime)
+        _add_tar_bytes(tf, "WaveDock-linux-x64/WaveDock.ico", icon_bytes, 0o644, mtime)
+        _add_tar_bytes(tf, "WaveDock-linux-x64/README.txt", readme_bytes, 0o644, mtime)
 
 
 def _ar_member(name: str, data: bytes, mtime: int) -> bytes:
@@ -99,7 +99,7 @@ def _ar_member(name: str, data: bytes, mtime: int) -> bytes:
 def build_deb(binary_bytes: bytes, icon_bytes: bytes, mtime: int) -> None:
     launcher_script = (
         "#!/usr/bin/env bash\n"
-        "exec /usr/lib/audioswitch/AudioSwitch \"$@\"\n"
+        "exec /usr/lib/wavedock/WaveDock \"$@\"\n"
     ).encode("utf-8")
 
     desktop_file = (
@@ -107,11 +107,11 @@ def build_deb(binary_bytes: bytes, icon_bytes: bytes, mtime: int) -> None:
         "Type=Application\n"
         "Name=WaveDock\n"
         "Comment=WaveDock Dynamic Island Audio Switcher, Split Router, Spotify/YT Music & Battery Monitor\n"
-        "Exec=/usr/bin/audioswitch\n"
-        "Icon=/usr/share/pixmaps/audioswitch.ico\n"
+        "Exec=/usr/bin/wavedock\n"
+        "Icon=/usr/share/pixmaps/wavedock.ico\n"
         "Terminal=false\n"
         "Categories=AudioVideo;Audio;Utility;\n"
-        "Keywords=audio;bluetooth;aux;pipewire;pulseaudio;spotify;youtube;\n"
+        "Keywords=wavedock;audio;bluetooth;aux;pipewire;pulseaudio;spotify;youtube;\n"
         "StartupNotify=false\n"
     ).encode("utf-8")
 
@@ -122,16 +122,16 @@ def build_deb(binary_bytes: bytes, icon_bytes: bytes, mtime: int) -> None:
             "./usr/",
             "./usr/bin/",
             "./usr/lib/",
-            "./usr/lib/audioswitch/",
+            "./usr/lib/wavedock/",
             "./usr/share/",
             "./usr/share/applications/",
             "./usr/share/pixmaps/",
         ]:
             _add_tar_dir(tf, d, mtime)
-        _add_tar_bytes(tf, "./usr/lib/audioswitch/AudioSwitch", binary_bytes, 0o755, mtime)
-        _add_tar_bytes(tf, "./usr/bin/audioswitch", launcher_script, 0o755, mtime)
-        _add_tar_bytes(tf, "./usr/share/applications/audioswitch.desktop", desktop_file, 0o644, mtime)
-        _add_tar_bytes(tf, "./usr/share/pixmaps/audioswitch.ico", icon_bytes, 0o644, mtime)
+        _add_tar_bytes(tf, "./usr/lib/wavedock/WaveDock", binary_bytes, 0o755, mtime)
+        _add_tar_bytes(tf, "./usr/bin/wavedock", launcher_script, 0o755, mtime)
+        _add_tar_bytes(tf, "./usr/share/applications/wavedock.desktop", desktop_file, 0o644, mtime)
+        _add_tar_bytes(tf, "./usr/share/pixmaps/wavedock.ico", icon_bytes, 0o644, mtime)
     data_tar_gz = data_buf.getvalue()
 
     total_unpacked_bytes = (
@@ -145,6 +145,8 @@ def build_deb(binary_bytes: bytes, icon_bytes: bytes, mtime: int) -> None:
         f"Section: sound\n"
         f"Priority: optional\n"
         f"Architecture: {ARCH}\n"
+        f"Replaces: audioswitch\n"
+        f"Conflicts: audioswitch\n"
         f"Installed-Size: {installed_kb}\n"
         f"Maintainer: Deshan Fernando <deshan@users.noreply.github.com>\n"
         f"Homepage: https://audio-switch.vercel.app\n"
@@ -167,7 +169,7 @@ def build_deb(binary_bytes: bytes, icon_bytes: bytes, mtime: int) -> None:
     prerm_sh = (
         "#!/usr/bin/env bash\n"
         "set -e\n"
-        "pkill -f '/usr/lib/audioswitch/AudioSwitch' >/dev/null 2>&1 || true\n"
+        "pkill -f '/usr/lib/wavedock/WaveDock' >/dev/null 2>&1 || true\n"
     ).encode("utf-8")
 
     postrm_sh = (
@@ -176,8 +178,9 @@ def build_deb(binary_bytes: bytes, icon_bytes: bytes, mtime: int) -> None:
         "if [ \"$1\" = \"purge\" ]; then\n"
         "  for home_dir in /home/* /root; do\n"
         "    if [ -d \"$home_dir\" ]; then\n"
-        "      rm -rf \"$home_dir/.config/AudioSwitch\" \"$home_dir/.local/share/AudioSwitch\"\n"
-        "      rm -f \"$home_dir/.config/autostart/audioswitch.desktop\" \"$home_dir/.local/share/applications/audioswitch.desktop\"\n"
+        "      chmod -R u+w \"$home_dir/.config/WaveDock\" \"$home_dir/.local/share/WaveDock\" \"$home_dir/.config/AudioSwitch\" \"$home_dir/.local/share/AudioSwitch\" >/dev/null 2>&1 || true\n"
+        "      rm -rf \"$home_dir/.config/WaveDock\" \"$home_dir/.local/share/WaveDock\" \"$home_dir/.config/AudioSwitch\" \"$home_dir/.local/share/AudioSwitch\"\n"
+        "      rm -f \"$home_dir/.config/autostart/wavedock.desktop\" \"$home_dir/.local/share/applications/wavedock.desktop\" \"$home_dir/.config/autostart/audioswitch.desktop\" \"$home_dir/.local/share/applications/audioswitch.desktop\"\n"
         "    fi\n"
         "  done\n"
         "fi\n"

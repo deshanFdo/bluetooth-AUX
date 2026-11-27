@@ -37,10 +37,10 @@ function markdownForPath(pathname: string): string {
     return `# About WaveDock\n\nWaveDock (formerly Audio Switch) is a free, open-source Windows 10/11 (.NET 8 WPF) & Ubuntu/Debian Linux (.NET 8 Avalonia + PipeWire) Dynamic Island desktop utility built by Deshan Fernando.\n\n- Source: https://github.com/deshanFdo/bluetooth-AUX\n- Windows: https://audio-switch.vercel.app/download\n- Ubuntu / Debian: https://audio-switch.vercel.app/download-deb\n- Technical reference: https://audio-switch.vercel.app/llms-full.txt\n`;
   }
   if (pathname === "/privacy") {
-    return `# Privacy & Security — WaveDock\n\nWaveDock runs 100% locally offline with zero analytics or telemetry. Settings and install seals are encrypted via Windows DPAPI (\`%LocalAppData%\\AudioSwitch\\settings.dat\`) or Linux AES-256-GCM (\`~/.config/AudioSwitch/settings.dat\`).\n\n- Homepage: https://audio-switch.vercel.app\n- Source audit: https://github.com/deshanFdo/bluetooth-AUX\n`;
+    return `# Privacy & Security — WaveDock\n\nWaveDock runs 100% locally offline with zero analytics or telemetry. Settings and install seals are encrypted via Windows DPAPI (\`%LocalAppData%\\WaveDock\\settings.dat\`) or Linux AES-256-GCM (\`~/.config/WaveDock/settings.dat\`).\n\n- Homepage: https://audio-switch.vercel.app\n- Source audit: https://github.com/deshanFdo/bluetooth-AUX\n`;
   }
   if (pathname === "/contact") {
-    return `# Contact & Support — WaveDock\n\n- GitHub Issues & Source: https://github.com/deshanFdo/bluetooth-AUX/issues\n- Maintainer: Deshan Fernando\n- Email: deshanfernando67@gmail.com\n- Diagnostics: AudioSwitch.exe --diag (Windows) / AudioSwitch --diag (Linux)\n`;
+    return `# Contact & Support — WaveDock\n\n- GitHub Issues & Source: https://github.com/deshanFdo/bluetooth-AUX/issues\n- Maintainer: Deshan Fernando\n- Email: deshanfernando67@gmail.com\n- Diagnostics: WaveDock.exe --diag (Windows) / WaveDock --diag (Linux)\n`;
   }
   return HOME_MARKDOWN;
 }

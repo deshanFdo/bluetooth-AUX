@@ -1,13 +1,13 @@
 # WaveDock (formerly Audio Switch) — Complete Technical Reference (v1.3.0)
 
 URL: https://audio-switch.vercel.app
-Direct Windows Installer (`v1.3.0`, `AudioSwitch-Setup.exe`): https://audio-switch.vercel.app/download
-Portable Windows Executable (`v1.3.0`, `AudioSwitch.exe`): https://audio-switch.vercel.app/portable
-Ubuntu / Debian `.deb` (`v1.3.0`, `audioswitch_1.3.0_amd64.deb`): https://audio-switch.vercel.app/download-deb
-Linux `.tar.gz` (`v1.3.0`, `AudioSwitch-linux-x64.tar.gz`): https://audio-switch.vercel.app/download-linux
-SHA-256 (`AudioSwitch-Setup.exe` & `AudioSwitch.exe`): 3F3FD15181C871C8789E94D9C685C2ECAAB92BF165413239497853B3D585DF9B
-SHA-256 (`audioswitch_1.3.0_amd64.deb`): 87FCE9DF8A6036FBFD2FB7345DA72A64D1F4D8CDC01CE10CA6B0A8458ED95601
-SHA-256 (`AudioSwitch-linux-x64.tar.gz`): 804DF760AF8F611912948DD906B086C790394AF9FC9F85CBF2561449177E6F87
+Direct Windows Installer (`v1.3.0`, `WaveDock-Setup.exe`): https://audio-switch.vercel.app/download
+Portable Windows Executable (`v1.3.0`, `WaveDock.exe`): https://audio-switch.vercel.app/portable
+Ubuntu / Debian `.deb` (`v1.3.0`, `wavedock_1.3.0_amd64.deb`): https://audio-switch.vercel.app/download-deb
+Linux `.tar.gz` (`v1.3.0`, `WaveDock-linux-x64.tar.gz`): https://audio-switch.vercel.app/download-linux
+SHA-256 (`WaveDock-Setup.exe` & `WaveDock.exe`): BBB03B3F9CA762FED5813D7B4EE2CBFDAD7D30DE215FBCB15358DE2AE53A0E75
+SHA-256 (`wavedock_1.3.0_amd64.deb`): 855F4B3A580BB7227A93114128F225810DC5698E376F9887FFD1559A204D0A22
+SHA-256 (`WaveDock-linux-x64.tar.gz`): 8CA2441031F20B5FD288BD56D6A588E9DF3917A675FEA0E448C7CED7EA28DE6E
 
 ## Summary
 WaveDock (formerly Audio Switch) solves five common desktop audio problems across Windows 10/11 (`net8.0-windows10.0.19041.0` WPF) and Ubuntu/Debian Linux (`net8.0` Avalonia UI self-contained `linux-x64`, zero runtime prerequisites):
@@ -18,13 +18,13 @@ WaveDock (formerly Audio Switch) solves five common desktop audio problems acros
 5. Showing connected-only Bluetooth headset battery percentages (`DEVPKEY_Device_IsConnected` on Windows; `org.bluez.Battery1` / UPower on Linux) alongside laptop charge, RAM, CPU, and clock.
 
 ## Installation & Removal
-- **Windows**: Per-user install location `%LocalAppData%\Programs\AudioSwitch\AudioSwitch.exe` (no admin required), Windows Settings -> Installed Apps removal (`AudioSwitch.exe --uninstall`). DPAPI-encrypted `settings.dat`.
-- **Ubuntu / Debian Linux**: `sudo apt install ./audioswitch_1.3.0_amd64.deb` (installs `/usr/lib/audioswitch/AudioSwitch`, `/usr/bin/audioswitch`, desktop entry; remove cleanly with `sudo apt purge audioswitch`) or extract `AudioSwitch-linux-x64.tar.gz` and run `./install.sh` / `./uninstall.sh`. AES-256-GCM encrypted `~/.config/AudioSwitch/settings.dat`.
+- **Windows**: Per-user install location `%LocalAppData%\Programs\WaveDock\WaveDock.exe` (no admin required), Windows Settings -> Installed Apps removal (`WaveDock.exe --uninstall`). DPAPI-encrypted `settings.dat`.
+- **Ubuntu / Debian Linux**: `sudo apt install ./wavedock_1.3.0_amd64.deb` (installs `/usr/lib/wavedock/WaveDock`, `/usr/bin/wavedock`, desktop entry; remove cleanly with `sudo apt purge wavedock`) or extract `WaveDock-linux-x64.tar.gz` and run `./install.sh` / `./uninstall.sh`. AES-256-GCM encrypted `~/.config/WaveDock/settings.dat`.
 
 ## Frequently Asked Questions
 - How do I play audio on Bluetooth and AUX wired headphones at the same time in Windows 11 without echo?
   Audio Switch uses WASAPI loopback capture on the primary endpoint and feeds checked secondary endpoints through a ring-buffered `0–350 ms` sync delay slider (`170 ms` default) so wired AUX output waits for Bluetooth wireless latency.
-- Does Audio Switch need .NET or virtual audio cables like VB-Cable installed separately?
+- Does WaveDock need .NET or virtual audio cables like VB-Cable installed separately?
   No. The installer bundles the .NET 8 desktop runtime and native WPF libraries inside one `74.4 MB` self-contained binary and uses native Windows Core Audio APIs rather than virtual audio drivers.
-- How much CPU does Audio Switch use in the background?
+- How much CPU does WaveDock use in the background?
   At rest, timers and WASAPI peak meters are completely stopped (`~0%` steady CPU; measured `0.047s` CPU over 6 wall-clock seconds).
