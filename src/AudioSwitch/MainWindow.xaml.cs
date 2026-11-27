@@ -73,12 +73,55 @@ public partial class MainWindow : Window
 
     private const int GwlExStyle = -20;
     private const int WsExToolWindow = 0x00000080;
+    private const uint SwpNoSize = 0x0001;
+    private const uint SwpNoMove = 0x0002;
+    private const uint SwpNoActivate = 0x0010;
+    private const uint EventSystemForeground = 0x0003;
+    private const uint WinEventOutOfContext = 0x0000;
+    private const uint WinEventSkipOwnProcess = 0x0002;
+    private const int WmSysCommand = 0x0112;
+    private const int ScMinimize = 0xF020;
+    private const int WmDisplayChange = 0x007E;
+    private const int WmDpiChanged = 0x02E0;
+    private static readonly IntPtr HwndTopmost = new(-1);
+
+    private delegate void WinEventDelegate(
+        IntPtr hWinEventHook,
+        uint eventType,
+        IntPtr hwnd,
+        int idObject,
+        int idChild,
+        uint dwEventThread,
+        uint dwmsEventTime);
 
     [DllImport("user32.dll", EntryPoint = "GetWindowLongPtrW")]
     private static extern IntPtr GetWindowLongPtr64(IntPtr hWnd, int nIndex);
 
     [DllImport("user32.dll", EntryPoint = "SetWindowLongPtrW")]
     private static extern IntPtr SetWindowLongPtr64(IntPtr hWnd, int nIndex, IntPtr dwNewLong);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    private static extern bool SetWindowPos(
+        IntPtr hWnd,
+        IntPtr hWndInsertAfter,
+        int x,
+        int y,
+        int cx,
+        int cy,
+        uint uFlags);
+
+    [DllImport("user32.dll")]
+    private static extern IntPtr SetWinEventHook(
+        uint eventMin,
+        uint eventMax,
+        IntPtr hmodWinEventProc,
+        WinEventDelegate lpfnWinEventProc,
+        uint idProcess,
+        uint idThread,
+        uint dwFlags);
+
+    [DllImport("user32.dll")]
+    private static extern bool UnhookWinEvent(IntPtr hWinEventHook);
 
     private struct SpringValue
     {
@@ -145,6 +188,10 @@ public partial class MainWindow : Window
     private readonly AppAudioRouterService _appRouter = new();
     private AudioSubTab _activeAudioSubTab = AudioSubTab.Outputs;
     private bool _isAppRouteComboOpen;
+    private IntPtr _hwnd;
+    private HwndSource? _hwndSource;
+    private IntPtr _foregroundHook;
+    private WinEventDelegate? _winEventDelegate;
     private bool _isDragging;
     private bool _beaconRunning;
 
@@ -223,8 +270,30 @@ public partial class MainWindow : Window
             CollapseToThinLine();
         };
 
+        StateChanged += (_, _) =>
+        {
+            if (WindowState == WindowState.Minimized)
+            {
+                WindowState = WindowState.Normal;
+                EnsureTopmostNoActivate();
+            }
+        };
+
+        Microsoft.Win32.SystemEvents.DisplaySettingsChanged += OnDisplaySettingsChanged;
+        Microsoft.Win32.SystemEvents.PowerModeChanged += OnPowerModeChanged;
+
         Closed += (_, _) =>
         {
+            Microsoft.Win32.SystemEvents.DisplaySettingsChanged -= OnDisplaySettingsChanged;
+            Microsoft.Win32.SystemEvents.PowerModeChanged -= OnPowerModeChanged;
+            if (_foregroundHook != IntPtr.Zero)
+            {
+                UnhookWinEvent(_foregroundHook);
+                _foregroundHook = IntPtr.Zero;
+            }
+            _winEventDelegate = null;
+            _hwndSource?.RemoveHook(WndProc);
+            _hwndSource = null;
             StopSpringLoop();
             _meterTimer.Stop();
             _collapseTimer.Stop();
@@ -254,9 +323,98 @@ public partial class MainWindow : Window
         var hwnd = new WindowInteropHelper(this).Handle;
         if (hwnd != IntPtr.Zero)
         {
+            _hwnd = hwnd;
             long style = GetWindowLongPtr64(hwnd, GwlExStyle).ToInt64();
             SetWindowLongPtr64(hwnd, GwlExStyle, new IntPtr(style | WsExToolWindow));
+
+            _hwndSource = HwndSource.FromHwnd(hwnd);
+            _hwndSource?.AddHook(WndProc);
+            InstallForegroundHook();
+            EnsureTopmostNoActivate();
         }
+    }
+
+    private void InstallForegroundHook()
+    {
+        if (_foregroundHook != IntPtr.Zero) return;
+        _winEventDelegate = OnForegroundWindowChanged;
+        _foregroundHook = SetWinEventHook(
+            EventSystemForeground,
+            EventSystemForeground,
+            IntPtr.Zero,
+            _winEventDelegate,
+            0,
+            0,
+            WinEventOutOfContext | WinEventSkipOwnProcess);
+    }
+
+    private void OnForegroundWindowChanged(
+        IntPtr hWinEventHook,
+        uint eventType,
+        IntPtr hwnd,
+        int idObject,
+        int idChild,
+        uint dwEventThread,
+        uint dwmsEventTime)
+    {
+        // Re-assert HWND_TOPMOST without stealing focus when other apps/Start/overlays shift foreground Z-order.
+        Dispatcher.BeginInvoke(EnsureTopmostNoActivate);
+    }
+
+    private void OnDisplaySettingsChanged(object? sender, EventArgs e)
+    {
+        Dispatcher.BeginInvoke(() =>
+        {
+            SnapToCurrentScreenTopCenter(animate: false);
+            EnsureTopmostNoActivate();
+        });
+    }
+
+    private void OnPowerModeChanged(object? sender, Microsoft.Win32.PowerModeChangedEventArgs e)
+    {
+        if (e.Mode == Microsoft.Win32.PowerModes.Resume)
+        {
+            Dispatcher.BeginInvoke(() =>
+            {
+                SnapToCurrentScreenTopCenter(animate: false);
+                EnsureTopmostNoActivate();
+            });
+        }
+    }
+
+    private void EnsureTopmostNoActivate()
+    {
+        if (!IsVisible) return;
+        if (WindowState == WindowState.Minimized)
+        {
+            WindowState = WindowState.Normal;
+        }
+        Topmost = true;
+        if (_hwnd != IntPtr.Zero)
+        {
+            SetWindowPos(_hwnd, HwndTopmost, 0, 0, 0, 0, SwpNoMove | SwpNoSize | SwpNoActivate);
+        }
+    }
+
+    private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+    {
+        if (msg == WmSysCommand && (wParam.ToInt64() & 0xFFF0) == ScMinimize)
+        {
+            handled = true;
+            Dispatcher.BeginInvoke(EnsureTopmostNoActivate);
+            return IntPtr.Zero;
+        }
+
+        if (msg == WmDisplayChange || msg == WmDpiChanged)
+        {
+            Dispatcher.BeginInvoke(() =>
+            {
+                SnapToCurrentScreenTopCenter(animate: false);
+                EnsureTopmostNoActivate();
+            });
+        }
+
+        return IntPtr.Zero;
     }
 
     private void SetupTrayIcon()
@@ -364,10 +522,14 @@ public partial class MainWindow : Window
     {
         _animateWindowPos = false;
         var workArea = SystemParameters.WorkArea;
-        Left = workArea.Left + (workArea.Width - Width) / 2.0;
-        Top = workArea.Top;
+        if (workArea.Width > 0 && !double.IsNaN(workArea.Left) && !double.IsNaN(workArea.Top))
+        {
+            Left = workArea.Left + (workArea.Width - Width) / 2.0;
+            Top = workArea.Top;
+        }
         _springWinLeft = new SpringValue { Value = Left, Target = Left };
         _springWinTop = new SpringValue { Value = Top, Target = Top };
+        EnsureTopmostNoActivate();
     }
 
     private void SnapToCurrentScreenTopCenter(bool animate)
@@ -387,8 +549,19 @@ public partial class MainWindow : Window
         double scaleX = dpi.DpiScaleX > 0 ? dpi.DpiScaleX : 1.0;
         double scaleY = dpi.DpiScaleY > 0 ? dpi.DpiScaleY : 1.0;
 
+        if (screen.WorkingArea.Width <= 0 || screen.WorkingArea.Height <= 0)
+        {
+            PositionTopCenter();
+            return;
+        }
+
         double targetLeft = (screen.WorkingArea.Left / scaleX) + ((screen.WorkingArea.Width / scaleX) - Width) / 2.0;
         double targetTop = screen.WorkingArea.Top / scaleY;
+        if (double.IsNaN(targetLeft) || double.IsInfinity(targetLeft) || double.IsNaN(targetTop) || double.IsInfinity(targetTop))
+        {
+            PositionTopCenter();
+            return;
+        }
 
         if (!animate || (Math.Abs(Left - targetLeft) < 2 && Math.Abs(Top - targetTop) < 2))
         {
@@ -413,7 +586,7 @@ public partial class MainWindow : Window
         ThinLineBar.Opacity = 0;
         IslandTranslate.Y = -8;
         var ease = new CubicEase { EasingMode = EasingMode.EaseOut };
-        ThinLineBar.BeginAnimation(OpacityProperty, new DoubleAnimation(0, 0.88, TimeSpan.FromMilliseconds(260)) { EasingFunction = ease });
+        ThinLineBar.BeginAnimation(OpacityProperty, new DoubleAnimation(0, 0.94, TimeSpan.FromMilliseconds(260)) { EasingFunction = ease });
         IslandTranslate.BeginAnimation(TranslateTransform.YProperty, new DoubleAnimation(-8, 0, TimeSpan.FromMilliseconds(260)) { EasingFunction = ease });
     }
 
@@ -515,7 +688,10 @@ public partial class MainWindow : Window
                 ExpandedDeckView.Visibility = Visibility.Collapsed;
                 CompactPillView.Visibility = Visibility.Collapsed;
                 ThinLineView.Visibility = Visibility.Visible;
+                ThinLineView.Opacity = 1.0;
+                ThinLineBar.Opacity = 0.94;
                 IslandShell.BorderThickness = new Thickness(0);
+                EnsureTopmostNoActivate();
             }
         }
     }

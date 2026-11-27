@@ -135,23 +135,29 @@
                     </Border.Background>
                 </Border>
 
-                <!-- STATE 0: THIN GLOWING TOP-EDGE LINE (Near-invisible when resting) -->
+                <!-- STATE 0: THIN GLOWING TOP-EDGE LINE (Visible on both light and dark titlebars) -->
                 <Grid x:Name="ThinLineView" VerticalAlignment="Top" Height="14" Cursor="Hand" Visibility="Visible">
-                    <Border x:Name="ThinLineBar"
-                            Width="96"
-                            Height="4"
-                            CornerRadius="2"
+                    <Border CornerRadius="3"
+                            Padding="1"
                             HorizontalAlignment="Center"
                             VerticalAlignment="Top"
                             Margin="0,1,0,0"
-                            Opacity="0.88">
-                        <Border.Background>
-                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                <GradientStop Color="#30FFFFFF" Offset="0"/>
-                                <GradientStop x:Name="ThinLineAccentStop" Color="#3B82F6" Offset="0.5"/>
-                                <GradientStop Color="#30FFFFFF" Offset="1"/>
-                            </LinearGradientBrush>
-                        </Border.Background>
+                            Background="#B8070B14"
+                            BorderBrush="#66000000"
+                            BorderThickness="0.75">
+                        <Border x:Name="ThinLineBar"
+                                Width="96"
+                                Height="4"
+                                CornerRadius="2"
+                                Opacity="0.94">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                    <GradientStop Color="#48FFFFFF" Offset="0"/>
+                                    <GradientStop x:Name="ThinLineAccentStop" Color="#3B82F6" Offset="0.5"/>
+                                    <GradientStop Color="#48FFFFFF" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Border.Background>
+                        </Border>
                     </Border>
                 </Grid>
 
