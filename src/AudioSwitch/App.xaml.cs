@@ -1,9 +1,13 @@
 using System.IO;
 using System.IO.Pipes;
 using System.Runtime.InteropServices;
+using System.Security.AccessControl;
+using System.Security.Principal;
 using System.Threading;
 using System.Windows;
 using AudioSwitch.AudioCore;
+
+[assembly: DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
 
 namespace AudioSwitch;
 
@@ -120,12 +124,25 @@ public partial class App : System.Windows.Application
             {
                 try
                 {
-                    using var server = new NamedPipeServerStream(
+                    var pipeSecurity = new PipeSecurity();
+                    var currentUser = WindowsIdentity.GetCurrent().User;
+                    if (currentUser != null)
+                    {
+                        pipeSecurity.AddAccessRule(new PipeAccessRule(
+                            currentUser,
+                            PipeAccessRights.FullControl,
+                            AccessControlType.Allow));
+                    }
+
+                    using var server = NamedPipeServerStreamAcl.Create(
                         WakePipeName,
                         PipeDirection.In,
                         1,
                         PipeTransmissionMode.Byte,
-                        PipeOptions.Asynchronous);
+                        PipeOptions.Asynchronous,
+                        0,
+                        0,
+                        pipeSecurity);
 
                     await server.WaitForConnectionAsync(token);
 

@@ -42,11 +42,11 @@ const TAR_LINUX_URL =
   "https://github.com/deshanFdo/bluetooth-AUX/releases/download/v1.3.0/AudioSwitch-linux-x64.tar.gz";
 const GITHUB_URL = "https://github.com/deshanFdo/bluetooth-AUX";
 const SHA256_SETUP =
-  "87E37AD8D5E9F818A9893AD9B776A06C2D9BE4AB3C95C64EA666D8625520784F";
+  "8BF943E92676DB8FACDAB45DA71C6A94CDBED496BE8D57A8F8661754A9B21B29";
 const SHA256_DEB =
-  "11AC66B69D93279FE031F07E1863F05CC95B1C0D906241074A6E1F03B416EF14";
+  "260A067D84F4954ABCE53A7D1295EDBA7453ECF888D344DB6EA7D30B67C138A8";
 const SHA256_TAR_LINUX =
-  "8241511A464651FB166B308BCD86C9EDCC88F636C1B7EE46F4E15FCDFFBA4489";
+  "8324A04F556901AB0437F3298C35C5939EBB5B97C2B922746C4387CD3B64804F";
 
 const FAQS = [
   {
@@ -127,7 +127,9 @@ export default function HomePage() {
     <div className="min-h-screen overflow-x-hidden bg-[#050507] text-[#f4f4f6]">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }}
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(JSON_LD).replace(/</g, "\\u003c"),
+        }}
       />
       {/* Minimal Top Bar */}
       <header className="border-b border-white/[0.07]">
@@ -328,17 +330,64 @@ export default function HomePage() {
 
             <div>
               <div className="flex items-center gap-2 font-mono text-[11px] text-neutral-500">
-                <Cpu className="h-3.5 w-3.5 text-blue-400" />
-                <span>06 / ENCRYPTED &amp; ~0% IDLE</span>
+                <Shield className="h-3.5 w-3.5 text-blue-400" />
+                <span>06 / HARDENED &amp; ~0% IDLE</span>
               </div>
               <h2 className="mt-2.5 text-base font-semibold text-white">
-                Protected config, clean removal
+                Encrypted, locked &amp; clean removal
               </h2>
               <p className="mt-2 text-sm leading-relaxed text-neutral-400">
-                Settings encrypted with Windows DPAPI or Linux AES-256-GCM, always-on-top persistence,
-                and zero-leftover uninstall (<code className="text-neutral-300">--uninstall</code> /{" "}
+                DPAPI / AES-256-GCM encrypted <code className="text-neutral-300">settings.dat</code> &amp;{" "}
+                <code className="text-neutral-300">install.sig</code>, System32 DLL lock, same-user IPC
+                ACLs, and zero-leftover removal (<code className="text-neutral-300">--uninstall</code> /{" "}
                 <code className="text-neutral-300">apt purge</code>).
               </p>
+            </div>
+          </div>
+
+          {/* Hardened Security Posture Strip */}
+          <div className="mt-10 rounded-xl border border-emerald-500/20 bg-emerald-500/[0.04] p-4 sm:p-5">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <p className="flex items-center gap-2 font-mono text-xs font-semibold tracking-wide text-emerald-300">
+                <Shield className="h-4 w-4 text-emerald-400" />
+                DEFENSE-IN-DEPTH SECURITY ARCHITECTURE
+              </p>
+              <Link
+                href="/privacy"
+                className="font-mono text-[11px] text-emerald-300/80 underline decoration-emerald-400/30 underline-offset-4 hover:text-white"
+              >
+                Full security &amp; privacy spec →
+              </Link>
+            </div>
+            <div className="mt-3 grid gap-3 text-xs text-neutral-300 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="rounded-lg border border-white/[0.06] bg-black/30 p-3">
+                <p className="font-medium text-white">Offline &amp; Zero Telemetry</p>
+                <p className="mt-1 text-neutral-400">
+                  Zero outbound sockets, analytics, update daemons, or audio/mic disk capture.
+                </p>
+              </div>
+              <div className="rounded-lg border border-white/[0.06] bg-black/30 p-3">
+                <p className="font-medium text-white">Binary &amp; IPC Hardening</p>
+                <p className="mt-1 text-neutral-400">
+                  <code className="text-neutral-300">System32</code> P/Invoke lock prevents DLL
+                  hijacking; NamedPipe ACL &amp; zero shell interpolation prevent local elevation.
+                </p>
+              </div>
+              <div className="rounded-lg border border-white/[0.06] bg-black/30 p-3">
+                <p className="font-medium text-white">Encrypted Config &amp; Seal</p>
+                <p className="mt-1 text-neutral-400">
+                  DPAPI &amp; AES-256-GCM protect <code className="text-neutral-300">settings.dat</code>{" "}
+                  and <code className="text-neutral-300">install.sig</code>; binaries lock{" "}
+                  <code className="text-neutral-300">ReadOnly</code> / <code className="text-neutral-300">0500</code>.
+                </p>
+              </div>
+              <div className="rounded-lg border border-white/[0.06] bg-black/30 p-3">
+                <p className="font-medium text-white">Hardened Web Headers</p>
+                <p className="mt-1 text-neutral-400">
+                  Enforces strict CSP, 2-year HSTS preload, <code className="text-neutral-300">nosniff</code>,{" "}
+                  <code className="text-neutral-300">DENY</code> framing, and COOP/CORP isolation.
+                </p>
+              </div>
             </div>
           </div>
         </section>

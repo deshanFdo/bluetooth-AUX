@@ -237,6 +237,16 @@ internal static class InstallerService
         string installDir = Path.GetFullPath(DefaultInstallDir).TrimEnd('\\');
         string settingsDir = Path.GetFullPath(SettingsDataDir).TrimEnd('\\');
         string bundleCache = Path.Combine(Path.GetTempPath(), ".net", "AudioSwitch").TrimEnd('\\');
+
+        static bool IsSafeCmdPath(string p) =>
+            !string.IsNullOrWhiteSpace(p)
+            && p.IndexOfAny(['"', '&', '|', '>', '<', '^', '%', '\r', '\n']) < 0;
+
+        if (!IsSafeCmdPath(installDir) || !IsSafeCmdPath(settingsDir) || !IsSafeCmdPath(bundleCache))
+        {
+            return;
+        }
+
         string batchPath = Path.Combine(Path.GetTempPath(), $"audioswitch_cleanup_{Guid.NewGuid():N}.cmd");
         try { Environment.CurrentDirectory = Path.GetTempPath(); } catch { }
 

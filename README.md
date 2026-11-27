@@ -24,8 +24,10 @@ Audio Switch is a lightweight desktop utility for **Windows 10/11** and **Ubuntu
   - Play audio simultaneously on wired AUX headphones/speakers and Bluetooth headsets via user-mode WASAPI loopback + FIFO delay (`170 ms` default) on Windows or `module-loopback` (`latency_msec`) on Linux.
 - **Spotify & YouTube Music Switcher, Auto-Launch & Hidden Tray**
   - Switch seamlessly between **Spotify** and **YouTube Music** with 1 tap (auto-pauses the other player), auto-launch on **Play (`▶`)** even when closed, and keep windows tucked off the taskbar on Windows (**Hidden Icons `^`**) with `MPRIS2` control on Linux.
-- **Encrypted Settings, Tamper-Sealing & Zero-Leftover Uninstaller**
-  - Local settings (`settings.dat`) and installed binary integrity seals (`install.sig`) are encrypted with Windows **DPAPI** (`CryptProtectData` + `ReadOnly` attribute) or Linux **AES-256-GCM** (`0500` / `root:root` binary lock). Uninstall cleanly via Windows **Installed Apps**, `sudo apt purge audioswitch`, or `AudioSwitch --uninstall`.
+- **Hardened Local Security, Encryption & Zero-Leftover Uninstaller**
+  - Local settings (`settings.dat`) and installed binary integrity seals (`install.sig`) are encrypted with Windows **DPAPI** (`CryptProtectData` + `ReadOnly` attribute) or Linux **AES-256-GCM** (`0500` / `root:root` binary lock).
+  - Windows enforces `DefaultDllImportSearchPaths(System32)` (blocks DLL hijacking) and CurrentUser-only `NamedPipeServerStreamAcl`; Linux uses positional `ArgumentList` execution (zero shell interpolation) and validated `MPRIS2` D-Bus names.
+  - Uninstall cleanly via Windows **Installed Apps**, `sudo apt purge audioswitch`, or `AudioSwitch --uninstall`.
 - **Connected-Only Bluetooth Battery Rings & Telemetry**
   - Shows circular gauges exclusively for actively connected Bluetooth headsets (`DEVPKEY_Device_IsConnected` + ContainerId matching on Windows; `org.bluez.Battery1` + UPower on Linux) alongside laptop battery, RAM, CPU, and clock.
 - **Persistent Top-Edge Capsule (`~0%` Idle CPU)**
@@ -66,8 +68,8 @@ sudo apt install ./dist-linux/audioswitch_1.3.0_amd64.deb
 ### Artifact SHA-256 Checksums (`v1.3.0`)
 
 ```text
-87E37AD8D5E9F818A9893AD9B776A06C2D9BE4AB3C95C64EA666D8625520784F  AudioSwitch-Setup.exe (Windows v1.3.0)
-87E37AD8D5E9F818A9893AD9B776A06C2D9BE4AB3C95C64EA666D8625520784F  AudioSwitch.exe (Windows Portable v1.3.0)
-11AC66B69D93279FE031F07E1863F05CC95B1C0D906241074A6E1F03B416EF14  audioswitch_1.3.0_amd64.deb (Linux v1.3.0)
-8241511A464651FB166B308BCD86C9EDCC88F636C1B7EE46F4E15FCDFFBA4489  AudioSwitch-linux-x64.tar.gz (Linux v1.3.0)
+8BF943E92676DB8FACDAB45DA71C6A94CDBED496BE8D57A8F8661754A9B21B29  AudioSwitch-Setup.exe (Windows v1.3.0)
+8BF943E92676DB8FACDAB45DA71C6A94CDBED496BE8D57A8F8661754A9B21B29  AudioSwitch.exe (Windows Portable v1.3.0)
+260A067D84F4954ABCE53A7D1295EDBA7453ECF888D344DB6EA7D30B67C138A8  audioswitch_1.3.0_amd64.deb (Linux v1.3.0)
+8324A04F556901AB0437F3298C35C5939EBB5B97C2B922746C4387CD3B64804F  AudioSwitch-linux-x64.tar.gz (Linux v1.3.0)
 ```

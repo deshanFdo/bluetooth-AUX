@@ -34,6 +34,13 @@ internal sealed class IslandSettings
     public bool HideSpotifyToTray { get; set; } = true;
     public bool UseYouTubeMusicDefault { get; set; } = false;
 
+    private static readonly JsonSerializerOptions SafeJsonOptions = new()
+    {
+        MaxDepth = 16,
+        AllowTrailingCommas = false,
+        ReadCommentHandling = JsonCommentHandling.Disallow
+    };
+
     public static IslandSettings Load()
     {
         try
@@ -44,13 +51,13 @@ internal sealed class IslandSettings
                 byte[]? plain = UnprotectBytes(protectedBytes);
                 if (plain != null)
                 {
-                    return JsonSerializer.Deserialize<IslandSettings>(plain) ?? new IslandSettings();
+                    return JsonSerializer.Deserialize<IslandSettings>(plain, SafeJsonOptions) ?? new IslandSettings();
                 }
             }
             else if (File.Exists(LegacyPlainPath))
             {
                 string json = File.ReadAllText(LegacyPlainPath, Encoding.UTF8);
-                var migrated = JsonSerializer.Deserialize<IslandSettings>(json) ?? new IslandSettings();
+                var migrated = JsonSerializer.Deserialize<IslandSettings>(json, SafeJsonOptions) ?? new IslandSettings();
                 migrated.Save();
                 return migrated;
             }

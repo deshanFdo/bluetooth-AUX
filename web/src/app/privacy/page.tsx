@@ -38,6 +38,15 @@ export default function PrivacyPage() {
         binary permissions. Audio mirroring buffers PCM frames strictly in RAM and discards them immediately.
       </p>
       <p className="mt-4 text-sm leading-relaxed text-neutral-400">
+        Desktop processes apply defense-in-depth hardening: Windows enforces{" "}
+        <code className="text-neutral-200">DefaultDllImportSearchPaths(System32)</code> against DLL
+        preloading, restricts single-instance wake IPC pipes via{" "}
+        <code className="text-neutral-200">PipeSecurity</code> strictly to the current Windows user,
+        and validates cleanup paths before execution. Linux uses positional{" "}
+        <code className="text-neutral-200">ArgumentList</code> execution with zero shell string
+        interpolation and regex-validated <code className="text-neutral-200">MPRIS2</code> D-Bus targets.
+      </p>
+      <p className="mt-4 text-sm leading-relaxed text-neutral-400">
         Because executables themselves must remain unencrypted on disk for Windows/Linux OS loaders
         to execute without Authenticode/PGP signing, every release publishes{" "}
         <strong className="font-medium text-neutral-200">SHA-256 checksums</strong> on the homepage
@@ -47,8 +56,11 @@ export default function PrivacyPage() {
       </p>
       <p className="mt-4 text-sm leading-relaxed text-neutral-400">
         This website (<code className="text-neutral-200">audio-switch.vercel.app</code>) serves
-        static documentation and direct download links without tracking cookies. Full source code
-        is auditable anytime on{" "}
+        static documentation and direct download links over HTTPS with HSTS preload, strict{" "}
+        <code className="text-neutral-200">Content-Security-Policy</code>,{" "}
+        <code className="text-neutral-200">X-Frame-Options: DENY</code>,{" "}
+        <code className="text-neutral-200">X-Content-Type-Options: nosniff</code>, and COOP/CORP
+        headers without tracking cookies. Full source code is auditable anytime on{" "}
         <a
           href="https://github.com/deshanFdo/bluetooth-AUX"
           target="_blank"

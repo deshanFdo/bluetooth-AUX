@@ -527,7 +527,10 @@ internal sealed class MusicAppControllerService : IDisposable
 
         try
         {
-            Process.Start(new ProcessStartInfo("explorer.exe", @"shell:AppsFolder\SpotifyAB.SpotifyMusic_zpdnekdrzrea0!Spotify")
+            string explorer = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.Windows),
+                "explorer.exe");
+            Process.Start(new ProcessStartInfo(explorer, @"shell:AppsFolder\SpotifyAB.SpotifyMusic_zpdnekdrzrea0!Spotify")
             {
                 UseShellExecute = true
             });

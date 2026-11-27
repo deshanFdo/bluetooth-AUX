@@ -54,7 +54,7 @@ internal sealed class MprisMediaService : IDisposable
 
         if (code != 0 || string.IsNullOrWhiteSpace(outStr)) return Array.Empty<string>();
 
-        return Regex.Matches(outStr, @"org\.mpris\.MediaPlayer2\.[^'""\s,]+")
+        return Regex.Matches(outStr, @"org\.mpris\.MediaPlayer2\.[A-Za-z0-9_.\-]+")
             .Select(m => m.Value)
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();

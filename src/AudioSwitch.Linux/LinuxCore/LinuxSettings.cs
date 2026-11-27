@@ -23,6 +23,13 @@ internal sealed class LinuxSettings
     public bool UseYouTubeMusicDefault { get; set; } = false;
     public int SyncDelayMs { get; set; } = 170;
 
+    private static readonly JsonSerializerOptions SafeJsonOptions = new()
+    {
+        MaxDepth = 16,
+        AllowTrailingCommas = false,
+        ReadCommentHandling = JsonCommentHandling.Disallow
+    };
+
     public static LinuxSettings Load()
     {
         try
@@ -35,9 +42,11 @@ internal sealed class LinuxSettings
             byte[] key = Convert.FromBase64String(File.ReadAllText(KeyPath, Encoding.UTF8).Trim());
             byte[] blob = File.ReadAllBytes(EncryptedPath);
             byte[]? plain = DecryptWithAad(key, blob, AssociatedData);
-            return plain != null
-                ? JsonSerializer.Deserialize<LinuxSettings>(plain) ?? new LinuxSettings()
+            var loaded = plain != null
+                ? JsonSerializer.Deserialize<LinuxSettings>(plain, SafeJsonOptions) ?? new LinuxSettings()
                 : new LinuxSettings();
+            loaded.SyncDelayMs = Math.Clamp(loaded.SyncDelayMs, 0, 350);
+            return loaded;
         }
         catch
         {

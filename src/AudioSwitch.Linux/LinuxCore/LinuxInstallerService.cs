@@ -98,12 +98,18 @@ internal static class LinuxInstallerService
         {
             if (curExe != null && curExe.StartsWith(installDir, StringComparison.Ordinal))
             {
-                // Spawn detached sh cleanup after exit
-                Process.Start(new ProcessStartInfo("sh", $"-c \"sleep 1; chmod -R u+w '{installDir}' '{LinuxSettings.ConfigDir}' 2>/dev/null || true; rm -rf '{installDir}' '{LinuxSettings.ConfigDir}'\"")
+                // Spawn detached sh cleanup using positional args (zero shell string interpolation)
+                var psi = new ProcessStartInfo("sh")
                 {
                     UseShellExecute = false,
                     CreateNoWindow = true
-                });
+                };
+                psi.ArgumentList.Add("-c");
+                psi.ArgumentList.Add("sleep 1; chmod -R u+w \"$1\" \"$2\" 2>/dev/null || true; rm -rf \"$1\" \"$2\"");
+                psi.ArgumentList.Add("audioswitch-uninstall");
+                psi.ArgumentList.Add(installDir);
+                psi.ArgumentList.Add(LinuxSettings.ConfigDir);
+                Process.Start(psi);
             }
             else
             {
