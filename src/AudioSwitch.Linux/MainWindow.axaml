@@ -1,0 +1,321 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="AudioSwitch.Linux.MainWindow"
+        Title="Audio Switch"
+        Width="376"
+        SizeToContent="Height"
+        SystemDecorations="None"
+        TransparencyLevelHint="Transparent"
+        Background="Transparent"
+        Topmost="True"
+        ShowInTaskbar="False"
+        CanResize="False"
+        FontFamily="Ubuntu, Cantarell, Inter, Noto Sans, sans-serif">
+
+    <Window.Styles>
+        <Style Selector="Button.pillTab">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Foreground" Value="#94A3B8"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="8,5"/>
+            <Setter Property="CornerRadius" Value="7"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        </Style>
+        <Style Selector="Button.glassBtn">
+            <Setter Property="Background" Value="#24FFFFFF"/>
+            <Setter Property="BorderBrush" Value="#2EFFFFFF"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Foreground" Value="#E2E8F0"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="8,4"/>
+            <Setter Property="FontSize" Value="11"/>
+        </Style>
+    </Window.Styles>
+
+    <Grid Background="Transparent">
+        <Border x:Name="IslandShell"
+                Width="120"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Top"
+                Margin="0,2,0,12"
+                CornerRadius="7"
+                Background="#02000000"
+                PointerEntered="IslandShell_PointerEntered"
+                PointerExited="IslandShell_PointerExited">
+            <Grid>
+                <!-- STATE 0: RESTING TOP-EDGE LINE -->
+                <Grid x:Name="ThinLineView" Height="14" Cursor="Hand" PointerPressed="ThinLine_PointerPressed">
+                    <Border CornerRadius="3"
+                            Padding="1"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Top"
+                            Margin="0,1,0,0"
+                            Background="#B8070B14"
+                            BorderBrush="#66000000"
+                            BorderThickness="1">
+                        <Border x:Name="ThinLineBar"
+                                Width="96"
+                                Height="4"
+                                CornerRadius="2"
+                                Background="#3B82F6"/>
+                    </Border>
+                </Grid>
+
+                <!-- STATE 1: COMPACT HOVER PILL -->
+                <Border x:Name="CompactPillView"
+                        IsVisible="False"
+                        Width="300"
+                        Height="40"
+                        CornerRadius="20"
+                        Background="#EB06080D"
+                        BorderBrush="#2EFFFFFF"
+                        BorderThickness="1"
+                        Padding="12,0"
+                        Cursor="Hand"
+                        PointerPressed="CompactPill_PointerPressed">
+                    <Grid ColumnDefinitions="*,Auto,Auto">
+                        <StackPanel VerticalAlignment="Center" Margin="0,0,8,0">
+                            <TextBlock x:Name="PillTitleText" Text="AUX • Realtek" FontSize="11.5" FontWeight="SemiBold" Foreground="#F8FAFC" TextTrimming="CharacterEllipsis"/>
+                            <TextBlock x:Name="PillSubText" Text="Play Spotify" FontSize="9.5" Foreground="#94A3B8" TextTrimming="CharacterEllipsis"/>
+                        </StackPanel>
+                        <Button x:Name="PillProviderBtn" Grid.Column="1" Classes="glassBtn" Content="SP" FontSize="9.5" FontWeight="Bold" Padding="7,3" Margin="0,0,6,0" Click="PillProviderBtn_Click"/>
+                        <Button x:Name="PillPlayBtn" Grid.Column="2" Classes="glassBtn" Content="▶" Width="28" Height="28" CornerRadius="14" Padding="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Click="MediaPlayPauseBtn_Click"/>
+                    </Grid>
+                </Border>
+
+                <!-- STATE 2: EXPANDED DYNAMIC ISLAND DECK -->
+                <Border x:Name="ExpandedDeckView"
+                        IsVisible="False"
+                        Width="356"
+                        CornerRadius="24"
+                        Background="#EB06080D"
+                        BorderBrush="#2EFFFFFF"
+                        BorderThickness="1"
+                        Padding="12,10">
+                    <StackPanel Spacing="8">
+                        <!-- Header -->
+                        <Grid ColumnDefinitions="*,Auto,Auto">
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="Audio Switch" FontSize="13.5" FontWeight="Bold" Foreground="#F8FAFC"/>
+                                <TextBlock x:Name="HeaderSubText" Text="PipeWire • Dynamic Island" FontSize="10" Foreground="#94A3B8" TextTrimming="CharacterEllipsis"/>
+                            </StackPanel>
+                            <Button Grid.Column="1" Classes="glassBtn" Content="Swap ⇄" Margin="0,0,6,0" Click="SwapBtn_Click"/>
+                            <Button Grid.Column="2" Classes="glassBtn" Content="⌃" Width="28" HorizontalContentAlignment="Center" Click="CollapseBtn_Click"/>
+                        </Grid>
+
+                        <!-- Main 3 Islands Strip -->
+                        <Border CornerRadius="10" Background="#46090D16" BorderBrush="#24FFFFFF" BorderThickness="1" Padding="3">
+                            <Grid ColumnDefinitions="*,*,*">
+                                <Button x:Name="NavAudioBtn" Grid.Column="0" Classes="pillTab" Background="#283B82F6" Foreground="#FFFFFF" Content="Audio" Click="NavAudio_Click"/>
+                                <Button x:Name="NavMediaBtn" Grid.Column="1" Classes="pillTab" Content="Media" Click="NavMedia_Click"/>
+                                <Button x:Name="NavBatteryBtn" Grid.Column="2" Classes="pillTab" Content="Battery" Click="NavBattery_Click"/>
+                            </Grid>
+                        </Border>
+
+                        <!-- ISLAND 0: AUDIO -->
+                        <StackPanel x:Name="AudioPage" Spacing="6">
+                            <Border CornerRadius="9" Background="#40090D16" BorderBrush="#20FFFFFF" BorderThickness="1" Padding="2">
+                                <Grid ColumnDefinitions="*,*,*">
+                                    <Button x:Name="SubOutputsBtn" Grid.Column="0" Classes="pillTab" Background="#2563EB" Foreground="#FFFFFF" Content="Outputs" Click="SubOutputs_Click"/>
+                                    <Button x:Name="SubMicsBtn" Grid.Column="1" Classes="pillTab" Content="Microphones" Click="SubMics_Click"/>
+                                    <Button x:Name="SubAppsBtn" Grid.Column="2" Classes="pillTab" Content="Apps" Click="SubApps_Click"/>
+                                </Grid>
+                            </Border>
+
+                            <!-- Sub-panel: Outputs -->
+                            <StackPanel x:Name="OutputsSubPanel" Spacing="5">
+                                <Border CornerRadius="12" Background="#44141C2B" BorderBrush="#24FFFFFF" BorderThickness="1" Padding="10,7">
+                                    <StackPanel Spacing="4">
+                                        <Grid ColumnDefinitions="*,Auto">
+                                            <StackPanel>
+                                                <TextBlock Text="AUX (Wired)" FontSize="12" FontWeight="SemiBold" Foreground="#34D399"/>
+                                                <TextBlock x:Name="AuxNameText" Text="No AUX headphone detected" FontSize="10" Foreground="#CBD5E1" TextTrimming="CharacterEllipsis"/>
+                                            </StackPanel>
+                                            <ToggleSwitch x:Name="AuxToggle" Grid.Column="1" OnContent="" OffContent="" IsCheckedChanged="AuxToggle_Changed"/>
+                                        </Grid>
+                                        <Grid ColumnDefinitions="Auto,*,36">
+                                            <TextBlock Text="Vol" FontSize="10" Foreground="#94A3B8" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                            <Slider x:Name="AuxVolSlider" Grid.Column="1" Minimum="0" Maximum="100" ValueChanged="AuxVol_Changed"/>
+                                            <TextBlock x:Name="AuxVolLabel" Grid.Column="2" Text="0%" FontSize="10" Foreground="#CBD5E1" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                        </Grid>
+                                    </StackPanel>
+                                </Border>
+
+                                <Border CornerRadius="12" Background="#44141C2B" BorderBrush="#24FFFFFF" BorderThickness="1" Padding="10,7">
+                                    <StackPanel Spacing="4">
+                                        <Grid ColumnDefinitions="*,Auto">
+                                            <StackPanel>
+                                                <TextBlock Text="Bluetooth Headset" FontSize="12" FontWeight="SemiBold" Foreground="#60A5FA"/>
+                                                <TextBlock x:Name="BtNameText" Text="No Bluetooth audio output" FontSize="10" Foreground="#CBD5E1" TextTrimming="CharacterEllipsis"/>
+                                            </StackPanel>
+                                            <ToggleSwitch x:Name="BtToggle" Grid.Column="1" OnContent="" OffContent="" IsCheckedChanged="BtToggle_Changed"/>
+                                        </Grid>
+                                        <Grid ColumnDefinitions="Auto,*,36">
+                                            <TextBlock Text="Vol" FontSize="10" Foreground="#94A3B8" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                            <Slider x:Name="BtVolSlider" Grid.Column="1" Minimum="0" Maximum="100" ValueChanged="BtVol_Changed"/>
+                                            <TextBlock x:Name="BtVolLabel" Grid.Column="2" Text="0%" FontSize="10" Foreground="#CBD5E1" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                        </Grid>
+                                    </StackPanel>
+                                </Border>
+
+                                <Border x:Name="SpeakersCard" CornerRadius="12" Background="#44141C2B" BorderBrush="#24FFFFFF" BorderThickness="1" Padding="10,7">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <StackPanel>
+                                            <TextBlock Text="Laptop Speakers" FontSize="12" FontWeight="SemiBold" Foreground="#FBBF24"/>
+                                            <TextBlock x:Name="SpeakersNameText" Text="Built-in Speakers" FontSize="10" Foreground="#CBD5E1" TextTrimming="CharacterEllipsis"/>
+                                        </StackPanel>
+                                        <ToggleSwitch x:Name="SpeakersToggle" Grid.Column="1" OnContent="" OffContent="" IsCheckedChanged="SpeakersToggle_Changed"/>
+                                    </Grid>
+                                </Border>
+
+                                <Border CornerRadius="12" Background="#4E121B2D" BorderBrush="#24FFFFFF" BorderThickness="1" Padding="10,7">
+                                    <StackPanel Spacing="4">
+                                        <Grid ColumnDefinitions="*,Auto">
+                                            <TextBlock Text="Multi-Output Mirror (AUX + BT)" FontSize="11.2" FontWeight="SemiBold" Foreground="#22D3EE" VerticalAlignment="Center"/>
+                                            <Button x:Name="MirrorBtn" Grid.Column="1" Classes="glassBtn" Content="Sync" Click="MirrorBtn_Click"/>
+                                        </Grid>
+                                        <Grid ColumnDefinitions="Auto,*,46">
+                                            <TextBlock Text="Delay" FontSize="10" Foreground="#94A3B8" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                            <Slider x:Name="DelaySlider" Grid.Column="1" Minimum="0" Maximum="350" Value="170" ValueChanged="DelaySlider_Changed"/>
+                                            <TextBlock x:Name="DelayLabel" Grid.Column="2" Text="170 ms" FontSize="10" Foreground="#22D3EE" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                        </Grid>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+
+                            <!-- Sub-panel: Mics -->
+                            <StackPanel x:Name="MicsSubPanel" IsVisible="False" Spacing="5">
+                                <Border CornerRadius="12" Background="#44141C2B" BorderBrush="#24FFFFFF" BorderThickness="1" Padding="10,7">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <StackPanel>
+                                            <TextBlock Text="Bluetooth Headset Mic" FontSize="12" FontWeight="SemiBold" Foreground="#C084FC"/>
+                                            <TextBlock x:Name="BtMicText" Text="No Bluetooth mic" FontSize="10" Foreground="#CBD5E1" TextTrimming="CharacterEllipsis"/>
+                                        </StackPanel>
+                                        <ToggleSwitch x:Name="BtMicToggle" Grid.Column="1" OnContent="" OffContent="" IsCheckedChanged="BtMicToggle_Changed"/>
+                                    </Grid>
+                                </Border>
+                                <Border CornerRadius="12" Background="#44141C2B" BorderBrush="#24FFFFFF" BorderThickness="1" Padding="10,7">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <StackPanel>
+                                            <TextBlock Text="Built-in / AUX Mic" FontSize="12" FontWeight="SemiBold" Foreground="#E2E8F0"/>
+                                            <TextBlock x:Name="BuiltInMicText" Text="Internal Microphone" FontSize="10" Foreground="#CBD5E1" TextTrimming="CharacterEllipsis"/>
+                                        </StackPanel>
+                                        <ToggleSwitch x:Name="BuiltInMicToggle" Grid.Column="1" OnContent="" OffContent="" IsCheckedChanged="BuiltInMicToggle_Changed"/>
+                                    </Grid>
+                                </Border>
+                            </StackPanel>
+
+                            <!-- Sub-panel: Per-App Split Audio -->
+                            <StackPanel x:Name="AppsSubPanel" IsVisible="False" Spacing="5">
+                                <Border CornerRadius="12" Background="#4E101929" BorderBrush="#24FFFFFF" BorderThickness="1" Padding="10,7">
+                                    <StackPanel Spacing="5">
+                                        <Grid ColumnDefinitions="*,Auto">
+                                            <TextBlock Text="Play songs on AUX while Discord uses headset" FontSize="10" Foreground="#94A3B8" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                            <Button Grid.Column="1" Classes="glassBtn" Content="↻" Padding="7,2" Click="RefreshApps_Click"/>
+                                        </Grid>
+                                        <Button Classes="glassBtn" Background="#2806B6D4" BorderBrush="#5522D3EE" Foreground="#ECFEFF" FontWeight="SemiBold" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Content="Split: Music → AUX  +  Calls → Bluetooth" Click="DualSplitBtn_Click"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <TextBlock x:Name="AppsEmptyText" Text="Open Spotify, YouTube Music, or Discord to route apps per stream." FontSize="10" Foreground="#94A3B8" HorizontalAlignment="Center" IsVisible="False"/>
+
+                                <ItemsControl x:Name="AppStreamsList">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border CornerRadius="10" Background="#5C151D2D" BorderBrush="#22FFFFFF" BorderThickness="1" Padding="8,6" Margin="0,0,0,4">
+                                                <Grid ColumnDefinitions="*,148">
+                                                    <StackPanel VerticalAlignment="Center" Margin="0,0,6,0">
+                                                        <TextBlock Text="{Binding AppName}" FontSize="11.2" FontWeight="SemiBold" Foreground="#F1F5F9" TextTrimming="CharacterEllipsis"/>
+                                                        <TextBlock Text="{Binding RouteLabel}" FontSize="9" Foreground="#34D399" TextTrimming="CharacterEllipsis"/>
+                                                    </StackPanel>
+                                                    <ComboBox Grid.Column="1"
+                                                              ItemsSource="{Binding Options}"
+                                                              SelectedIndex="{Binding SelectedIndex, Mode=OneWay}"
+                                                              Tag="{Binding StreamIndex}"
+                                                              FontSize="10.5"
+                                                              SelectionChanged="AppSinkCombo_SelectionChanged"/>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <!-- ISLAND 1: MEDIA (SPOTIFY & YOUTUBE MUSIC) -->
+                        <StackPanel x:Name="MediaPage" IsVisible="False" Spacing="6">
+                            <Border CornerRadius="12" Background="#4A0D131F" BorderBrush="#24FFFFFF" BorderThickness="1" Padding="10">
+                                <StackPanel Spacing="7">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <TextBlock x:Name="MediaStatusText" Text="Ready" FontSize="10" Foreground="#94A3B8" VerticalAlignment="Center"/>
+                                        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4">
+                                            <Button x:Name="SpotifySwitchBtn" Classes="glassBtn" Content="Spotify" FontSize="9.5" Click="SpotifySelect_Click"/>
+                                            <Button x:Name="YtMusicSwitchBtn" Classes="glassBtn" Content="YT Music" FontSize="9.5" Click="YtMusicSelect_Click"/>
+                                            <Button x:Name="MusicHideBtn" Classes="glassBtn" Content="Hide" FontSize="9.5" Click="MusicHide_Click"/>
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <StackPanel>
+                                        <TextBlock x:Name="MediaTitleText" Text="Play Spotify" FontSize="13" FontWeight="Bold" Foreground="#F8FAFC" TextTrimming="CharacterEllipsis"/>
+                                        <TextBlock x:Name="MediaArtistText" Text="Click ▶ to launch &amp; play" FontSize="10.5" Foreground="#CBD5E1" TextTrimming="CharacterEllipsis"/>
+                                    </StackPanel>
+
+                                    <ProgressBar x:Name="MediaProgress" Minimum="0" Maximum="100" Value="0" Height="4" Foreground="#22C55E" Background="#24FFFFFF"/>
+
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="12">
+                                        <Button Classes="glassBtn" Content="⏮" Width="34" Height="34" CornerRadius="17" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Click="MediaPrevBtn_Click"/>
+                                        <Button x:Name="MediaPlayPauseBtn" Classes="glassBtn" Content="▶" Width="40" Height="40" CornerRadius="20" Background="#E6FFFFFF" Foreground="#0F172A" FontWeight="Bold" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Click="MediaPlayPauseBtn_Click"/>
+                                        <Button Classes="glassBtn" Content="⏭" Width="34" Height="34" CornerRadius="17" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Click="MediaNextBtn_Click"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+
+                        <!-- ISLAND 2: BATTERY & SYSTEM -->
+                        <StackPanel x:Name="BatteryPage" IsVisible="False" Spacing="6">
+                            <Border CornerRadius="12" Background="#4A0D131F" BorderBrush="#24FFFFFF" BorderThickness="1" Padding="10,8">
+                                <StackPanel Spacing="6">
+                                    <TextBlock Text="Connected Devices &amp; Power" FontSize="11.2" FontWeight="SemiBold" Foreground="#CBD5E1"/>
+                                    <TextBlock x:Name="LaptopPowerText" Text="Laptop: Checking..." FontSize="11" Foreground="#34D399"/>
+                                    <ItemsControl x:Name="BtBatteriesList">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding DisplayText}" FontSize="11" Foreground="#60A5FA" Margin="0,2,0,0"/>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </Border>
+
+                            <Border CornerRadius="12" Background="#480E1422" BorderBrush="#24FFFFFF" BorderThickness="1" Padding="10,8">
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <StackPanel Spacing="2">
+                                        <TextBlock x:Name="SysRamCpuText" Text="RAM: 0% · CPU: 0%" FontSize="11" Foreground="#E2E8F0"/>
+                                        <TextBlock x:Name="SessionTypeText" Text="Session: Linux" FontSize="9.5" Foreground="#94A3B8"/>
+                                    </StackPanel>
+                                    <TextBlock x:Name="ClockText" Grid.Column="1" Text="12:00 PM" FontSize="15" FontWeight="Bold" Foreground="#F8FAFC" VerticalAlignment="Center"/>
+                                </Grid>
+                            </Border>
+
+                            <Button Classes="glassBtn" Background="#33991B1B" BorderBrush="#55EF4444" Foreground="#FCA5A5" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Content="Uninstall Audio Switch..." Click="UninstallBtn_Click"/>
+                        </StackPanel>
+
+                        <!-- Footer Options + Status -->
+                        <Border CornerRadius="10" Background="#46090D16" BorderBrush="#24FFFFFF" BorderThickness="1" Padding="8,6">
+                            <StackPanel Spacing="3">
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <CheckBox x:Name="AutoMuteCheck" IsChecked="True" Content="Auto-mute idle" FontSize="10" IsCheckedChanged="SettingsCheck_Changed"/>
+                                    <CheckBox x:Name="HideMusicCheck" Grid.Column="1" IsChecked="True" Content="Hide music to tray" FontSize="10" IsCheckedChanged="SettingsCheck_Changed"/>
+                                </Grid>
+                                <TextBlock x:Name="StatusBanner" Text="Audio Switch Linux v1.3.0" FontSize="9.5" Foreground="#93C5FD" TextTrimming="CharacterEllipsis"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

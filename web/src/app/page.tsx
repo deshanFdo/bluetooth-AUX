@@ -36,34 +36,42 @@ const INSTALLER_URL =
   "https://github.com/deshanFdo/bluetooth-AUX/releases/download/v1.2.1/AudioSwitch-Setup.exe";
 const PORTABLE_URL =
   "https://github.com/deshanFdo/bluetooth-AUX/releases/download/v1.2.1/AudioSwitch.exe";
+const DEB_URL =
+  "https://github.com/deshanFdo/bluetooth-AUX/releases/download/v1.3.0/audioswitch_1.3.0_amd64.deb";
+const TAR_LINUX_URL =
+  "https://github.com/deshanFdo/bluetooth-AUX/releases/download/v1.3.0/AudioSwitch-linux-x64.tar.gz";
 const GITHUB_URL = "https://github.com/deshanFdo/bluetooth-AUX";
 const SHA256_SETUP =
   "F077F5406ED8D4C70C6252C294844F4C483185B62D7C5650BBAB55EA65661944";
+const SHA256_DEB =
+  "91C8F14043A782821870CAA813CC041973EEBB8E2D4CDDDAC65E6CDB70FBB0B6";
+const SHA256_TAR_LINUX =
+  "6523EA7E218126127B91B5B8C423BFF0335D331025B8564D5D3D1B0DC1725DE5";
 
 const FAQS = [
   {
     q: "How do I listen through an already-connected Bluetooth headset without unplugging my AUX cable?",
-    a: "Hover the top edge of your screen, click the Audio Switch pill, and toggle Bluetooth on. It switches your Windows default output in <1ms and can mute the idle 3.5mm jack automatically — so you never have to unplug your AUX cable again.",
+    a: "Hover the top edge of your screen, click the Audio Switch pill, and toggle Bluetooth on. It switches your default output in <1ms on Windows (<5ms on PipeWire) and can mute the idle 3.5mm jack automatically — so you never have to unplug your AUX cable again.",
   },
   {
     q: "Can I play songs on AUX while using my Bluetooth headset and mic for a Discord call?",
-    a: "Yes. Open the Apps tab inside Audio Island and click Dual Split (Music → AUX + Calls → Bluetooth), or pick endpoints per app. Audio Switch uses Windows AudioPolicyConfig across all child PIDs, pairs call microphones to your Bluetooth headset, and keeps pinned devices unmuted.",
+    a: "Yes. Open the Apps tab inside Audio Island and click Dual Split (Music → AUX + Calls → Bluetooth), or pick endpoints per app. Windows uses AudioPolicyConfig across child PIDs; Ubuntu/Debian Linux moves live PipeWire/PulseAudio sink-inputs and source-outputs via pactl.",
   },
   {
     q: "What happens if I click Play when Spotify or YouTube Music is closed, and do they stay off my taskbar?",
-    a: "Clicking Play launches Spotify or YouTube Music automatically (Microsoft Store, desktop wrapper, or standalone browser app), starts playback, and tucks the window off your taskbar into its own Hidden Tray icon (^).",
+    a: "Clicking Play launches Spotify or YouTube Music automatically (Microsoft Store, desktop wrapper, Snap/Flatpak on Linux, or standalone browser app), starts playback, and hides clutter off the taskbar on Windows (Hidden Icons) with MPRIS2 switcher support on Linux.",
+  },
+  {
+    q: "How does Ubuntu / Debian Linux support work, and what desktop sessions are supported?",
+    a: "Audio Switch Linux v1.3.0 uses Avalonia (.NET 8 self-contained linux-x64), PipeWire/PulseAudio (pactl + module-loopback), MPRIS2 over D-Bus (gdbus), BlueZ org.bluez.Battery1 / UPower, and AES-256-GCM encrypted settings. X11 docks cleanly at the top edge; GNOME Wayland shows the top-center capsule and full tray icon.",
   },
   {
     q: "How do I play the same audio on Bluetooth headphones and wired AUX together without echo?",
-    a: "Use Multi-Output Mirror under Outputs. It captures your primary stream via user-mode WASAPI loopback and adds a 0–350 ms FIFO delay slider (170 ms default) so wired AUX aligns with wireless Bluetooth latency.",
+    a: "Use Multi-Output Mirror under Outputs. Windows captures via user-mode WASAPI loopback with a 0–350 ms FIFO buffer; Linux spawns module-loopback with configurable latency_msec (170 ms default) so wired AUX aligns with wireless Bluetooth latency.",
   },
   {
-    q: "Does Audio Switch require installing .NET Runtime or VB-Cable?",
-    a: "No. AudioSwitch-Setup.exe (74.4 MB) bundles the .NET 8 desktop runtime and native WPF libraries into one self-contained executable using Windows Core Audio COM directly.",
-  },
-  {
-    q: "Why doesn't the top-edge line get buried, and how much CPU does it use?",
-    a: "Event-driven HWND_TOPMOST recovery re-lifts the capsule on foreground changes, Win+D, and display/DPI shifts without polling timers. At rest, meters and samplers stop completely (0.000s–0.078s CPU over 6 seconds).",
+    q: "Does Audio Switch require installing .NET Runtime or virtual cables, and how do I uninstall?",
+    a: "No runtime or virtual cable is needed — both Windows (74.4 MB) and Linux (.deb / .tar.gz, 36.3 MB) are self-contained. Uninstall cleanly via Windows Installed Apps, sudo apt purge audioswitch, or AudioSwitch --uninstall with zero leftover files.",
   },
 ];
 
@@ -74,14 +82,14 @@ const JSON_LD = {
       "@type": "SoftwareApplication",
       name: "Audio Switch",
       applicationCategory: "UtilitiesApplication",
-      operatingSystem: "Windows 10, Windows 11 (x64)",
-      softwareVersion: "1.2.1",
-      fileSize: "74.4MB",
+      operatingSystem: "Windows 10, Windows 11, Ubuntu / Debian Linux (x64)",
+      softwareVersion: "1.3.0",
+      fileSize: "36.3MB (Linux) / 74.4MB (Windows)",
       downloadUrl: INSTALLER_URL,
       url: "https://audio-switch.vercel.app",
       sameAs: [GITHUB_URL],
       description:
-        "iOS-style top-of-screen Dynamic Island for Windows 10/11: switch AUX headphones, Bluetooth headsets, speakers, and microphones without unplugging cables, split Spotify/browser music onto AUX while Discord calls use Bluetooth, auto-launch Spotify into the Windows hidden tray, mirror multi-output audio with FIFO sync delay, and monitor connected Bluetooth battery rings at ~0% idle CPU.",
+        "iOS-style top-of-screen Dynamic Island for Windows 10/11 and Ubuntu/Debian Linux: switch AUX headphones, Bluetooth headsets, speakers, and microphones without unplugging cables, split Spotify/browser music onto AUX while Discord calls use Bluetooth, switch seamlessly between Spotify and YouTube Music, mirror multi-output audio with sync delay, and monitor connected Bluetooth battery rings at ~0% idle CPU.",
       author: {
         "@type": "Person",
         name: "Deshan Fernando",
@@ -92,12 +100,12 @@ const JSON_LD = {
         priceCurrency: "USD",
       },
       featureList: [
-        "Instant AUX wired headphone, Bluetooth headset, speaker, and microphone switching via Core Audio COM",
+        "Instant AUX wired headphone, Bluetooth headset, speaker, and microphone switching (Windows Core Audio COM & Linux PipeWire/PulseAudio)",
         "Per-app split audio routing (play music on AUX while Discord uses your Bluetooth headset and mic)",
-        "One-tap Spotify and YouTube Music switching with automatic pause handoff and hidden tray mode",
-        "Simultaneous multi-output WASAPI mirroring with 0-350ms sync delay compensation",
-        "Connected laptop and Bluetooth headset battery rings (matching Bluetooth container state)",
-        "Persistent top-edge line with HWND_TOPMOST recovery, DPAPI encrypted settings, clean uninstaller, and ~0% idle CPU",
+        "One-tap Spotify and YouTube Music switching with automatic pause handoff, auto-launch, and Windows hidden tray / Linux MPRIS2",
+        "Simultaneous multi-output mirroring with 0-350ms sync delay compensation",
+        "Connected laptop and Bluetooth headset battery rings (Windows PnP & Linux BlueZ Battery1)",
+        "Encrypted local settings (Windows DPAPI & Linux AES-256-GCM) and zero-leftover uninstaller",
       ],
     },
     {
@@ -130,7 +138,7 @@ export default function HomePage() {
             </span>
             <span className="text-sm font-semibold tracking-tight text-white">Audio Switch</span>
             <span className="rounded border border-white/10 bg-white/[0.03] px-1.5 py-0.5 font-mono text-[10.5px] text-neutral-400">
-              v1.2.1
+              v1.3.0
             </span>
           </div>
 
@@ -175,41 +183,60 @@ export default function HomePage() {
         <section className="mx-auto max-w-2xl text-center">
           <p className="inline-flex items-center gap-2 font-mono text-xs tracking-wide text-neutral-400">
             <Laptop className="h-3.5 w-3.5 text-neutral-500" />
-            WINDOWS 10 / 11 (x64) · SELF-CONTAINED · ~0% IDLE CPU
+            WINDOWS 10/11 &amp; UBUNTU / DEBIAN LINUX (x64) · SELF-CONTAINED
           </p>
 
           <h1 className="mt-4 text-4xl font-semibold tracking-[-0.035em] text-white sm:text-5xl md:text-[3.5rem] md:leading-[1.06]">
-            The top-edge Dynamic Island for Windows audio.
+            The top-edge Dynamic Island for Windows &amp; Linux audio.
           </h1>
 
           <p className="mx-auto mt-5 max-w-xl text-[15.5px] leading-relaxed text-neutral-400">
             No longer need to unplug your 3.5mm AUX cable just to listen through a Bluetooth
             headset that&apos;s already connected — switch outputs &amp; mics instantly, split
-            music onto AUX while Discord uses your headset, or click Play to launch Spotify
-            straight into your hidden tray.
+            music onto AUX while Discord uses your headset, or click Play to launch Spotify or
+            YouTube Music on Windows and Ubuntu/Debian Linux.
           </p>
 
           <div className="mt-8 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:flex-wrap sm:items-center">
             <DownloadButton
               href={INSTALLER_URL}
               filename="AudioSwitch-Setup.exe"
-              label="Download Installer"
+              label="Windows Installer"
               sizeBadge="74.4 MB"
             />
 
             <a
+              href={DEB_URL}
+              download="audioswitch_1.3.0_amd64.deb"
+              className="inline-flex items-center justify-center gap-2 rounded-full border border-emerald-400/35 bg-emerald-400/10 px-5 py-3 text-sm font-medium text-emerald-200 transition hover:border-emerald-400/60 hover:bg-emerald-400/20 hover:text-white"
+            >
+              <Terminal className="h-4 w-4 text-emerald-400" />
+              Ubuntu / Debian .deb
+              <span className="font-mono text-xs text-emerald-300/80">36.3 MB</span>
+            </a>
+
+            <a
               href={PORTABLE_URL}
               download="AudioSwitch.exe"
-              className="inline-flex items-center justify-center gap-2 rounded-full border border-white/15 px-5 py-3 text-sm font-medium text-neutral-200 transition hover:border-white/30 hover:text-white"
+              className="inline-flex items-center justify-center gap-2 rounded-full border border-white/15 px-4 py-3 text-sm font-medium text-neutral-200 transition hover:border-white/30 hover:text-white"
             >
               <Package className="h-4 w-4 text-neutral-400" />
               Portable .exe
+            </a>
+
+            <a
+              href={TAR_LINUX_URL}
+              download="AudioSwitch-linux-x64.tar.gz"
+              className="inline-flex items-center justify-center gap-2 rounded-full border border-white/15 px-4 py-3 text-sm font-medium text-neutral-200 transition hover:border-white/30 hover:text-white"
+            >
+              <Package className="h-4 w-4 text-neutral-400" />
+              Linux .tar.gz
             </a>
           </div>
 
           <p className="mt-3 inline-flex items-center gap-1.5 text-xs text-neutral-500">
             <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400/80" />
-            Runtime bundled — no extra .NET download needed. Includes Windows Apps uninstaller.
+            Runtime bundled (.NET 8) — no extra dependencies. Clean one-click &amp; apt purge removal.
           </p>
         </section>
 
@@ -232,8 +259,8 @@ export default function HomePage() {
               </h2>
               <p className="mt-2 text-sm leading-relaxed text-neutral-400">
                 Uses native Windows Core Audio COM (<code className="text-neutral-300">IPolicyConfig</code>)
-                for sub-millisecond output and microphone switching, auto-muting idle endpoints so
-                you never pull your 3.5mm plug again.
+                or Linux PipeWire / PulseAudio (<code className="text-neutral-300">pactl</code>) for
+                instant output and mic switching — so you never pull your 3.5mm plug again.
               </p>
             </div>
 
@@ -249,7 +276,7 @@ export default function HomePage() {
               <p className="mt-2 text-sm leading-relaxed text-neutral-400">
                 Inside the <strong className="font-medium text-neutral-200">Apps</strong> tab, one
                 click splits Spotify or browsers to wired AUX while routing Discord, Teams, or Zoom
-                voice and headset mic to Bluetooth via Windows <code className="text-neutral-300">AudioPolicyConfig</code>.
+                voice and mic to Bluetooth (<code className="text-neutral-300">AudioPolicyConfig</code> / PipeWire).
               </p>
             </div>
 
@@ -262,9 +289,10 @@ export default function HomePage() {
                 Play AUX + Bluetooth in sync
               </h2>
               <p className="mt-2 text-sm leading-relaxed text-neutral-400">
-                Captures playback via user-mode WASAPI loopback and applies a{" "}
-                <code className="text-neutral-300">0–350 ms</code> circular FIFO buffer (170 ms
-                default) so wired AUX aligns cleanly with wireless Bluetooth latency.
+                Mirrors primary audio via user-mode WASAPI loopback or PipeWire{" "}
+                <code className="text-neutral-300">module-loopback</code> with a{" "}
+                <code className="text-neutral-300">0–350 ms</code> delay slider (170 ms default)
+                to match Bluetooth latency.
               </p>
             </div>
 
@@ -272,14 +300,14 @@ export default function HomePage() {
               <div className="flex items-center gap-2 font-mono text-[11px] text-neutral-500">
                 <Music2 className="h-3.5 w-3.5 text-green-400" />
                 <EyeOff className="h-3.5 w-3.5 text-emerald-400" />
-                <span>04 / SPOTIFY & YT MUSIC TRAY</span>
+                <span>04 / SPOTIFY &amp; YT MUSIC TRAY</span>
               </div>
               <h2 className="mt-2.5 text-base font-semibold text-white">
-                Auto-launch, play &amp; hide taskbar
+                Auto-launch, play &amp; switch cleanly
               </h2>
               <p className="mt-2 text-sm leading-relaxed text-neutral-400">
-                Switch seamlessly between Spotify and YouTube Music with automatic pause handoff — click
-                Play even when closed to launch into Windows Hidden Icons with zero taskbar clutter.
+                Switch seamlessly between Spotify and YouTube Music with automatic pause handoff,
+                click Play to launch even when closed, and use Windows Hidden Icons or Linux MPRIS2.
               </p>
             </div>
 
@@ -293,23 +321,23 @@ export default function HomePage() {
               </h2>
               <p className="mt-2 text-sm leading-relaxed text-neutral-400">
                 Drag across the capsule to inspect laptop charge, RAM, CPU, clock, and connected-only
-                Bluetooth headset battery levels filtered via PnP{" "}
-                <code className="text-neutral-300">DEVPKEY_Device_IsConnected</code>.
+                Bluetooth headset battery levels via PnP or{" "}
+                <code className="text-neutral-300">org.bluez.Battery1</code>.
               </p>
             </div>
 
             <div>
               <div className="flex items-center gap-2 font-mono text-[11px] text-neutral-500">
                 <Cpu className="h-3.5 w-3.5 text-blue-400" />
-                <span>06 / PERSISTENT &amp; ~0% IDLE</span>
+                <span>06 / ENCRYPTED &amp; ~0% IDLE</span>
               </div>
               <h2 className="mt-2.5 text-base font-semibold text-white">
-                Always on top, zero CPU waste
+                Protected config, clean removal
               </h2>
               <p className="mt-2 text-sm leading-relaxed text-neutral-400">
-                Windows DPAPI encrypted settings (<code className="text-neutral-300">CryptProtectData</code>),
-                event-driven <code className="text-neutral-300">HWND_TOPMOST</code> recovery, and a
-                zero-leftover self-deleting uninstaller.
+                Settings encrypted with Windows DPAPI or Linux AES-256-GCM, always-on-top persistence,
+                and zero-leftover uninstall (<code className="text-neutral-300">--uninstall</code> /{" "}
+                <code className="text-neutral-300">apt purge</code>).
               </p>
             </div>
           </div>
@@ -324,13 +352,13 @@ export default function HomePage() {
             <div className="min-w-0">
               <h2 className="flex items-center gap-2 text-lg font-semibold text-white">
                 <Layers className="h-4 w-4 text-neutral-400" />
-                Install &amp; SmartScreen
+                Install on Windows &amp; Ubuntu / Debian
               </h2>
               <ol className="mt-4 space-y-3.5 text-sm text-neutral-300">
                 <li className="flex items-start gap-2.5">
                   <ArrowDownToLine className="mt-0.5 h-4 w-4 shrink-0 text-blue-400" />
                   <span>
-                    Download{" "}
+                    <strong className="font-medium text-white">Windows (v1.2.1):</strong> Download{" "}
                     <a
                       href={INSTALLER_URL}
                       download="AudioSwitch-Setup.exe"
@@ -338,23 +366,41 @@ export default function HomePage() {
                     >
                       AudioSwitch-Setup.exe
                     </a>
+                    , choose <strong className="font-medium text-white">More info → Run anyway</strong>{" "}
+                    if SmartScreen prompts, and click Install.
+                  </span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <Terminal className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" />
+                  <span>
+                    <strong className="font-medium text-white">Ubuntu / Debian Linux (v1.3.0):</strong>{" "}
+                    Download{" "}
+                    <a
+                      href={DEB_URL}
+                      download="audioswitch_1.3.0_amd64.deb"
+                      className="break-words underline decoration-white/30 underline-offset-4 hover:text-white"
+                    >
+                      audioswitch_1.3.0_amd64.deb
+                    </a>{" "}
+                    and run{" "}
+                    <code className="break-all rounded bg-white/[0.06] px-1.5 py-0.5 text-xs text-emerald-300">
+                      sudo apt install ./audioswitch_1.3.0_amd64.deb
+                    </code>
                     .
                   </span>
                 </li>
                 <li className="flex items-start gap-2.5">
-                  <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-amber-400" />
+                  <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-cyan-400" />
                   <span>
-                    If Windows SmartScreen warns on an unsigned indie executable, choose{" "}
-                    <strong className="font-medium text-white">More info → Run anyway</strong>.
-                  </span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" />
-                  <span>
-                    Pick Start Menu / Desktop shortcuts and click{" "}
-                    <strong className="font-medium text-white">Install Audio Switch</strong>.
-                    Uninstall anytime from Windows{" "}
-                    <strong className="font-medium text-white">Installed Apps</strong>.
+                    <strong className="font-medium text-white">Generic Linux Tarball:</strong> Extract{" "}
+                    <a
+                      href={TAR_LINUX_URL}
+                      download="AudioSwitch-linux-x64.tar.gz"
+                      className="break-words underline decoration-white/30 underline-offset-4 hover:text-white"
+                    >
+                      AudioSwitch-linux-x64.tar.gz
+                    </a>{" "}
+                    and run <code className="text-neutral-200">./install.sh</code> (no sudo).
                   </span>
                 </li>
               </ol>
@@ -364,21 +410,25 @@ export default function HomePage() {
               <dl className="grid grid-cols-1 gap-y-3 text-xs sm:grid-cols-[148px_minmax(0,1fr)] sm:gap-x-4">
                 <dt className="flex items-center gap-1.5 text-neutral-500">
                   <Folder className="h-3.5 w-3.5" />
-                  Install directory
+                  Install paths
                 </dt>
                 <dd className="min-w-0 break-all font-mono text-neutral-200">
-                  %LocalAppData%\Programs\AudioSwitch
+                  %LocalAppData%\Programs\AudioSwitch · /usr/lib/audioswitch
                 </dd>
                 <dt className="flex items-center gap-1.5 text-neutral-500">
                   <Monitor className="h-3.5 w-3.5" />
-                  Architecture
+                  Architectures
                 </dt>
-                <dd className="min-w-0 text-neutral-200">Windows 10 / 11 · x64</dd>
+                <dd className="min-w-0 text-neutral-200">
+                  Windows 10/11 (x64) · Ubuntu / Debian (amd64)
+                </dd>
                 <dt className="flex items-center gap-1.5 text-neutral-500">
-                  <Cpu className="h-3.5 w-3.5" />
-                  Measured idle CPU
+                  <ShieldAlert className="h-3.5 w-3.5" />
+                  Clean uninstall
                 </dt>
-                <dd className="min-w-0 font-mono text-neutral-200">0.000s–0.078s / 6s resting</dd>
+                <dd className="min-w-0 font-mono text-neutral-200">
+                  Installed Apps · sudo apt purge audioswitch
+                </dd>
                 <dt className="flex items-center gap-1.5 text-neutral-500">
                   <Tag className="h-3.5 w-3.5" />
                   License / Cost
@@ -386,17 +436,32 @@ export default function HomePage() {
                 <dd className="min-w-0 text-neutral-200">Free · Open Source</dd>
               </dl>
 
-              <div className="min-w-0 rounded-xl border border-white/[0.08] bg-black/50 p-3">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <span className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wider text-neutral-500">
-                    <Terminal className="h-3 w-3" />
-                    SHA-256 (v1.2.1 Installer)
-                  </span>
-                  <CopyShaButton value={SHA256_SETUP} />
+              <div className="space-y-2.5">
+                <div className="min-w-0 rounded-xl border border-white/[0.08] bg-black/50 p-3">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <span className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wider text-neutral-500">
+                      <Terminal className="h-3 w-3" />
+                      SHA-256 (Windows v1.2.1 Setup)
+                    </span>
+                    <CopyShaButton value={SHA256_SETUP} />
+                  </div>
+                  <p className="mt-1.5 break-all font-mono text-[11px] text-neutral-300">
+                    {SHA256_SETUP}
+                  </p>
                 </div>
-                <p className="mt-1.5 break-all font-mono text-[11px] text-neutral-300">
-                  {SHA256_SETUP}
-                </p>
+
+                <div className="min-w-0 rounded-xl border border-white/[0.08] bg-black/50 p-3">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <span className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wider text-neutral-500">
+                      <Terminal className="h-3 w-3 text-emerald-400" />
+                      SHA-256 (Ubuntu / Debian v1.3.0 .deb)
+                    </span>
+                    <CopyShaButton value={SHA256_DEB} />
+                  </div>
+                  <p className="mt-1.5 break-all font-mono text-[11px] text-neutral-300">
+                    {SHA256_DEB}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -421,7 +486,7 @@ export default function HomePage() {
 
       <footer className="border-t border-white/[0.07] py-6 text-center text-xs text-neutral-500">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-center gap-x-5 gap-y-2 px-6">
-          <span>Audio Switch v1.2.1 · Deshan Fernando</span>
+          <span>Audio Switch v1.3.0 (Linux) · v1.2.1 (Windows) · Deshan Fernando</span>
           <Link href="/about" className="inline-flex items-center gap-1 hover:text-neutral-300">
             <Info className="h-3 w-3" />
             About

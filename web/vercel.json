@@ -21,6 +21,16 @@
       "source": "/portable",
       "destination": "https://github.com/deshanFdo/bluetooth-AUX/releases/download/v1.2.1/AudioSwitch.exe",
       "permanent": false
+    },
+    {
+      "source": "/download-deb",
+      "destination": "https://github.com/deshanFdo/bluetooth-AUX/releases/download/v1.3.0/audioswitch_1.3.0_amd64.deb",
+      "permanent": false
+    },
+    {
+      "source": "/download-linux",
+      "destination": "https://github.com/deshanFdo/bluetooth-AUX/releases/download/v1.3.0/AudioSwitch-linux-x64.tar.gz",
+      "permanent": false
     }
   ]
 }
