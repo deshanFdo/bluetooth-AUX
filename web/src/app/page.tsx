@@ -33,12 +33,12 @@ import CopyShaButton from "@/components/CopyShaButton";
 import DownloadButton from "@/components/DownloadButton";
 
 const INSTALLER_URL =
-  "https://0hwpieezbnk7w7cc.public.blob.vercel-storage.com/v1.1.2/AudioSwitch-Setup.exe";
+  "https://github.com/deshanFdo/bluetooth-AUX/releases/download/v1.2.0/AudioSwitch-Setup.exe";
 const PORTABLE_URL =
-  "https://0hwpieezbnk7w7cc.public.blob.vercel-storage.com/v1.1.2/AudioSwitch.exe";
+  "https://github.com/deshanFdo/bluetooth-AUX/releases/download/v1.2.0/AudioSwitch.exe";
 const GITHUB_URL = "https://github.com/deshanFdo/bluetooth-AUX";
 const SHA256_SETUP =
-  "7BBC79BF3FAD729549B55DE7BAD3990E2FD38EAA36653B625BE0336BE4511F76";
+  "16474956AD06B0215BC462B6F8302AE2B318D4138BD3D97003D233DB58FEDA43";
 
 const FAQS = [
   {
@@ -50,8 +50,8 @@ const FAQS = [
     a: "Yes. Open the Apps tab inside Audio Island and click Dual Split (Music → AUX + Calls → Bluetooth), or pick endpoints per app. Audio Switch uses Windows AudioPolicyConfig across all child PIDs, pairs call microphones to your Bluetooth headset, and keeps pinned devices unmuted.",
   },
   {
-    q: "What happens if I click Play when Spotify is closed, and does it stay off my taskbar?",
-    a: "Clicking Play launches Spotify automatically (Microsoft Store or desktop .exe), waits until playback starts, and tucks Spotify off your taskbar into its own green Windows Hidden Tray icon (^), where left-clicking shows or hides Spotify anytime.",
+    q: "What happens if I click Play when Spotify or YouTube Music is closed, and do they stay off my taskbar?",
+    a: "Clicking Play launches Spotify or YouTube Music automatically (Microsoft Store, desktop wrapper, or standalone browser app), starts playback, and tucks the window off your taskbar into its own Hidden Tray icon (^).",
   },
   {
     q: "How do I play the same audio on Bluetooth headphones and wired AUX together without echo?",
@@ -75,7 +75,7 @@ const JSON_LD = {
       name: "Audio Switch",
       applicationCategory: "UtilitiesApplication",
       operatingSystem: "Windows 10, Windows 11 (x64)",
-      softwareVersion: "1.1.2",
+      softwareVersion: "1.2.0",
       fileSize: "74.4MB",
       downloadUrl: INSTALLER_URL,
       url: "https://audio-switch.vercel.app",
@@ -130,7 +130,7 @@ export default function HomePage() {
             </span>
             <span className="text-sm font-semibold tracking-tight text-white">Audio Switch</span>
             <span className="rounded border border-white/10 bg-white/[0.03] px-1.5 py-0.5 font-mono text-[10.5px] text-neutral-400">
-              v1.1.2
+              v1.2.0
             </span>
           </div>
 
@@ -272,15 +272,14 @@ export default function HomePage() {
               <div className="flex items-center gap-2 font-mono text-[11px] text-neutral-500">
                 <Music2 className="h-3.5 w-3.5 text-green-400" />
                 <EyeOff className="h-3.5 w-3.5 text-emerald-400" />
-                <span>04 / SPOTIFY HIDDEN TRAY</span>
+                <span>04 / SPOTIFY & YT MUSIC TRAY</span>
               </div>
               <h2 className="mt-2.5 text-base font-semibold text-white">
                 Auto-launch, play &amp; hide taskbar
               </h2>
               <p className="mt-2 text-sm leading-relaxed text-neutral-400">
-                Press Play even when Spotify is closed — it launches Spotify, triggers playback via
-                SMTC, and tucks the Spotify window off your taskbar into its own Hidden Icons tray
-                control.
+                Press Play even when Spotify or YouTube Music is closed — it launches your chosen
+                player, triggers playback via SMTC, and tucks it off the taskbar into Hidden Icons.
               </p>
             </div>
 
@@ -391,7 +390,7 @@ export default function HomePage() {
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <span className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wider text-neutral-500">
                     <Terminal className="h-3 w-3" />
-                    SHA-256 (v1.1.2 Installer)
+                    SHA-256 (v1.2.0 Installer)
                   </span>
                   <CopyShaButton value={SHA256_SETUP} />
                 </div>
@@ -422,7 +421,7 @@ export default function HomePage() {
 
       <footer className="border-t border-white/[0.07] py-6 text-center text-xs text-neutral-500">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-center gap-x-5 gap-y-2 px-6">
-          <span>Audio Switch v1.1.2 · Deshan Fernando</span>
+          <span>Audio Switch v1.2.0 · Deshan Fernando</span>
           <Link href="/about" className="inline-flex items-center gap-1 hover:text-neutral-300">
             <Info className="h-3 w-3" />
             About

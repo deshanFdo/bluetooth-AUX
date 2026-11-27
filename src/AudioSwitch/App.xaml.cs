@@ -45,15 +45,16 @@ public partial class App : System.Windows.Application
                 }
             }
 
-            await InstallerService.UninstallAsync();
+            await InstallerService.UninstallAsync(scheduleDeferredSelfDelete: false);
             if (!silent)
             {
                 System.Windows.MessageBox.Show(
-                    "Audio Switch has been uninstalled.",
+                    "Audio Switch and all its files have been uninstalled.",
                     "Audio Switch",
                     MessageBoxButton.OK,
                     MessageBoxImage.Information);
             }
+            InstallerService.ScheduleSelfDeleteIfRunningFromInstallDir();
             Shutdown(0);
             return;
         }

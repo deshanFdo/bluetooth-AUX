@@ -52,14 +52,28 @@ internal sealed class MediaPlayerService : IDisposable
     public bool HasAnySession => (_currentSession ?? _manager?.GetCurrentSession()) != null;
 
     public async Task<bool> TryPlaySpotifyAsync()
+        => await TryPlayMatchingAsync(preferYouTubeMusic: false);
+
+    public async Task<bool> TryPlayMatchingAsync(bool preferYouTubeMusic)
     {
         if (_manager == null) return false;
         try
         {
             var sessions = _manager.GetSessions();
-            var spotify = sessions.FirstOrDefault(s =>
-                s.SourceAppUserModelId.Contains("spotify", StringComparison.OrdinalIgnoreCase));
-            var target = spotify ?? _currentSession ?? _manager.GetCurrentSession();
+            GlobalSystemMediaTransportControlsSession? matched = null;
+
+            if (preferYouTubeMusic)
+            {
+                matched = sessions.FirstOrDefault(s => IsYouTubeMusicAppId(s.SourceAppUserModelId))
+                          ?? sessions.FirstOrDefault(s => IsBrowserAppId(s.SourceAppUserModelId));
+            }
+            else
+            {
+                matched = sessions.FirstOrDefault(s =>
+                    s.SourceAppUserModelId.Contains("spotify", StringComparison.OrdinalIgnoreCase));
+            }
+
+            var target = matched ?? _currentSession ?? _manager.GetCurrentSession() ?? sessions.FirstOrDefault();
             if (target == null) return false;
 
             if (target != _currentSession)
@@ -80,6 +94,22 @@ internal sealed class MediaPlayerService : IDisposable
         {
             return false;
         }
+    }
+
+    private static bool IsYouTubeMusicAppId(string? appId)
+    {
+        if (string.IsNullOrWhiteSpace(appId)) return false;
+        string lower = appId.ToLowerInvariant();
+        return lower.Contains("youtube")
+               || lower.Contains("ytmdesktop")
+               || lower.Contains("cinhimbnkkaeohfgghhklpknlkffjgod");
+    }
+
+    private static bool IsBrowserAppId(string? appId)
+    {
+        if (string.IsNullOrWhiteSpace(appId)) return false;
+        string lower = appId.ToLowerInvariant();
+        return lower.Contains("brave") || lower.Contains("chrome") || lower.Contains("msedge") || lower.Contains("firefox");
     }
 
     public async Task TogglePlayPauseAsync()
@@ -261,6 +291,8 @@ internal sealed class MediaPlayerService : IDisposable
         if (string.IsNullOrWhiteSpace(appId)) return "Media";
         string lower = appId.ToLowerInvariant();
         if (lower.Contains("spotify")) return "Spotify";
+        if (IsYouTubeMusicAppId(appId)) return "YouTube Music";
+        if (lower.Contains("brave")) return "Brave";
         if (lower.Contains("chrome")) return "Chrome";
         if (lower.Contains("msedge")) return "Edge";
         if (lower.Contains("firefox")) return "Firefox";
