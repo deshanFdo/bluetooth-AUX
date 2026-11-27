@@ -23,6 +23,7 @@ internal sealed class IslandSettings
     public bool MuteInactiveDevices { get; set; } = true;
     public bool HardDisableAux { get; set; } = false;
     public bool ShowAuxJackMic { get; set; } = false;
+    public bool HideSpotifyToTray { get; set; } = true;
 
     public static IslandSettings Load()
     {

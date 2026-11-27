@@ -40,11 +40,45 @@ internal sealed class MediaPlayerService : IDisposable
             if (_disposed) return;
 
             _manager.CurrentSessionChanged += Manager_CurrentSessionChanged;
+            _manager.SessionsChanged += Manager_SessionsChanged;
             await BindSessionAsync(_manager.GetCurrentSession());
         }
         catch
         {
             // Ignore if SMTC is unavailable in headless/restricted contexts
+        }
+    }
+
+    public bool HasAnySession => (_currentSession ?? _manager?.GetCurrentSession()) != null;
+
+    public async Task<bool> TryPlaySpotifyAsync()
+    {
+        if (_manager == null) return false;
+        try
+        {
+            var sessions = _manager.GetSessions();
+            var spotify = sessions.FirstOrDefault(s =>
+                s.SourceAppUserModelId.Contains("spotify", StringComparison.OrdinalIgnoreCase));
+            var target = spotify ?? _currentSession ?? _manager.GetCurrentSession();
+            if (target == null) return false;
+
+            if (target != _currentSession)
+            {
+                await BindSessionAsync(target);
+            }
+
+            if (target.GetPlaybackInfo().PlaybackStatus == GlobalSystemMediaTransportControlsSessionPlaybackStatus.Playing)
+            {
+                return true;
+            }
+
+            bool ok = await target.TryPlayAsync();
+            await RefreshFromSessionAsync(target);
+            return ok || target.GetPlaybackInfo().PlaybackStatus == GlobalSystemMediaTransportControlsSessionPlaybackStatus.Playing;
+        }
+        catch
+        {
+            return false;
         }
     }
 
@@ -75,6 +109,22 @@ internal sealed class MediaPlayerService : IDisposable
     {
         if (_disposed) return;
         await BindSessionAsync(sender.GetCurrentSession());
+    }
+
+    private async void Manager_SessionsChanged(
+        GlobalSystemMediaTransportControlsSessionManager sender,
+        SessionsChangedEventArgs args)
+    {
+        if (_disposed) return;
+        var next = sender.GetCurrentSession() ?? sender.GetSessions().FirstOrDefault();
+        if (next != null && next != _currentSession)
+        {
+            await BindSessionAsync(next);
+        }
+        else if (next == null && _currentSession != null)
+        {
+            await BindSessionAsync(null);
+        }
     }
 
     private async void Session_MediaPropertiesChanged(
@@ -237,6 +287,7 @@ internal sealed class MediaPlayerService : IDisposable
         if (_manager != null)
         {
             _manager.CurrentSessionChanged -= Manager_CurrentSessionChanged;
+            _manager.SessionsChanged -= Manager_SessionsChanged;
         }
         _syncLock.Dispose();
     }

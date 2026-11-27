@@ -186,6 +186,8 @@ public partial class MainWindow : Window
     }
 
     private readonly AppAudioRouterService _appRouter = new();
+    private SpotifyControllerService? _spotify;
+    private bool _isLaunchingSpotify;
     private AudioSubTab _activeAudioSubTab = AudioSubTab.Outputs;
     private bool _isAppRouteComboOpen;
     private IntPtr _hwnd;
@@ -247,6 +249,12 @@ public partial class MainWindow : Window
         _mediaProgressTimer.Interval = TimeSpan.FromMilliseconds(500);
         _mediaProgressTimer.Tick += (_, _) => UpdateMediaProgressVisuals();
 
+        _spotify = new SpotifyControllerService(
+            Dispatcher,
+            () => HandlePlayPauseOrLaunchAsync(),
+            () => _media.NextAsync(),
+            () => _media.PreviousAsync());
+
         _media.MediaUpdated += snap => Dispatcher.BeginInvoke(() => UpdateMediaUi(snap));
 
         Loaded += async (_, _) =>
@@ -260,6 +268,7 @@ public partial class MainWindow : Window
             // Keep meters, telemetry, & beacon animations stopped while resting as ThinLine (0% idle CPU)
             AnimateInitialLineEntrance();
             await _media.InitializeAsync();
+            _spotify?.SyncState(_settings.HideSpotifyToTray);
         };
 
         Deactivated += (_, _) =>
@@ -308,6 +317,7 @@ public partial class MainWindow : Window
             }
             _trayIconHandle?.Dispose();
             _trayIconHandle = null;
+            _spotify?.Dispose();
             _media.Dispose();
             _peakSampler.Dispose();
             _mirror.Dispose();
@@ -357,8 +367,12 @@ public partial class MainWindow : Window
         uint dwEventThread,
         uint dwmsEventTime)
     {
-        // Re-assert HWND_TOPMOST without stealing focus when other apps/Start/overlays shift foreground Z-order.
-        Dispatcher.BeginInvoke(EnsureTopmostNoActivate);
+        // Re-assert HWND_TOPMOST without stealing focus and tuck minimized/background Spotify to hidden tray.
+        Dispatcher.BeginInvoke(() =>
+        {
+            EnsureTopmostNoActivate();
+            _spotify?.SyncState(_settings.HideSpotifyToTray);
+        });
     }
 
     private void OnDisplaySettingsChanged(object? sender, EventArgs e)
@@ -491,26 +505,7 @@ public partial class MainWindow : Window
         };
     }
 
-    private sealed class DarkTrayMenuRenderer : Forms.ToolStripProfessionalRenderer
-    {
-        public DarkTrayMenuRenderer() : base(new DarkTrayColorTable()) { }
 
-        protected override void OnRenderItemText(Forms.ToolStripItemTextRenderEventArgs e)
-        {
-            e.TextColor = Drawing.Color.FromArgb(241, 245, 249);
-            base.OnRenderItemText(e);
-        }
-    }
-
-    private sealed class DarkTrayColorTable : Forms.ProfessionalColorTable
-    {
-        public override Drawing.Color ToolStripDropDownBackground => Drawing.Color.FromArgb(20, 26, 40);
-        public override Drawing.Color MenuBorder => Drawing.Color.FromArgb(51, 65, 92);
-        public override Drawing.Color MenuItemSelected => Drawing.Color.FromArgb(37, 99, 235);
-        public override Drawing.Color MenuItemBorder => Drawing.Color.FromArgb(59, 130, 246);
-        public override Drawing.Color SeparatorDark => Drawing.Color.FromArgb(45, 55, 78);
-        public override Drawing.Color SeparatorLight => Drawing.Color.FromArgb(45, 55, 78);
-    }
 
     public void ExpandIslandFromWake()
     {
@@ -2622,17 +2617,19 @@ public partial class MainWindow : Window
         if (!snap.HasSession)
         {
             MediaSourceBadge.Visibility = Visibility.Collapsed;
-            MediaStatusTag.Text = "No active media";
-            MediaTitleText.Text = "Play Spotify, YouTube, or any media";
-            MediaArtistText.Text = "Live controls appear automatically";
+            MediaStatusTag.Text = _isLaunchingSpotify ? "Starting Spotify..." : "Ready";
+            MediaTitleText.Text = "Play Spotify";
+            MediaArtistText.Text = _isLaunchingSpotify
+                ? "Launching in hidden tray..."
+                : "Click ▶ to launch & play";
             MediaAlbumArt.Visibility = Visibility.Collapsed;
             MediaFallbackIcon.Visibility = Visibility.Visible;
             PillMediaArt.Visibility = Visibility.Collapsed;
             PillMediaFallbackIcon.Visibility = Visibility.Visible;
             MediaPrevBtn.IsEnabled = false;
-            MediaPlayPauseBtn.IsEnabled = false;
+            MediaPlayPauseBtn.IsEnabled = !_isLaunchingSpotify;
             MediaNextBtn.IsEnabled = false;
-            PillPlayBtn.IsEnabled = false;
+            PillPlayBtn.IsEnabled = !_isLaunchingSpotify;
             SetPlayIcons(isPlaying: false);
         }
         else
@@ -2674,6 +2671,8 @@ public partial class MainWindow : Window
             }
         }
 
+        UpdateSpotifyWindowButtonText();
+        _spotify?.SyncState(_settings.HideSpotifyToTray);
         UpdateCompactPillMediaAndRoute();
         UpdateMediaProgressVisuals();
         UpdateMediaProgressState();
@@ -2761,10 +2760,10 @@ public partial class MainWindow : Window
 
     private void UpdateCompactPillMediaAndRoute()
     {
-        PillMediaTitle.Text = _lastMedia.HasSession ? _lastMedia.Title : "Nothing Playing";
+        PillMediaTitle.Text = _lastMedia.HasSession ? _lastMedia.Title : "Play Spotify";
         PillMediaArtist.Text = _lastMedia.HasSession
             ? (string.IsNullOrWhiteSpace(_lastMedia.Artist) ? _lastMedia.SourceApp : _lastMedia.Artist)
-            : "Spotify / Media";
+            : (_isLaunchingSpotify ? "Starting..." : "Click ▶ to start");
 
         if (_settings.ShowPillMediaTitle && _lastMedia.HasSession && _lastMedia.IsPlaying && !_mirror.IsRunning)
         {
@@ -2782,6 +2781,7 @@ public partial class MainWindow : Window
         try
         {
             OptMediaPlayerCheck.IsChecked = _settings.ShowMediaPlayer;
+            OptHideSpotifyTrayCheck.IsChecked = _settings.HideSpotifyToTray;
             OptLaptopBatCheck.IsChecked = _settings.ShowLaptopBattery;
             OptBtBatCheck.IsChecked = _settings.ShowBluetoothBatteries;
             OptSysStatsCheck.IsChecked = _settings.ShowSystemStats;
@@ -2865,6 +2865,8 @@ public partial class MainWindow : Window
         if (_isUpdatingUi) return;
 
         _settings.ShowMediaPlayer = OptMediaPlayerCheck.IsChecked == true;
+        _settings.HideSpotifyToTray = OptHideSpotifyTrayCheck.IsChecked == true;
+        _spotify?.SyncState(_settings.HideSpotifyToTray);
         _settings.ShowLaptopBattery = OptLaptopBatCheck.IsChecked == true;
         _settings.ShowBluetoothBatteries = OptBtBatCheck.IsChecked == true;
         _settings.ShowSystemStats = OptSysStatsCheck.IsChecked == true;
@@ -2892,8 +2894,58 @@ public partial class MainWindow : Window
     }
 
     private async void MediaPrevBtn_Click(object sender, RoutedEventArgs e) => await _media.PreviousAsync();
-    private async void MediaPlayPauseBtn_Click(object sender, RoutedEventArgs e) => await _media.TogglePlayPauseAsync();
+    private async void MediaPlayPauseBtn_Click(object sender, RoutedEventArgs e) => await HandlePlayPauseOrLaunchAsync();
     private async void MediaNextBtn_Click(object sender, RoutedEventArgs e) => await _media.NextAsync();
+
+    private void SpotifyWindowBtn_Click(object sender, RoutedEventArgs e)
+    {
+        _spotify?.ToggleSpotifyWindowVisibility();
+        UpdateSpotifyWindowButtonText();
+    }
+
+    private void UpdateSpotifyWindowButtonText()
+    {
+        if (_spotify == null || !_spotify.IsSpotifyRunning())
+        {
+            SpotifyWindowBtn.Content = "Open";
+        }
+        else
+        {
+            SpotifyWindowBtn.Content = _spotify.IsAnySpotifyWindowVisible() ? "Hide" : "Show";
+        }
+    }
+
+    private async Task HandlePlayPauseOrLaunchAsync()
+    {
+        if (_lastMedia.HasSession || _media.HasAnySession)
+        {
+            await _media.TogglePlayPauseAsync();
+            _spotify?.SyncState(_settings.HideSpotifyToTray);
+            return;
+        }
+
+        if (_spotify == null || _isLaunchingSpotify) return;
+        _isLaunchingSpotify = true;
+        UpdateMediaUi(_lastMedia);
+        try
+        {
+            var res = await _spotify.LaunchAndPlayAsync(
+                _media,
+                _settings.HideSpotifyToTray,
+                msg => Dispatcher.BeginInvoke(() =>
+                {
+                    MediaStatusTag.Text = msg;
+                    PillMediaArtist.Text = msg;
+                    SetStatus(msg);
+                }));
+            SetStatus(res.StatusMessage);
+        }
+        finally
+        {
+            _isLaunchingSpotify = false;
+            UpdateMediaUi(_media.Current);
+        }
+    }
 
     private static void OpenBluetoothSettings()
     {
@@ -2908,4 +2960,25 @@ public partial class MainWindow : Window
     }
 
     private void SetStatus(string text) => StatusBanner.Text = text;
+}
+
+internal sealed class DarkTrayMenuRenderer : Forms.ToolStripProfessionalRenderer
+{
+    public DarkTrayMenuRenderer() : base(new DarkTrayColorTable()) { }
+
+    protected override void OnRenderItemText(Forms.ToolStripItemTextRenderEventArgs e)
+    {
+        e.TextColor = Drawing.Color.FromArgb(241, 245, 249);
+        base.OnRenderItemText(e);
+    }
+}
+
+internal sealed class DarkTrayColorTable : Forms.ProfessionalColorTable
+{
+    public override Drawing.Color ToolStripDropDownBackground => Drawing.Color.FromArgb(20, 26, 40);
+    public override Drawing.Color MenuBorder => Drawing.Color.FromArgb(51, 65, 92);
+    public override Drawing.Color MenuItemSelected => Drawing.Color.FromArgb(37, 99, 235);
+    public override Drawing.Color MenuItemBorder => Drawing.Color.FromArgb(59, 130, 246);
+    public override Drawing.Color SeparatorDark => Drawing.Color.FromArgb(45, 55, 78);
+    public override Drawing.Color SeparatorLight => Drawing.Color.FromArgb(45, 55, 78);
 }
