@@ -30,12 +30,12 @@ import CopyShaButton from "@/components/CopyShaButton";
 import DownloadButton from "@/components/DownloadButton";
 
 const INSTALLER_URL =
-  "https://0hwpieezbnk7w7cc.public.blob.vercel-storage.com/v1.0.2/AudioSwitch-Setup.exe";
+  "https://0hwpieezbnk7w7cc.public.blob.vercel-storage.com/v1.1.0/AudioSwitch-Setup.exe";
 const PORTABLE_URL =
-  "https://0hwpieezbnk7w7cc.public.blob.vercel-storage.com/v1.0.2/AudioSwitch.exe";
+  "https://0hwpieezbnk7w7cc.public.blob.vercel-storage.com/v1.1.0/AudioSwitch.exe";
 const GITHUB_URL = "https://github.com/deshanFdo/bluetooth-AUX";
 const SHA256_SETUP =
-  "181DEE634346257AA1E62CA3D28E0B1849B7145B2579E0DE02E0D195F917B73C";
+  "DA4AE686D533E06AF716B696D29BC9A6DE5BAD7C8BDC5267D7CEDE1003A159CA";
 
 const FAQS = [
   {
@@ -64,7 +64,7 @@ const JSON_LD = {
       name: "Audio Switch",
       applicationCategory: "UtilitiesApplication",
       operatingSystem: "Windows 10, Windows 11 (x64)",
-      softwareVersion: "1.0.2",
+      softwareVersion: "1.1.0",
       fileSize: "74.4MB",
       downloadUrl: INSTALLER_URL,
       url: "https://audio-switch.vercel.app",
@@ -83,6 +83,7 @@ const JSON_LD = {
       featureList: [
         "Instant AUX wired headphone, Bluetooth headset, speaker, and microphone switching via Core Audio COM",
         "Simultaneous multi-output WASAPI mirroring with 0-350ms sync delay compensation",
+      "Per-app split audio routing (play music on AUX while Discord uses your Bluetooth headset and mic)",
         "Native Windows SMTC Spotify and browser media controls with interpolated progress bar",
         "Connected laptop and Bluetooth headset battery percentage rings",
         "System tray mode with ~0% idle CPU and Windows Settings uninstaller",
@@ -118,7 +119,7 @@ export default function HomePage() {
             </span>
             <span className="text-sm font-semibold tracking-tight text-white">Audio Switch</span>
             <span className="rounded border border-white/10 bg-white/[0.03] px-1.5 py-0.5 font-mono text-[10.5px] text-neutral-400">
-              v1.0.2
+              v1.1.0
             </span>
           </div>
 
@@ -332,7 +333,7 @@ export default function HomePage() {
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <span className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wider text-neutral-500">
                     <Terminal className="h-3 w-3" />
-                    SHA-256 (v1.0.2 Installer)
+                    SHA-256 (v1.1.0 Installer)
                   </span>
                   <CopyShaButton value={SHA256_SETUP} />
                 </div>
@@ -363,7 +364,7 @@ export default function HomePage() {
 
       <footer className="border-t border-white/[0.07] py-6 text-center text-xs text-neutral-500">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-center gap-x-5 gap-y-2 px-6">
-          <span>Audio Switch v1.0.2 · Deshan Fernando</span>
+          <span>Audio Switch v1.1.0 · Deshan Fernando</span>
           <Link href="/about" className="inline-flex items-center gap-1 hover:text-neutral-300">
             <Info className="h-3 w-3" />
             About

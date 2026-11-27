@@ -9,7 +9,7 @@
     <UseWindowsForms>true</UseWindowsForms>
     <AssemblyName>AudioSwitch</AssemblyName>
     <RootNamespace>AudioSwitch</RootNamespace>
-    <Version>1.0.2</Version>
+    <Version>1.1.0</Version>
     <ApplicationIcon>Assets\AudioSwitch.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <NoWarn>WFAC010</NoWarn>

@@ -167,6 +167,34 @@ public partial class App : System.Windows.Application
             Console.WriteLine($"  {b.DeviceName}: {b.Percent}%");
         }
 
+        using var appRouter = new AppAudioRouterService();
+        bool appSupported = appRouter.IsSupported;
+        Console.WriteLine($"AppAudioPolicy interface: {appRouter.ActiveInterfaceName} (Supported={appSupported})");
+        if (appSupported && renders.Count > 0)
+        {
+            uint selfPid = (uint)Environment.ProcessId;
+            string testEndpointId = renders[0].Id;
+            var swd = AppAudioRouterService.FormatSwdDeviceId(testEndpointId, EDataFlow.Render);
+            try
+            {
+                var probe = appRouter.ProbePidRoundTrip(selfPid, testEndpointId);
+                Console.WriteLine(
+                    $"AppAudioPolicy probe: SetHr=0x{probe.SetHr:X8} | SWD={swd} | Match={probe.Match} | Cleared={probe.Cleared} | ReadBack={probe.ReadBack ?? "<null>"}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"AppAudioPolicy probe threw: {ex.Message}");
+            }
+        }
+
+        var apps = appRouter.GetRunningAudioApps();
+        Console.WriteLine($"Detected {apps.Count} running audio apps:");
+        foreach (var app in apps)
+        {
+            Console.WriteLine(
+                $"  {app.DisplayName} ({app.ProcessName}.exe) | PIDs={app.ProcessIds.Count} | Active={app.IsAudioActive} | RoutedOut={app.RoutedRenderEndpointId ?? "Default"} | RoutedMic={app.RoutedCaptureEndpointId ?? "Default"}");
+        }
+
         Console.Out.Flush();
     }
 
