@@ -6,6 +6,7 @@ import {
   Bluetooth,
   CheckCircle2,
   Cpu,
+  EyeOff,
   Folder,
   Github,
   Headphones,
@@ -18,10 +19,12 @@ import {
   Monitor,
   Music2,
   Package,
+  Radio,
   Shield,
   ShieldAlert,
   Sliders,
   Sparkles,
+  Split,
   Tag,
   Terminal,
 } from "lucide-react";
@@ -43,16 +46,24 @@ const FAQS = [
     a: "Hover the top edge of your screen, click the Audio Switch pill, and toggle Bluetooth on. It switches your Windows default output in <1ms and can mute the idle 3.5mm jack automatically — so you never have to unplug your AUX cable again.",
   },
   {
-    q: "How do I play audio on Bluetooth headphones and wired AUX at the same time in Windows 11 without delay?",
-    a: "Audio Switch includes Multi-Output Mirroring backed by user-mode WASAPI loopback capture and a configurable 0–350 ms FIFO sync delay slider (170 ms default), delaying wired AUX output slightly so it lines up with wireless Bluetooth latency.",
+    q: "Can I play songs on AUX while using my Bluetooth headset and mic for a Discord call?",
+    a: "Yes. Open the Apps tab inside Audio Island and click Dual Split (Music → AUX + Calls → Bluetooth), or pick endpoints per app. Audio Switch uses Windows AudioPolicyConfig across all child PIDs, pairs call microphones to your Bluetooth headset, and keeps pinned devices unmuted.",
+  },
+  {
+    q: "What happens if I click Play when Spotify is closed, and does it stay off my taskbar?",
+    a: "Clicking Play launches Spotify automatically (Microsoft Store or desktop .exe), waits until playback starts, and tucks Spotify off your taskbar into its own green Windows Hidden Tray icon (^), where left-clicking shows or hides Spotify anytime.",
+  },
+  {
+    q: "How do I play the same audio on Bluetooth headphones and wired AUX together without echo?",
+    a: "Use Multi-Output Mirror under Outputs. It captures your primary stream via user-mode WASAPI loopback and adds a 0–350 ms FIFO delay slider (170 ms default) so wired AUX aligns with wireless Bluetooth latency.",
   },
   {
     q: "Does Audio Switch require installing .NET Runtime or VB-Cable?",
-    a: "No. AudioSwitch-Setup.exe (74.4 MB) bundles the .NET 8 desktop runtime and native WPF libraries into a single self-contained file and uses Windows Core Audio COM directly without virtual audio drivers.",
+    a: "No. AudioSwitch-Setup.exe (74.4 MB) bundles the .NET 8 desktop runtime and native WPF libraries into one self-contained executable using Windows Core Audio COM directly.",
   },
   {
-    q: "How much CPU does it use when minimized or gaming?",
-    a: "Practically zero (~0.031s CPU over 6 seconds measured at rest). Peak meters, telemetry polling, and spring loops stop completely once the pill rests at the top edge.",
+    q: "Why doesn't the top-edge line get buried, and how much CPU does it use?",
+    a: "Event-driven HWND_TOPMOST recovery re-lifts the capsule on foreground changes, Win+D, and display/DPI shifts without polling timers. At rest, meters and samplers stop completely (0.000s–0.078s CPU over 6 seconds).",
   },
 ];
 
@@ -70,7 +81,7 @@ const JSON_LD = {
       url: "https://audio-switch.vercel.app",
       sameAs: [GITHUB_URL],
       description:
-        "iOS-style top-of-screen Dynamic Island for Windows 10/11 to switch AUX headphones, Bluetooth headsets, speakers, and microphones without unplugging cables, mirror multi-output audio with FIFO sync delay, control Spotify/browser media, and monitor connected Bluetooth headset battery rings at ~0% idle CPU.",
+        "iOS-style top-of-screen Dynamic Island for Windows 10/11: switch AUX headphones, Bluetooth headsets, speakers, and microphones without unplugging cables, split Spotify/browser music onto AUX while Discord calls use Bluetooth, auto-launch Spotify into the Windows hidden tray, mirror multi-output audio with FIFO sync delay, and monitor connected Bluetooth battery rings at ~0% idle CPU.",
       author: {
         "@type": "Person",
         name: "Deshan Fernando",
@@ -82,11 +93,11 @@ const JSON_LD = {
       },
       featureList: [
         "Instant AUX wired headphone, Bluetooth headset, speaker, and microphone switching via Core Audio COM",
+        "Per-app split audio routing (play music on AUX while Discord uses your Bluetooth headset and mic)",
+        "One-click Spotify auto-launch & play from closed state with hidden tray icon mode (off taskbar)",
         "Simultaneous multi-output WASAPI mirroring with 0-350ms sync delay compensation",
-      "Per-app split audio routing (play music on AUX while Discord uses your Bluetooth headset and mic)",
-        "Native Windows SMTC Spotify and browser media controls with interpolated progress bar",
-        "Connected laptop and Bluetooth headset battery percentage rings",
-        "System tray mode with ~0% idle CPU and Windows Settings uninstaller",
+        "Connected laptop and Bluetooth headset battery percentage rings (DEVPKEY_Device_IsConnected filtered)",
+        "Persistent top-edge line with event-driven HWND_TOPMOST recovery, Win+D protection, and ~0% idle CPU",
       ],
     },
     {
@@ -129,7 +140,7 @@ export default function HomePage() {
               className="hidden items-center gap-1.5 transition hover:text-white sm:inline-flex"
             >
               <Sliders className="h-3.5 w-3.5" />
-              How it works
+              Capabilities
             </a>
             <a
               href="#install"
@@ -172,9 +183,10 @@ export default function HomePage() {
           </h1>
 
           <p className="mx-auto mt-5 max-w-xl text-[15.5px] leading-relaxed text-neutral-400">
-            No longer need to unplug your 3.5mm AUX cable from your computer just to listen through
-            a Bluetooth headset that&apos;s already connected — switch between AUX, Bluetooth,
-            speakers, and mics right from here, or slide into Spotify and battery rings.
+            No longer need to unplug your 3.5mm AUX cable just to listen through a Bluetooth
+            headset that&apos;s already connected — switch outputs &amp; mics instantly, split
+            music onto AUX while Discord uses your headset, or click Play to launch Spotify
+            straight into your hidden tray.
           </p>
 
           <div className="mt-8 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:flex-wrap sm:items-center">
@@ -206,53 +218,99 @@ export default function HomePage() {
           <DynamicIslandDemo />
         </section>
 
-        {/* Clean 3-Row Technical Overview */}
+        {/* Clean 6-Capability Engineering Grid */}
         <section id="how-it-works" className="mt-24 border-t border-white/[0.08] pt-14">
-          <div className="grid gap-10 md:grid-cols-3">
+          <div className="grid gap-x-10 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
             <div>
               <div className="flex items-center gap-2 font-mono text-[11px] text-neutral-500">
                 <Headphones className="h-3.5 w-3.5 text-emerald-400" />
                 <Bluetooth className="h-3.5 w-3.5 text-blue-400" />
-                <span>01 / CORE AUDIO + MIRROR</span>
+                <span>01 / ZERO-UNPLUG ROUTING</span>
               </div>
               <h2 className="mt-2.5 text-base font-semibold text-white">
-                Instant switch &amp; sync delay
+                Instant AUX, BT &amp; Mic switching
               </h2>
               <p className="mt-2 text-sm leading-relaxed text-neutral-400">
-                Uses Windows Core Audio COM (<code className="text-neutral-300">IPolicyConfig</code>
-                ) for sub-millisecond output &amp; mic switching, plus a user-mode WASAPI loopback
-                buffer with 0–350 ms delay compensation to align Bluetooth and wired speakers.
+                Uses native Windows Core Audio COM (<code className="text-neutral-300">IPolicyConfig</code>)
+                for sub-millisecond output and microphone switching, auto-muting idle endpoints so
+                you never pull your 3.5mm plug again.
+              </p>
+            </div>
+
+            <div>
+              <div className="flex items-center gap-2 font-mono text-[11px] text-neutral-500">
+                <Split className="h-3.5 w-3.5 text-cyan-400" />
+                <Mic className="h-3.5 w-3.5 text-purple-400" />
+                <span>02 / PER-APP SPLIT AUDIO</span>
+              </div>
+              <h2 className="mt-2.5 text-base font-semibold text-white">
+                Songs on AUX, Discord on headset
+              </h2>
+              <p className="mt-2 text-sm leading-relaxed text-neutral-400">
+                Inside the <strong className="font-medium text-neutral-200">Apps</strong> tab, one
+                click splits Spotify or browsers to wired AUX while routing Discord, Teams, or Zoom
+                voice and headset mic to Bluetooth via Windows <code className="text-neutral-300">AudioPolicyConfig</code>.
+              </p>
+            </div>
+
+            <div>
+              <div className="flex items-center gap-2 font-mono text-[11px] text-neutral-500">
+                <Radio className="h-3.5 w-3.5 text-cyan-400" />
+                <span>03 / MULTI-OUTPUT MIRROR</span>
+              </div>
+              <h2 className="mt-2.5 text-base font-semibold text-white">
+                Play AUX + Bluetooth in sync
+              </h2>
+              <p className="mt-2 text-sm leading-relaxed text-neutral-400">
+                Captures playback via user-mode WASAPI loopback and applies a{" "}
+                <code className="text-neutral-300">0–350 ms</code> circular FIFO buffer (170 ms
+                default) so wired AUX aligns cleanly with wireless Bluetooth latency.
               </p>
             </div>
 
             <div>
               <div className="flex items-center gap-2 font-mono text-[11px] text-neutral-500">
                 <Music2 className="h-3.5 w-3.5 text-green-400" />
-                <BatteryCharging className="h-3.5 w-3.5 text-emerald-400" />
-                <span>02 / SLIDABLE ISLANDS</span>
+                <EyeOff className="h-3.5 w-3.5 text-emerald-400" />
+                <span>04 / SPOTIFY HIDDEN TRAY</span>
               </div>
               <h2 className="mt-2.5 text-base font-semibold text-white">
-                Audio, Spotify, and Power rings
+                Auto-launch, play &amp; hide taskbar
               </h2>
               <p className="mt-2 text-sm leading-relaxed text-neutral-400">
-                Click and drag left or right across the pill or deck to slide between output
-                controls, live Spotify / Chromium playback with SMTC timeline tracking, and laptop +
-                connected Bluetooth battery gauges.
+                Press Play even when Spotify is closed — it launches Spotify, triggers playback via
+                SMTC, and tucks the Spotify window off your taskbar into its own Hidden Icons tray
+                control.
               </p>
             </div>
 
             <div>
               <div className="flex items-center gap-2 font-mono text-[11px] text-neutral-500">
-                <Cpu className="h-3.5 w-3.5 text-cyan-400" />
-                <Mic className="h-3.5 w-3.5 text-purple-400" />
-                <span>03 / SYSTEM TRAY &amp; IDLE</span>
+                <BatteryCharging className="h-3.5 w-3.5 text-emerald-400" />
+                <span>05 / CONNECTED BATTERIES</span>
               </div>
               <h2 className="mt-2.5 text-base font-semibold text-white">
-                Parks at ~0% CPU when collapsed
+                Live headset &amp; system rings
               </h2>
               <p className="mt-2 text-sm leading-relaxed text-neutral-400">
-                Audio peak samplers, progress timers, and spring loops shut down completely once the
-                pill returns to rest. Runs quietly from Windows Hidden Icons without taskbar clutter.
+                Drag across the capsule to inspect laptop charge, RAM, CPU, clock, and connected-only
+                Bluetooth headset battery levels filtered via PnP{" "}
+                <code className="text-neutral-300">DEVPKEY_Device_IsConnected</code>.
+              </p>
+            </div>
+
+            <div>
+              <div className="flex items-center gap-2 font-mono text-[11px] text-neutral-500">
+                <Cpu className="h-3.5 w-3.5 text-blue-400" />
+                <span>06 / PERSISTENT &amp; ~0% IDLE</span>
+              </div>
+              <h2 className="mt-2.5 text-base font-semibold text-white">
+                Always on top, zero CPU waste
+              </h2>
+              <p className="mt-2 text-sm leading-relaxed text-neutral-400">
+                Event-driven <code className="text-neutral-300">HWND_TOPMOST</code> recovery and{" "}
+                <code className="text-neutral-300">Win+D</code> guards keep the top line visible on
+                light or dark windows while stopping meters at rest.
               </p>
             </div>
           </div>
@@ -321,7 +379,7 @@ export default function HomePage() {
                   <Cpu className="h-3.5 w-3.5" />
                   Measured idle CPU
                 </dt>
-                <dd className="min-w-0 font-mono text-neutral-200">0.031s / 6s resting</dd>
+                <dd className="min-w-0 font-mono text-neutral-200">0.000s–0.078s / 6s resting</dd>
                 <dt className="flex items-center gap-1.5 text-neutral-500">
                   <Tag className="h-3.5 w-3.5" />
                   License / Cost

@@ -14,11 +14,17 @@ import {
 
 type Stage = "rest" | "pill" | "expanded";
 type Page = 0 | 1 | 2;
+type AudioSubTab = "outputs" | "mics" | "apps";
 
 export default function DynamicIslandDemo() {
   const [stage, setStage] = useState<Stage>("pill");
   const [page, setPage] = useState<Page>(0);
+  const [audioTab, setAudioTab] = useState<AudioSubTab>("outputs");
   const [route, setRoute] = useState<"aux" | "bt" | "speakers">("bt");
+  const [micRoute, setMicRoute] = useState<"bt" | "laptop" | "aux">("bt");
+  const [spotifyOut, setSpotifyOut] = useState<"default" | "aux" | "bt">("aux");
+  const [discordOut, setDiscordOut] = useState<"default" | "aux" | "bt">("bt");
+  const [spotifyInTray, setSpotifyInTray] = useState(true);
   const [mirror, setMirror] = useState(false);
   const [vol, setVol] = useState(68);
   const [delayMs, setDelayMs] = useState(170);
@@ -44,7 +50,7 @@ export default function DynamicIslandDemo() {
   };
 
   const onDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    if ((e.target as HTMLElement).closest("button, input")) return;
+    if ((e.target as HTMLElement).closest("button, input, select")) return;
     dragStart.current = e.clientX;
     e.currentTarget.setPointerCapture(e.pointerId);
   };
@@ -327,106 +333,239 @@ export default function DynamicIslandDemo() {
                   >
                     {page === 0 && (
                       <div className="space-y-1.5">
-                        {[
-                          { key: "aux" as const, title: "AUX", sub: "Realtek HD Audio", col: "#10b981" },
-                          { key: "bt" as const, title: "Bluetooth", sub: "JBL Tune 720BT • 90%", col: "#3b82f6" },
-                          { key: "speakers" as const, title: "Speakers", sub: "Laptop Array", col: "#f59e0b" },
-                        ].map((dev) => {
-                          const on = route === dev.key;
-                          return (
-                            <div
-                              key={dev.key}
-                              className="rounded-[10px] border px-2.5 py-1.5 transition"
-                              style={{
-                                borderColor: on ? `${dev.col}88` : "rgba(255,255,255,0.08)",
-                                background: on
-                                  ? "rgba(255,255,255,0.05)"
-                                  : "rgba(255,255,255,0.02)",
-                              }}
+                        {/* Outputs | Microphones | Apps sub-tabs */}
+                        <div className="grid grid-cols-3 gap-0.5 rounded-[8px] border border-white/10 bg-black/40 p-0.5">
+                          {(
+                            [
+                              { id: "outputs", label: "Outputs" },
+                              { id: "mics", label: "Microphones" },
+                              { id: "apps", label: "Apps" },
+                            ] as { id: AudioSubTab; label: string }[]
+                          ).map((st) => (
+                            <button
+                              key={st.id}
+                              onClick={() => setAudioTab(st.id)}
+                              className={`h-5 rounded-[6px] text-[10px] font-medium transition ${
+                                audioTab === st.id
+                                  ? "bg-blue-600 text-white"
+                                  : "text-neutral-400 hover:text-white"
+                              }`}
                             >
-                              <div className="flex items-center justify-between">
-                                <div>
-                                  <div className="flex items-center gap-1.5">
-                                    <span className="text-[11.5px] font-semibold text-white">
-                                      {dev.title}
-                                    </span>
-                                    {on && (
-                                      <span className="text-[8.5px] font-bold uppercase tracking-wider text-emerald-400">
-                                        Active
-                                      </span>
-                                    )}
-                                  </div>
-                                  <p className="text-[9.5px] text-neutral-400">{dev.sub}</p>
-                                </div>
-                                <button
-                                  onClick={() => setRoute(dev.key)}
-                                  className={`relative h-[20px] w-[36px] rounded-full border transition ${
-                                    on
-                                      ? "border-blue-400 bg-blue-600"
-                                      : "border-neutral-600 bg-neutral-800"
-                                  }`}
-                                  aria-label={`Switch to ${dev.title}`}
+                              {st.label}
+                            </button>
+                          ))}
+                        </div>
+
+                        {audioTab === "outputs" && (
+                          <>
+                            {[
+                              { key: "aux" as const, title: "AUX", sub: "Realtek HD Audio", col: "#10b981" },
+                              { key: "bt" as const, title: "Bluetooth", sub: "JBL Tune 720BT • 90%", col: "#3b82f6" },
+                              { key: "speakers" as const, title: "Speakers", sub: "Laptop Array", col: "#f59e0b" },
+                            ].map((dev) => {
+                              const on = route === dev.key;
+                              return (
+                                <div
+                                  key={dev.key}
+                                  className="rounded-[10px] border px-2.5 py-1.5 transition"
+                                  style={{
+                                    borderColor: on ? `${dev.col}88` : "rgba(255,255,255,0.08)",
+                                    background: on
+                                      ? "rgba(255,255,255,0.05)"
+                                      : "rgba(255,255,255,0.02)",
+                                  }}
                                 >
-                                  <span
-                                    className={`absolute top-[2px] h-3.5 w-3.5 rounded-full bg-white transition-all ${
-                                      on ? "left-[18px]" : "left-[2px]"
-                                    }`}
-                                  />
+                                  <div className="flex items-center justify-between">
+                                    <div>
+                                      <div className="flex items-center gap-1.5">
+                                        <span className="text-[11.5px] font-semibold text-white">
+                                          {dev.title}
+                                        </span>
+                                        {on && (
+                                          <span className="text-[8.5px] font-bold uppercase tracking-wider text-emerald-400">
+                                            Active
+                                          </span>
+                                        )}
+                                      </div>
+                                      <p className="text-[9.5px] text-neutral-400">{dev.sub}</p>
+                                    </div>
+                                    <button
+                                      onClick={() => setRoute(dev.key)}
+                                      className={`relative h-[20px] w-[36px] rounded-full border transition ${
+                                        on
+                                          ? "border-blue-400 bg-blue-600"
+                                          : "border-neutral-600 bg-neutral-800"
+                                      }`}
+                                      aria-label={`Switch to ${dev.title}`}
+                                    >
+                                      <span
+                                        className={`absolute top-[2px] h-3.5 w-3.5 rounded-full bg-white transition-all ${
+                                          on ? "left-[18px]" : "left-[2px]"
+                                        }`}
+                                      />
+                                    </button>
+                                  </div>
+                                  {(on || mirror) && (
+                                    <div className="mt-1 flex items-center gap-2">
+                                      <span className="text-[9px] text-neutral-400">Vol</span>
+                                      <input
+                                        type="range"
+                                        min={0}
+                                        max={100}
+                                        value={vol}
+                                        onChange={(e) => setVol(Number(e.target.value))}
+                                        className="h-1 flex-1 accent-blue-400"
+                                      />
+                                      <span className="w-7 text-right text-[9.5px] text-neutral-300 tabular-nums">
+                                        {vol}%
+                                      </span>
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })}
+
+                            <div className="rounded-[10px] border border-white/10 bg-white/[0.02] px-2.5 py-1.5">
+                              <div className="flex items-center justify-between">
+                                <span className="text-[11px] font-medium text-neutral-200">
+                                  Multi-Output Mirror
+                                </span>
+                                <button
+                                  onClick={() => setMirror((m) => !m)}
+                                  className={`rounded px-2 py-0.5 text-[9.5px] font-semibold transition ${
+                                    mirror
+                                      ? "bg-cyan-500/20 text-cyan-300"
+                                      : "bg-white/10 text-neutral-300 hover:bg-white/15"
+                                  }`}
+                                >
+                                  {mirror ? "Single Mode" : "Sync AUX + BT"}
                                 </button>
                               </div>
-                              {(on || mirror) && (
+                              {mirror && (
                                 <div className="mt-1 flex items-center gap-2">
-                                  <span className="text-[9px] text-neutral-400">Vol</span>
+                                  <span className="text-[9px] text-cyan-300">Delay</span>
                                   <input
                                     type="range"
                                     min={0}
-                                    max={100}
-                                    value={vol}
-                                    onChange={(e) => setVol(Number(e.target.value))}
-                                    className="h-1 flex-1 accent-blue-400"
+                                    max={350}
+                                    value={delayMs}
+                                    onChange={(e) => setDelayMs(Number(e.target.value))}
+                                    className="h-1 flex-1 accent-cyan-400"
                                   />
-                                  <span className="w-7 text-right text-[9.5px] text-neutral-300 tabular-nums">
-                                    {vol}%
+                                  <span className="w-10 text-right text-[9.5px] text-neutral-300 tabular-nums">
+                                    {delayMs} ms
                                   </span>
                                 </div>
                               )}
                             </div>
-                          );
-                        })}
+                          </>
+                        )}
 
-                        <div className="rounded-[10px] border border-white/10 bg-white/[0.02] px-2.5 py-1.5">
-                          <div className="flex items-center justify-between">
-                            <span className="text-[11px] font-medium text-neutral-200">
-                              Multi-Output Mirror
-                            </span>
-                            <button
-                              onClick={() => setMirror((m) => !m)}
-                              className={`rounded px-2 py-0.5 text-[9.5px] font-semibold transition ${
-                                mirror
-                                  ? "bg-cyan-500/20 text-cyan-300"
-                                  : "bg-white/10 text-neutral-300 hover:bg-white/15"
-                              }`}
-                            >
-                              {mirror ? "Single Mode" : "Sync AUX + BT"}
-                            </button>
+                        {audioTab === "mics" && (
+                          <div className="space-y-1.5">
+                            {[
+                              { key: "bt" as const, title: "Bluetooth Mic", sub: "JBL Tune 720BT Hands-Free" },
+                              { key: "laptop" as const, title: "Laptop Mic", sub: "Realtek Microphone Array" },
+                              { key: "aux" as const, title: "AUX Jack Mic", sub: "Wired 3.5mm Headset" },
+                            ].map((m) => {
+                              const on = micRoute === m.key;
+                              return (
+                                <div
+                                  key={m.key}
+                                  className="flex items-center justify-between rounded-[10px] border px-2.5 py-1.5"
+                                  style={{
+                                    borderColor: on ? "#a855f788" : "rgba(255,255,255,0.08)",
+                                    background: on ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.02)",
+                                  }}
+                                >
+                                  <div>
+                                    <p className="text-[11px] font-semibold text-white">{m.title}</p>
+                                    <p className="text-[9.5px] text-neutral-400">{m.sub}</p>
+                                  </div>
+                                  <button
+                                    onClick={() => setMicRoute(m.key)}
+                                    className={`relative h-[20px] w-[36px] rounded-full border transition ${
+                                      on ? "border-purple-400 bg-purple-600" : "border-neutral-600 bg-neutral-800"
+                                    }`}
+                                    aria-label={`Use ${m.title}`}
+                                  >
+                                    <span
+                                      className={`absolute top-[2px] h-3.5 w-3.5 rounded-full bg-white transition-all ${
+                                        on ? "left-[18px]" : "left-[2px]"
+                                      }`}
+                                    />
+                                  </button>
+                                </div>
+                              );
+                            })}
                           </div>
-                          {mirror && (
-                            <div className="mt-1 flex items-center gap-2">
-                              <span className="text-[9px] text-cyan-300">Delay</span>
-                              <input
-                                type="range"
-                                min={0}
-                                max={350}
-                                value={delayMs}
-                                onChange={(e) => setDelayMs(Number(e.target.value))}
-                                className="h-1 flex-1 accent-cyan-400"
-                              />
-                              <span className="w-10 text-right text-[9.5px] text-neutral-300 tabular-nums">
-                                {delayMs} ms
-                              </span>
+                        )}
+
+                        {audioTab === "apps" && (
+                          <div className="space-y-1.5">
+                            <div className="rounded-[10px] border border-white/10 bg-white/[0.03] px-2.5 py-2">
+                              <div className="flex items-center justify-between gap-2">
+                                <span className="text-[10.5px] font-semibold text-white">
+                                  Dual Split
+                                </span>
+                                <button
+                                  onClick={() => {
+                                    setSpotifyOut("default");
+                                    setDiscordOut("default");
+                                  }}
+                                  className="rounded border border-white/10 bg-white/5 px-2 py-0.5 text-[9px] text-neutral-300 hover:bg-white/10"
+                                >
+                                  Reset
+                                </button>
+                              </div>
+                              <button
+                                onClick={() => {
+                                  setSpotifyOut("aux");
+                                  setDiscordOut("bt");
+                                }}
+                                className="mt-1.5 w-full rounded-[7px] border border-cyan-400/30 bg-cyan-500/10 py-1 text-[10px] font-medium text-cyan-200 hover:bg-cyan-500/20"
+                              >
+                                Split: Music → AUX + Calls → Bluetooth
+                              </button>
                             </div>
-                          )}
-                        </div>
+
+                            <div className="flex items-center justify-between gap-2 rounded-[10px] border border-white/10 bg-white/[0.02] px-2.5 py-1.5">
+                              <div className="min-w-0">
+                                <p className="text-[11px] font-semibold text-white">Spotify</p>
+                                <p className="truncate text-[9px] text-emerald-400">
+                                  Playing → {spotifyOut === "aux" ? "AUX (3.5mm)" : spotifyOut === "bt" ? "BT • JBL" : "Default"}
+                                </p>
+                              </div>
+                              <select
+                                value={spotifyOut}
+                                onChange={(e) => setSpotifyOut(e.target.value as "default" | "aux" | "bt")}
+                                className="rounded-md border border-white/15 bg-[#101624] px-2 py-1 text-[10px] text-white"
+                              >
+                                <option value="default">Default</option>
+                                <option value="aux">AUX (3.5mm)</option>
+                                <option value="bt">BT • JBL Tune</option>
+                              </select>
+                            </div>
+
+                            <div className="flex items-center justify-between gap-2 rounded-[10px] border border-white/10 bg-white/[0.02] px-2.5 py-1.5">
+                              <div className="min-w-0">
+                                <p className="text-[11px] font-semibold text-white">Discord</p>
+                                <p className="truncate text-[9px] text-blue-300">
+                                  Call + Mic → {discordOut === "bt" ? "BT • JBL" : discordOut === "aux" ? "AUX (3.5mm)" : "Default"}
+                                </p>
+                              </div>
+                              <select
+                                value={discordOut}
+                                onChange={(e) => setDiscordOut(e.target.value as "default" | "aux" | "bt")}
+                                className="rounded-md border border-white/15 bg-[#101624] px-2 py-1 text-[10px] text-white"
+                              >
+                                <option value="default">Default</option>
+                                <option value="bt">BT • JBL Tune</option>
+                                <option value="aux">AUX (3.5mm)</option>
+                              </select>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     )}
 
@@ -437,15 +576,23 @@ export default function DynamicIslandDemo() {
                             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-white/15 bg-neutral-900 text-base text-emerald-400">
                               ♪
                             </div>
-                            <div className="min-w-0">
-                              <p className="text-[9.5px] font-medium text-emerald-400">
-                                Spotify · {playing ? "Now Playing" : "Paused"}
-                              </p>
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center justify-between gap-2">
+                                <p className="text-[9.5px] font-medium text-emerald-400">
+                                  Spotify · {playing ? "Now Playing" : "Paused"}
+                                </p>
+                                <button
+                                  onClick={() => setSpotifyInTray((v) => !v)}
+                                  className="rounded border border-white/10 bg-white/5 px-1.5 py-0.5 text-[9px] text-neutral-300 hover:bg-white/10"
+                                >
+                                  {spotifyInTray ? "Show" : "Hide"}
+                                </button>
+                              </div>
                               <p className="truncate text-[13px] font-semibold text-white">
                                 Teardrop
                               </p>
                               <p className="truncate text-[10.5px] text-neutral-400">
-                                Massive Attack
+                                Massive Attack · {spotifyInTray ? "Hidden Tray" : "Taskbar"}
                               </p>
                             </div>
                           </div>
