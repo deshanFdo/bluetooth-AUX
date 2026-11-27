@@ -267,7 +267,9 @@ public partial class MainWindow : Window
             RefreshDevices();
             // Keep meters, telemetry, & beacon animations stopped while resting as ThinLine (0% idle CPU)
             AnimateInitialLineEntrance();
+            _media.SetPreferredProvider(_settings.UseYouTubeMusicDefault);
             await _media.InitializeAsync();
+            _media.SetPreferredProvider(_settings.UseYouTubeMusicDefault);
             _musicApp?.SyncAllStates(_settings.HideSpotifyToTray);
         };
 
@@ -2941,20 +2943,70 @@ public partial class MainWindow : Window
         return _settings.UseYouTubeMusicDefault ? MusicAppKind.YouTubeMusic : MusicAppKind.Spotify;
     }
 
-    private void MusicProviderBtn_Click(object sender, RoutedEventArgs e)
+    private async void SpotifySelectBtn_Click(object sender, RoutedEventArgs e)
+        => await SwitchMusicProviderAsync(MusicAppKind.Spotify, autoPlayOnSwitch: true);
+
+    private async void YtMusicSelectBtn_Click(object sender, RoutedEventArgs e)
+        => await SwitchMusicProviderAsync(MusicAppKind.YouTubeMusic, autoPlayOnSwitch: true);
+
+    private async void PillProviderBtn_Click(object sender, RoutedEventArgs e)
     {
-        _settings.UseYouTubeMusicDefault = !_settings.UseYouTubeMusicDefault;
+        var next = _settings.UseYouTubeMusicDefault ? MusicAppKind.Spotify : MusicAppKind.YouTubeMusic;
+        await SwitchMusicProviderAsync(next, autoPlayOnSwitch: true);
+    }
+
+    private async Task SwitchMusicProviderAsync(MusicAppKind targetKind, bool autoPlayOnSwitch)
+    {
+        bool targetIsYt = targetKind == MusicAppKind.YouTubeMusic;
+        _settings.UseYouTubeMusicDefault = targetIsYt;
         _settings.Save();
+        _media.SetPreferredProvider(targetIsYt);
         UpdateMusicWindowAndProviderUi();
-        UpdateMediaUi(_lastMedia);
-        SetStatus(_settings.UseYouTubeMusicDefault
-            ? "Quick Play launcher set to YouTube Music."
-            : "Quick Play launcher set to Spotify.");
+
+        // Pause the other service seamlessly so Spotify and YouTube Music never talk over each other
+        await _media.PauseCompetingSessionsAsync(targetIsYt);
+
+        if (autoPlayOnSwitch)
+        {
+            if (await _media.TryPlayMatchingAsync(targetIsYt))
+            {
+                _musicApp?.SyncAllStates(_settings.HideSpotifyToTray);
+                UpdateMediaUi(_media.Current);
+                SetStatus(targetIsYt ? "Switched playback to YouTube Music." : "Switched playback to Spotify.");
+                return;
+            }
+
+            if (_musicApp != null && !_isLaunchingMusicApp)
+            {
+                _isLaunchingMusicApp = true;
+                UpdateMediaUi(_lastMedia);
+                try
+                {
+                    var res = await _musicApp.LaunchAndPlayAsync(
+                        targetKind,
+                        _media,
+                        _settings.HideSpotifyToTray,
+                        msg => Dispatcher.BeginInvoke(() =>
+                        {
+                            MediaStatusTag.Text = msg;
+                            PillMediaArtist.Text = msg;
+                            SetStatus(msg);
+                        }));
+                    SetStatus(res.StatusMessage);
+                }
+                finally
+                {
+                    _isLaunchingMusicApp = false;
+                }
+            }
+        }
+
+        UpdateMediaUi(_media.Current);
     }
 
     private void MusicWindowBtn_Click(object sender, RoutedEventArgs e)
     {
-        var kind = GetActiveOrPreferredMusicKind();
+        var kind = _settings.UseYouTubeMusicDefault ? MusicAppKind.YouTubeMusic : MusicAppKind.Spotify;
         _musicApp?.ToggleWindowVisibility(kind);
         UpdateMusicWindowAndProviderUi();
     }
@@ -2962,12 +3014,27 @@ public partial class MainWindow : Window
     private void UpdateMusicWindowAndProviderUi()
     {
         bool useYt = _settings.UseYouTubeMusicDefault;
-        MusicProviderBtn.Content = useYt ? "YT Music" : "Spotify";
-        MusicProviderBtn.Foreground = new SolidColorBrush(useYt
+
+        SpotifySelectBtn.Background = new SolidColorBrush(useYt
+            ? Color.FromArgb(0x00, 0x00, 0x00, 0x00)
+            : Color.FromRgb(0x16, 0x65, 0x34));
+        SpotifySelectBtn.Foreground = new SolidColorBrush(useYt
+            ? Color.FromRgb(0x94, 0xA3, 0xB8)
+            : Color.FromRgb(0xEC, 0xFD, 0xF5));
+
+        YtMusicSelectBtn.Background = new SolidColorBrush(useYt
+            ? Color.FromRgb(0x99, 0x1B, 0x1B)
+            : Color.FromArgb(0x00, 0x00, 0x00, 0x00));
+        YtMusicSelectBtn.Foreground = new SolidColorBrush(useYt
+            ? Color.FromRgb(0xFE, 0xF2, 0xF2)
+            : Color.FromRgb(0x94, 0xA3, 0xB8));
+
+        PillProviderBtn.Content = useYt ? "YT" : "SP";
+        PillProviderBtn.Foreground = new SolidColorBrush(useYt
             ? Color.FromRgb(0xFC, 0xA5, 0xA5)
             : Color.FromRgb(0x4A, 0xDE, 0x80));
 
-        var kind = GetActiveOrPreferredMusicKind();
+        var kind = _settings.UseYouTubeMusicDefault ? MusicAppKind.YouTubeMusic : MusicAppKind.Spotify;
         if (_musicApp == null || !_musicApp.IsAppRunning(kind))
         {
             MusicWindowBtn.Content = "Open";
@@ -2980,19 +3047,36 @@ public partial class MainWindow : Window
 
     private async Task HandlePlayPauseOrLaunchAsync()
     {
-        if (_lastMedia.HasSession || _media.HasAnySession)
+        bool targetIsYt = _settings.UseYouTubeMusicDefault;
+        var kind = targetIsYt ? MusicAppKind.YouTubeMusic : MusicAppKind.Spotify;
+
+        // If the currently bound SMTC session belongs to the selected service (or another active media app), toggle it cleanly
+        bool boundMatchesTarget = _lastMedia.HasSession &&
+            (targetIsYt
+                ? (IsYouTubeMusicSource(_lastMedia.SourceApp) || _lastMedia.SourceApp.Equals("Brave", StringComparison.OrdinalIgnoreCase) || _lastMedia.SourceApp.Equals("Chrome", StringComparison.OrdinalIgnoreCase) || _lastMedia.SourceApp.Equals("Edge", StringComparison.OrdinalIgnoreCase))
+                : _lastMedia.SourceApp.Contains("Spotify", StringComparison.OrdinalIgnoreCase));
+
+        if (boundMatchesTarget || _media.HasSessionForProvider(targetIsYt))
         {
-            await _media.TogglePlayPauseAsync();
+            await _media.PauseCompetingSessionsAsync(targetIsYt);
+            if (_media.HasSessionForProvider(targetIsYt) && !boundMatchesTarget)
+            {
+                await _media.TryPlayMatchingAsync(targetIsYt);
+            }
+            else
+            {
+                await _media.TogglePlayPauseAsync();
+            }
             _musicApp?.SyncAllStates(_settings.HideSpotifyToTray);
             return;
         }
 
         if (_musicApp == null || _isLaunchingMusicApp) return;
         _isLaunchingMusicApp = true;
-        var kind = _settings.UseYouTubeMusicDefault ? MusicAppKind.YouTubeMusic : MusicAppKind.Spotify;
         UpdateMediaUi(_lastMedia);
         try
         {
+            await _media.PauseCompetingSessionsAsync(targetIsYt);
             var res = await _musicApp.LaunchAndPlayAsync(
                 kind,
                 _media,

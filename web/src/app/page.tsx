@@ -33,12 +33,12 @@ import CopyShaButton from "@/components/CopyShaButton";
 import DownloadButton from "@/components/DownloadButton";
 
 const INSTALLER_URL =
-  "https://github.com/deshanFdo/bluetooth-AUX/releases/download/v1.2.0/AudioSwitch-Setup.exe";
+  "https://github.com/deshanFdo/bluetooth-AUX/releases/download/v1.2.1/AudioSwitch-Setup.exe";
 const PORTABLE_URL =
-  "https://github.com/deshanFdo/bluetooth-AUX/releases/download/v1.2.0/AudioSwitch.exe";
+  "https://github.com/deshanFdo/bluetooth-AUX/releases/download/v1.2.1/AudioSwitch.exe";
 const GITHUB_URL = "https://github.com/deshanFdo/bluetooth-AUX";
 const SHA256_SETUP =
-  "16474956AD06B0215BC462B6F8302AE2B318D4138BD3D97003D233DB58FEDA43";
+  "F077F5406ED8D4C70C6252C294844F4C483185B62D7C5650BBAB55EA65661944";
 
 const FAQS = [
   {
@@ -75,7 +75,7 @@ const JSON_LD = {
       name: "Audio Switch",
       applicationCategory: "UtilitiesApplication",
       operatingSystem: "Windows 10, Windows 11 (x64)",
-      softwareVersion: "1.2.0",
+      softwareVersion: "1.2.1",
       fileSize: "74.4MB",
       downloadUrl: INSTALLER_URL,
       url: "https://audio-switch.vercel.app",
@@ -94,10 +94,10 @@ const JSON_LD = {
       featureList: [
         "Instant AUX wired headphone, Bluetooth headset, speaker, and microphone switching via Core Audio COM",
         "Per-app split audio routing (play music on AUX while Discord uses your Bluetooth headset and mic)",
-        "One-click Spotify auto-launch & play from closed state with hidden tray icon mode (off taskbar)",
+        "One-tap Spotify and YouTube Music switching with automatic pause handoff and hidden tray mode",
         "Simultaneous multi-output WASAPI mirroring with 0-350ms sync delay compensation",
-        "Connected laptop and Bluetooth headset battery percentage rings (DEVPKEY_Device_IsConnected filtered)",
-        "Persistent top-edge line with event-driven HWND_TOPMOST recovery, Win+D protection, and ~0% idle CPU",
+        "Connected laptop and Bluetooth headset battery rings (matching Bluetooth container state)",
+        "Persistent top-edge line with HWND_TOPMOST recovery, DPAPI encrypted settings, clean uninstaller, and ~0% idle CPU",
       ],
     },
     {
@@ -130,7 +130,7 @@ export default function HomePage() {
             </span>
             <span className="text-sm font-semibold tracking-tight text-white">Audio Switch</span>
             <span className="rounded border border-white/10 bg-white/[0.03] px-1.5 py-0.5 font-mono text-[10.5px] text-neutral-400">
-              v1.2.0
+              v1.2.1
             </span>
           </div>
 
@@ -278,8 +278,8 @@ export default function HomePage() {
                 Auto-launch, play &amp; hide taskbar
               </h2>
               <p className="mt-2 text-sm leading-relaxed text-neutral-400">
-                Press Play even when Spotify or YouTube Music is closed — it launches your chosen
-                player, triggers playback via SMTC, and tucks it off the taskbar into Hidden Icons.
+                Switch seamlessly between Spotify and YouTube Music with automatic pause handoff — click
+                Play even when closed to launch into Windows Hidden Icons with zero taskbar clutter.
               </p>
             </div>
 
@@ -307,9 +307,9 @@ export default function HomePage() {
                 Always on top, zero CPU waste
               </h2>
               <p className="mt-2 text-sm leading-relaxed text-neutral-400">
-                Event-driven <code className="text-neutral-300">HWND_TOPMOST</code> recovery and{" "}
-                <code className="text-neutral-300">Win+D</code> guards keep the top line visible on
-                light or dark windows while stopping meters at rest.
+                Windows DPAPI encrypted settings (<code className="text-neutral-300">CryptProtectData</code>),
+                event-driven <code className="text-neutral-300">HWND_TOPMOST</code> recovery, and a
+                zero-leftover self-deleting uninstaller.
               </p>
             </div>
           </div>
@@ -390,7 +390,7 @@ export default function HomePage() {
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <span className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wider text-neutral-500">
                     <Terminal className="h-3 w-3" />
-                    SHA-256 (v1.2.0 Installer)
+                    SHA-256 (v1.2.1 Installer)
                   </span>
                   <CopyShaButton value={SHA256_SETUP} />
                 </div>
@@ -421,7 +421,7 @@ export default function HomePage() {
 
       <footer className="border-t border-white/[0.07] py-6 text-center text-xs text-neutral-500">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-center gap-x-5 gap-y-2 px-6">
-          <span>Audio Switch v1.2.0 · Deshan Fernando</span>
+          <span>Audio Switch v1.2.1 · Deshan Fernando</span>
           <Link href="/about" className="inline-flex items-center gap-1 hover:text-neutral-300">
             <Info className="h-3 w-3" />
             About

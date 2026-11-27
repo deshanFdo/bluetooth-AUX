@@ -1,9 +1,9 @@
-# Audio Switch — Complete Technical Reference (v1.2.0)
+# Audio Switch — Complete Technical Reference (v1.2.1)
 
 URL: https://audio-switch.vercel.app
 Direct Windows Installer (`AudioSwitch-Setup.exe`): https://audio-switch.vercel.app/download
 Portable Executable (`AudioSwitch.exe`): https://audio-switch.vercel.app/portable
-SHA-256 (`AudioSwitch-Setup.exe`): 16474956AD06B0215BC462B6F8302AE2B318D4138BD3D97003D233DB58FEDA43
+SHA-256 (`AudioSwitch-Setup.exe`): F077F5406ED8D4C70C6252C294844F4C483185B62D7C5650BBAB55EA65661944
 
 ## Summary
 Audio Switch solves five common Windows 10/11 desktop audio problems in a single native C# / WPF single-file executable (`net8.0-windows10.0.19041.0`, self-contained x64, zero `.NET` runtime prerequisites):

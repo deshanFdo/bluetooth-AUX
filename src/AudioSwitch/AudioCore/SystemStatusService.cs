@@ -23,6 +23,7 @@ internal sealed class SystemStatusService
     private const uint DigcfPresent = 0x00000002;
     private static readonly Guid GuidDevClassSystem = new("4D36E97D-E325-11CE-BFC1-08002BE10318");
     private static readonly Guid GuidDevClassBluetooth = new("E0CBF06C-CD8B-4647-BB8A-263B43F0F974");
+    private static readonly Guid GuidDevClassMedia = new("4D36E96C-E325-11CE-BFC1-08002BE10318");
 
     private static readonly DevPropKey DevPkeyFriendlyName =
         new(new Guid("A45C254E-DF1C-4EFD-8020-67D146A850E0"), 14);
@@ -36,6 +37,10 @@ internal sealed class SystemStatusService
     // DEVPKEY_Device_IsConnected (DEVPROP_TYPE_BOOLEAN = 17)
     private static readonly DevPropKey DevPkeyIsConnected =
         new(new Guid("83DA6326-97A6-4088-9453-A1923F573B29"), 15);
+
+    // DEVPKEY_Device_ContainerId (DEVPROP_TYPE_GUID = 13)
+    private static readonly DevPropKey DevPkeyContainerId =
+        new(new Guid("8C7ED206-3F8A-4827-B3AB-AE9E1FAEFC6C"), 2);
 
     private ulong _prevIdle;
     private ulong _prevKernel;
@@ -72,14 +77,49 @@ internal sealed class SystemStatusService
         var results = new List<BluetoothBatteryInfo>();
         var seenNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-        ScanClassForBattery(GuidDevClassSystem, results, seenNames);
-        ScanClassForBattery(GuidDevClassBluetooth, results, seenNames);
+        // Windows 11 often marks the HFP AG battery sub-node IsConnected=False while A2DP audio is connected,
+        // so also collect ContainerIds of connected Bluetooth/Media device nodes sharing the headset container.
+        var connectedContainers = new HashSet<Guid>();
+        CollectConnectedContainerIds(GuidDevClassBluetooth, connectedContainers);
+        CollectConnectedContainerIds(GuidDevClassMedia, connectedContainers);
+
+        ScanClassForBattery(GuidDevClassSystem, connectedContainers, results, seenNames);
+        ScanClassForBattery(GuidDevClassBluetooth, connectedContainers, results, seenNames);
 
         return results;
     }
 
+    private static void CollectConnectedContainerIds(Guid classGuid, HashSet<Guid> connectedContainers)
+    {
+        IntPtr devInfo = SetupDiGetClassDevsW(ref classGuid, IntPtr.Zero, IntPtr.Zero, DigcfPresent);
+        if (devInfo == IntPtr.Zero || devInfo == new IntPtr(-1)) return;
+
+        try
+        {
+            var devData = new SpDevInfoData { cbSize = (uint)Marshal.SizeOf<SpDevInfoData>() };
+            var connectedKey = DevPkeyIsConnected;
+            var containerKey = DevPkeyContainerId;
+            byte[] buf = new byte[64];
+
+            for (uint index = 0; SetupDiEnumDeviceInfo(devInfo, index, ref devData); index++)
+            {
+                if (!IsDeviceConnected(devInfo, ref devData, ref connectedKey, buf)) continue;
+                if (TryReadGuidProperty(devInfo, ref devData, ref containerKey, buf, out Guid containerId)
+                    && containerId != Guid.Empty)
+                {
+                    connectedContainers.Add(containerId);
+                }
+            }
+        }
+        finally
+        {
+            SetupDiDestroyDeviceInfoList(devInfo);
+        }
+    }
+
     private static void ScanClassForBattery(
         Guid classGuid,
+        HashSet<Guid> connectedContainers,
         List<BluetoothBatteryInfo> results,
         HashSet<string> seenNames)
     {
@@ -94,17 +134,13 @@ internal sealed class SystemStatusService
             var devData = new SpDevInfoData { cbSize = (uint)Marshal.SizeOf<SpDevInfoData>() };
             var batteryKey = DevPkeyBluetoothBattery;
             var connectedKey = DevPkeyIsConnected;
+            var containerKey = DevPkeyContainerId;
             var nameKey = DevPkeyFriendlyName;
             var descKey = DevPkeyDeviceDesc;
             byte[] buf = new byte[512];
 
             for (uint index = 0; SetupDiEnumDeviceInfo(devInfo, index, ref devData); index++)
             {
-                if (!IsDeviceConnected(devInfo, ref devData, ref connectedKey, buf))
-                {
-                    continue;
-                }
-
                 if (!SetupDiGetDevicePropertyW(
                         devInfo,
                         ref devData,
@@ -125,6 +161,15 @@ internal sealed class SystemStatusService
                     pct = buf[0];
                 }
                 if (pct < 0 || pct > 100) continue;
+
+                bool isConnected = IsDeviceConnected(devInfo, ref devData, ref connectedKey, buf)
+                    || (TryReadGuidProperty(devInfo, ref devData, ref containerKey, buf, out Guid cid)
+                        && cid != Guid.Empty
+                        && connectedContainers.Contains(cid));
+                if (!isConnected)
+                {
+                    continue;
+                }
 
                 string? rawName = ReadStringProperty(devInfo, ref devData, ref nameKey, buf)
                                   ?? ReadStringProperty(devInfo, ref devData, ref descKey, buf);
@@ -168,6 +213,27 @@ internal sealed class SystemStatusService
 
         // DEVPROP_TYPE_BOOLEAN = 0x11 (17)
         return reqSize >= 1 && (propType == 17 || propType == 3 || propType == 7) && buf[0] != 0;
+    }
+
+    private static bool TryReadGuidProperty(
+        IntPtr devInfo,
+        ref SpDevInfoData devData,
+        ref DevPropKey key,
+        byte[] buf,
+        out Guid guid)
+    {
+        guid = Guid.Empty;
+        if (!SetupDiGetDevicePropertyW(devInfo, ref devData, ref key, out uint propType, buf, (uint)buf.Length, out uint reqSize, 0))
+        {
+            return false;
+        }
+        // DEVPROP_TYPE_GUID = 13 (16 bytes)
+        if (propType == 13 && reqSize >= 16)
+        {
+            guid = new Guid(buf.AsSpan(0, 16));
+            return true;
+        }
+        return false;
     }
 
     private static string? ReadStringProperty(
