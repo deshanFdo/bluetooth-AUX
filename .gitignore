@@ -4,6 +4,7 @@ obj/
 *.user
 *.pdb
 dist/
+dist-linux/
 dist-test/
 web/node_modules/
 web/.next/

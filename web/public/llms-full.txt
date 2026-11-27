@@ -1,21 +1,25 @@
-# Audio Switch — Complete Technical Reference (v1.2.1)
+# Audio Switch — Complete Technical Reference (v1.3.0)
 
 URL: https://audio-switch.vercel.app
-Direct Windows Installer (`AudioSwitch-Setup.exe`): https://audio-switch.vercel.app/download
-Portable Executable (`AudioSwitch.exe`): https://audio-switch.vercel.app/portable
+Direct Windows Installer (`v1.2.1`, `AudioSwitch-Setup.exe`): https://audio-switch.vercel.app/download
+Portable Windows Executable (`v1.2.1`, `AudioSwitch.exe`): https://audio-switch.vercel.app/portable
+Ubuntu / Debian `.deb` (`v1.3.0`, `audioswitch_1.3.0_amd64.deb`): https://audio-switch.vercel.app/download-deb
+Linux `.tar.gz` (`v1.3.0`, `AudioSwitch-linux-x64.tar.gz`): https://audio-switch.vercel.app/download-linux
 SHA-256 (`AudioSwitch-Setup.exe`): F077F5406ED8D4C70C6252C294844F4C483185B62D7C5650BBAB55EA65661944
+SHA-256 (`audioswitch_1.3.0_amd64.deb`): 91C8F14043A782821870CAA813CC041973EEBB8E2D4CDDDAC65E6CDB70FBB0B6
+SHA-256 (`AudioSwitch-linux-x64.tar.gz`): 6523EA7E218126127B91B5B8C423BFF0335D331025B8564D5D3D1B0DC1725DE5
 
 ## Summary
-Audio Switch solves five common Windows 10/11 desktop audio problems in a single native C# / WPF single-file executable (`net8.0-windows10.0.19041.0`, self-contained x64, zero `.NET` runtime prerequisites):
-1. Fast switching between 3.5mm AUX headphones, Bluetooth headsets, speakers, and microphones without opening Windows Sound Settings.
-2. Per-app split audio routing (`Apps` tab & 1-click Dual Split) via Windows `AudioPolicyConfig` + `IAudioSessionManager2`: play music (Spotify, Chrome, Brave, Edge) through wired AUX while Discord / Teams / Zoom voice calls and headset microphone use Bluetooth simultaneously.
-3. Playing audio to wired AUX headphones/speakers and Bluetooth headphones simultaneously while compensating for Bluetooth A2DP latency (`0–350 ms` circular FIFO buffer in user-mode WASAPI loopback).
-4. Providing an iOS-inspired Dynamic Island floating at the top edge of the active screen: rests unobtrusively (`~0%` CPU, all background samplers and timers stopped) with event-driven `HWND_TOPMOST` / `Win+D` / display-shift persistence, reveals a rounded capsule on hover, and expands when clicked with horizontal click-and-drag sliding across three views: Audio (`Outputs | Microphones | Apps`), Spotify / YouTube Music Media (with auto-launch on Play and hidden tray mode off the taskbar), and Battery/System.
-5. Showing connected-only Bluetooth headset battery percentages (`DEVPKEY_Device_IsConnected`) alongside laptop charge, RAM, CPU, and clock.
+Audio Switch solves five common desktop audio problems across Windows 10/11 (`net8.0-windows10.0.19041.0` WPF) and Ubuntu/Debian Linux (`net8.0` Avalonia UI self-contained `linux-x64`, zero runtime prerequisites):
+1. Fast switching between 3.5mm AUX headphones, Bluetooth headsets, speakers, and microphones without opening system sound settings.
+2. Per-app split audio routing (`Apps` tab & 1-click Dual Split): play music (Spotify, Chrome, Brave, Edge, YouTube Music) through wired AUX while Discord / Teams / Zoom voice calls and headset microphone use Bluetooth simultaneously (`AudioPolicyConfig` on Windows; PipeWire/PulseAudio `pactl move-sink-input` / `move-source-output` on Linux).
+3. Playing audio to wired AUX headphones/speakers and Bluetooth headphones simultaneously while compensating for Bluetooth A2DP latency (`0–350 ms` circular FIFO buffer on Windows WASAPI loopback; `module-loopback latency_msec` on Linux).
+4. Providing an iOS-inspired Dynamic Island floating at the top edge of the active screen: rests unobtrusively, reveals a rounded capsule on hover, and expands when clicked with horizontal click-and-drag sliding across three views: Audio (`Outputs | Microphones | Apps`), Media (`Spotify | YT Music` with auto-launch and pause handoff), and Battery/System.
+5. Showing connected-only Bluetooth headset battery percentages (`DEVPKEY_Device_IsConnected` on Windows; `org.bluez.Battery1` / UPower on Linux) alongside laptop charge, RAM, CPU, and clock.
 
 ## Installation & Removal
-- Per-user install location: `%LocalAppData%\Programs\AudioSwitch\AudioSwitch.exe` (no UAC admin prompt required).
-- Includes Start Menu shortcut, optional Desktop shortcut, optional Run-on-Windows-Startup registry entry (`HKCU\Software\Microsoft\Windows\CurrentVersion\Run`), and native Windows Settings -> Installed Apps uninstaller (`AudioSwitch.exe --uninstall`).
+- **Windows**: Per-user install location `%LocalAppData%\Programs\AudioSwitch\AudioSwitch.exe` (no admin required), Windows Settings -> Installed Apps removal (`AudioSwitch.exe --uninstall`). DPAPI-encrypted `settings.dat`.
+- **Ubuntu / Debian Linux**: `sudo apt install ./audioswitch_1.3.0_amd64.deb` (installs `/usr/lib/audioswitch/AudioSwitch`, `/usr/bin/audioswitch`, desktop entry; remove cleanly with `sudo apt purge audioswitch`) or extract `AudioSwitch-linux-x64.tar.gz` and run `./install.sh` / `./uninstall.sh`. AES-256-GCM encrypted `~/.config/AudioSwitch/settings.dat`.
 
 ## Frequently Asked Questions
 - How do I play audio on Bluetooth and AUX wired headphones at the same time in Windows 11 without echo?

@@ -16,19 +16,19 @@ const mono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://audio-switch.vercel.app"),
-  title: "Audio Switch — Dynamic Island Audio Switcher & Multi-Output for Windows 11",
+  title: "Audio Switch — Dynamic Island Audio Switcher for Windows & Ubuntu Linux",
   description:
-    "Free lightweight Dynamic Island for Windows 10/11. Stop unplugging your 3.5mm AUX cable just to listen through an already-connected Bluetooth headset — switch outputs & mics in <1ms, mirror audio with sync delay, control Spotify, and monitor headset battery at ~0% idle CPU.",
+    "Free lightweight Dynamic Island for Windows 10/11 & Ubuntu/Debian Linux. Stop unplugging your 3.5mm AUX cable just to listen through an already-connected Bluetooth headset — switch outputs & mics, split apps onto AUX vs Discord, control Spotify & YouTube Music, and monitor headset battery at ~0% idle CPU.",
   keywords: [
     "switch AUX and Bluetooth audio without unplugging Windows",
+    "Ubuntu PipeWire Dynamic Island audio switcher",
     "Windows 11 Dynamic Island",
-    "switch AUX and Bluetooth audio Windows 11",
-    "play audio on Bluetooth and wired headphones at same time Windows",
-    "Bluetooth audio sync delay Windows 11",
-    "Windows audio output switcher tray app",
-    "Bluetooth headphone battery monitor Windows 11",
-    "Spotify Dynamic Island Windows",
-    "Audio Switch Windows",
+    "Ubuntu Bluetooth AUX audio switcher",
+    "play audio on Bluetooth and wired headphones at same time",
+    "Bluetooth audio sync delay Windows 11 Linux",
+    "Spotify YouTube Music Dynamic Island",
+    "Bluetooth headphone battery monitor",
+    "Audio Switch Windows Linux",
   ],
   authors: [{ name: "Deshan Fernando" }],
   creator: "Deshan Fernando",
@@ -39,15 +39,15 @@ export const metadata: Metadata = {
     type: "website",
     url: "https://audio-switch.vercel.app",
     siteName: "Audio Switch",
-    title: "Audio Switch — Dynamic Island for Windows Audio, Sync Delay & Spotify",
+    title: "Audio Switch — Dynamic Island for Windows & Linux Audio, Split Apps & Spotify",
     description:
-      "Top-of-screen iOS-style Dynamic Island for Windows 10/11. Instant AUX/Bluetooth routing, multi-output sync delay, live SMTC Spotify bar, and headset battery rings at ~0% idle CPU.",
+      "Top-of-screen iOS-style Dynamic Island for Windows 10/11 & Ubuntu/Debian Linux. Instant AUX/Bluetooth routing, per-app split audio, Spotify/YT Music switcher, and headset battery rings.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Audio Switch — Dynamic Island for Windows 11 Audio",
+    title: "Audio Switch — Dynamic Island for Windows & Ubuntu Linux Audio",
     description:
-      "Switch AUX, Bluetooth & microphones from a top-edge Dynamic Island, sync multi-output audio delay, and monitor battery rings at ~0% idle CPU.",
+      "Switch AUX, Bluetooth & microphones from a top-edge Dynamic Island, split music onto AUX while Discord uses Bluetooth, and monitor headset battery rings.",
   },
   robots: {
     index: true,
