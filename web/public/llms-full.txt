@@ -1,16 +1,17 @@
-# Audio Switch — Complete Technical Reference (v1.0.2)
+# Audio Switch — Complete Technical Reference (v1.1.0)
 
 URL: https://audio-switch.vercel.app
 Direct Windows Installer (`AudioSwitch-Setup.exe`): https://audio-switch.vercel.app/download
 Portable Executable (`AudioSwitch.exe`): https://audio-switch.vercel.app/portable
-SHA-256 (`AudioSwitch-Setup.exe`): 181DEE6346257AA1E62CA3D28E0B1849B7145B2579E0DE02E0D195F917B73C
+SHA-256 (`AudioSwitch-Setup.exe`): DA4AE686D533E06AF716B696D29BC9A6DE5BAD7C8BDC5267D7CEDE1003A159CA
 
 ## Summary
-Audio Switch solves four common Windows 10/11 desktop audio problems in a single native C# / WPF single-file executable (`net8.0-windows10.0.19041.0`, self-contained x64, zero `.NET` runtime prerequisites):
+Audio Switch solves five common Windows 10/11 desktop audio problems in a single native C# / WPF single-file executable (`net8.0-windows10.0.19041.0`, self-contained x64, zero `.NET` runtime prerequisites):
 1. Fast switching between 3.5mm AUX headphones, Bluetooth headsets, speakers, and microphones without opening Windows Sound Settings.
-2. Playing audio to wired AUX headphones/speakers and Bluetooth headphones simultaneously while compensating for Bluetooth A2DP latency (`0–350 ms` circular FIFO buffer in user-mode WASAPI loopback).
-3. Providing an iOS-inspired Dynamic Island floating at the top edge of the active screen: rests unobtrusively (`~0%` CPU, all background samplers and timers stopped), reveals a rounded capsule on hover, and expands when clicked with horizontal click-and-drag sliding across three views: Audio, Spotify/Media, and Battery/System.
-4. Showing Bluetooth headset battery percentages alongside laptop charge, RAM, CPU, and clock.
+2. Per-app split audio routing (`Apps` tab & 1-click Dual Split) via Windows `AudioPolicyConfig` + `IAudioSessionManager2`: play music (Spotify, Chrome, Brave, Edge) through wired AUX while Discord / Teams / Zoom voice calls and headset microphone use Bluetooth simultaneously.
+3. Playing audio to wired AUX headphones/speakers and Bluetooth headphones simultaneously while compensating for Bluetooth A2DP latency (`0–350 ms` circular FIFO buffer in user-mode WASAPI loopback).
+4. Providing an iOS-inspired Dynamic Island floating at the top edge of the active screen: rests unobtrusively (`~0%` CPU, all background samplers and timers stopped), reveals a rounded capsule on hover, and expands when clicked with horizontal click-and-drag sliding across three views: Audio, Spotify/Media, and Battery/System.
+5. Showing connected Bluetooth headset battery percentages alongside laptop charge, RAM, CPU, and clock.
 
 ## Installation & Removal
 - Per-user install location: `%LocalAppData%\Programs\AudioSwitch\AudioSwitch.exe` (no UAC admin prompt required).

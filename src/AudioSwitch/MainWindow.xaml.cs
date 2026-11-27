@@ -135,7 +135,16 @@ public partial class MainWindow : Window
     private IslandState _state = IslandState.ThinLine;
     private bool _isUpdatingUi;
     private bool _isPinnedOpen;
-    private bool _isMicTabActive;
+    private enum AudioSubTab
+    {
+        Outputs = 0,
+        Mics = 1,
+        Apps = 2
+    }
+
+    private readonly AppAudioRouterService _appRouter = new();
+    private AudioSubTab _activeAudioSubTab = AudioSubTab.Outputs;
+    private bool _isAppRouteComboOpen;
     private bool _isDragging;
     private bool _beaconRunning;
 
@@ -209,7 +218,7 @@ public partial class MainWindow : Window
         Deactivated += (_, _) =>
         {
             if (_isDragging || _isPinnedOpen) return;
-            if (BtDeviceSelector.IsDropDownOpen || BtMicSelector.IsDropDownOpen || OtherMicSelector.IsDropDownOpen) return;
+            if (BtDeviceSelector.IsDropDownOpen || BtMicSelector.IsDropDownOpen || OtherMicSelector.IsDropDownOpen || _isAppRouteComboOpen) return;
             _collapseTimer.Stop();
             CollapseToThinLine();
         };
@@ -234,6 +243,7 @@ public partial class MainWindow : Window
             _peakSampler.Dispose();
             _mirror.Dispose();
             _router.AudioStateChanged -= OnAudioStateChanged;
+            _appRouter.Dispose();
             _router.Dispose();
         };
     }
@@ -552,7 +562,7 @@ public partial class MainWindow : Window
     {
         if (_isPinnedOpen || _isDragging) return true;
         if (IslandShell.IsMouseOver) return true;
-        if (BtDeviceSelector.IsDropDownOpen || BtMicSelector.IsDropDownOpen || OtherMicSelector.IsDropDownOpen) return true;
+        if (BtDeviceSelector.IsDropDownOpen || BtMicSelector.IsDropDownOpen || OtherMicSelector.IsDropDownOpen || _isAppRouteComboOpen) return true;
         if (Mouse.LeftButton == MouseButtonState.Pressed && Mouse.Captured != null) return true;
         return false;
     }
@@ -620,6 +630,7 @@ public partial class MainWindow : Window
         ThinLineView.Visibility = Visibility.Collapsed;
         CompactPillView.Visibility = Visibility.Collapsed;
         ExpandedDeckView.Visibility = Visibility.Visible;
+        if (_activeAudioSubTab == AudioSubTab.Apps) RefreshAppRoutesPanel(reapplyPins: true);
 
         ExpandedDeckView.Measure(new Size(ExpandedWidth - 2, double.PositiveInfinity));
         double targetHeight = Math.Clamp(ExpandedDeckView.DesiredSize.Height + 6, 170, 520);
@@ -740,12 +751,12 @@ public partial class MainWindow : Window
             return;
         }
 
-        if (!_isMicTabActive)
+        if (_activeAudioSubTab == AudioSubTab.Outputs)
         {
             AuxMeterScale.ScaleX = (_auxEndpoint is { IsActive: true, IsDefaultPlayback: true, IsMuted: false }) ? _smoothedOutLevel : 0.0;
             BtMeterScale.ScaleX = (_selectedBtEndpoint is { IsActive: true, IsDefaultPlayback: true, IsMuted: false }) ? _smoothedOutLevel : 0.0;
         }
-        else
+        else if (_activeAudioSubTab == AudioSubTab.Mics)
         {
             var activeMic = GetActiveCaptureEndpoint();
             double targetMic = _peakSampler.LatestMicPeak;
@@ -787,6 +798,10 @@ public partial class MainWindow : Window
 
             LoadOutputs(renders);
             LoadMicrophones(captures);
+            if (ExpandedDeckView.Visibility == Visibility.Visible && _activeAudioSubTab == AudioSubTab.Apps)
+            {
+                RefreshAppRoutesPanel(reapplyPins: true);
+            }
             UpdateHeaderAndPill(renders, captures);
             UpdatePeakSamplerTargets();
         }
@@ -1313,32 +1328,41 @@ public partial class MainWindow : Window
     }
 
     // --- Tab Switching Animations ---
-    private void OutputTabBtn_Click(object sender, RoutedEventArgs e) => SwitchTab(toMic: false);
-    private void MicTabBtn_Click(object sender, RoutedEventArgs e) => SwitchTab(toMic: true);
+    private void OutputTabBtn_Click(object sender, RoutedEventArgs e) => SwitchTab(AudioSubTab.Outputs);
+    private void MicTabBtn_Click(object sender, RoutedEventArgs e) => SwitchTab(AudioSubTab.Mics);
 
-    private void SwitchTab(bool toMic)
+    private void SwitchTab(AudioSubTab targetTab)
     {
-        if (_isMicTabActive == toMic) return;
-        _isMicTabActive = toMic;
+        if (_activeAudioSubTab == targetTab) return;
+        int direction = (int)targetTab > (int)_activeAudioSubTab ? 1 : -1;
+        _activeAudioSubTab = targetTab;
 
-        double targetX = toMic ? TabIndicator.ActualWidth : 0;
+        double targetX = TabIndicator.ActualWidth * (int)targetTab;
         var quart = new QuarticEase { EasingMode = EasingMode.EaseOut };
         TabIndicatorSlide.BeginAnimation(TranslateTransform.XProperty, SmoothAnim(targetX, 165, quart));
 
-        OutputTabBtn.Foreground = new SolidColorBrush(toMic ? Color.FromRgb(0x94, 0xA3, 0xB8) : Colors.White);
-        MicTabBtn.Foreground = new SolidColorBrush(toMic ? Colors.White : Color.FromRgb(0x94, 0xA3, 0xB8));
+        var mutedFg = Color.FromRgb(0x94, 0xA3, 0xB8);
+        OutputTabBtn.Foreground = new SolidColorBrush(targetTab == AudioSubTab.Outputs ? Colors.White : mutedFg);
+        MicTabBtn.Foreground = new SolidColorBrush(targetTab == AudioSubTab.Mics ? Colors.White : mutedFg);
+        AppsTabBtn.Foreground = new SolidColorBrush(targetTab == AudioSubTab.Apps ? Colors.White : mutedFg);
 
-        if (toMic)
+        OutputsPanel.Visibility = targetTab == AudioSubTab.Outputs ? Visibility.Visible : Visibility.Collapsed;
+        MicsPanel.Visibility = targetTab == AudioSubTab.Mics ? Visibility.Visible : Visibility.Collapsed;
+        AppsPanel.Visibility = targetTab == AudioSubTab.Apps ? Visibility.Visible : Visibility.Collapsed;
+
+        double fromX = direction * 20;
+        if (targetTab == AudioSubTab.Outputs)
         {
-            OutputsPanel.Visibility = Visibility.Collapsed;
-            MicsPanel.Visibility = Visibility.Visible;
-            AnimatePanelEnter(MicsPanel, MicsPanelSlide, fromX: 20);
+            AnimatePanelEnter(OutputsPanel, OutputsPanelSlide, fromX: fromX);
+        }
+        else if (targetTab == AudioSubTab.Mics)
+        {
+            AnimatePanelEnter(MicsPanel, MicsPanelSlide, fromX: fromX);
         }
         else
         {
-            MicsPanel.Visibility = Visibility.Collapsed;
-            OutputsPanel.Visibility = Visibility.Visible;
-            AnimatePanelEnter(OutputsPanel, OutputsPanelSlide, fromX: -20);
+            RefreshAppRoutesPanel(reapplyPins: true);
+            AnimatePanelEnter(AppsPanel, AppsPanelSlide, fromX: fromX);
         }
         SpringExpandedHeightToFit();
     }
@@ -1572,10 +1596,11 @@ public partial class MainWindow : Window
     {
         if (AutoMuteCheck.IsChecked != true) return Array.Empty<string>();
 
+        var pinned = new HashSet<string>(_appRouter.GetPinnedRenderEndpointIds(), StringComparer.OrdinalIgnoreCase);
         var ids = new List<string>();
-        if (_auxEndpoint is { IsActive: true } && _auxEndpoint.Id != activeId) ids.Add(_auxEndpoint.Id);
-        if (_speakersEndpoint is { IsActive: true } && _speakersEndpoint.Id != activeId) ids.Add(_speakersEndpoint.Id);
-        foreach (var bt in _btEndpoints.Where(b => b.IsActive && b.Id != activeId)) ids.Add(bt.Id);
+        if (_auxEndpoint is { IsActive: true } && _auxEndpoint.Id != activeId && !pinned.Contains(_auxEndpoint.Id)) ids.Add(_auxEndpoint.Id);
+        if (_speakersEndpoint is { IsActive: true } && _speakersEndpoint.Id != activeId && !pinned.Contains(_speakersEndpoint.Id)) ids.Add(_speakersEndpoint.Id);
+        foreach (var bt in _btEndpoints.Where(b => b.IsActive && b.Id != activeId && !pinned.Contains(b.Id))) ids.Add(bt.Id);
         return ids;
     }
 
@@ -1734,11 +1759,12 @@ public partial class MainWindow : Window
     {
         if (AutoMuteCheck.IsChecked != true) return Array.Empty<string>();
 
+        var pinned = new HashSet<string>(_appRouter.GetPinnedCaptureEndpointIds(), StringComparer.OrdinalIgnoreCase);
         var ids = new List<string>();
-        if (_auxMicEndpoint is { IsActive: true } && _auxMicEndpoint.Id != activeId) ids.Add(_auxMicEndpoint.Id);
-        if (_builtInMicEndpoint is { IsActive: true } && _builtInMicEndpoint.Id != activeId) ids.Add(_builtInMicEndpoint.Id);
-        foreach (var m in _btMicEndpoints.Where(x => x.IsActive && x.Id != activeId)) ids.Add(m.Id);
-        foreach (var m in _otherMicEndpoints.Where(x => x.IsActive && x.Id != activeId)) ids.Add(m.Id);
+        if (_auxMicEndpoint is { IsActive: true } && _auxMicEndpoint.Id != activeId && !pinned.Contains(_auxMicEndpoint.Id)) ids.Add(_auxMicEndpoint.Id);
+        if (_builtInMicEndpoint is { IsActive: true } && _builtInMicEndpoint.Id != activeId && !pinned.Contains(_builtInMicEndpoint.Id)) ids.Add(_builtInMicEndpoint.Id);
+        foreach (var m in _btMicEndpoints.Where(x => x.IsActive && x.Id != activeId && !pinned.Contains(x.Id))) ids.Add(m.Id);
+        foreach (var m in _otherMicEndpoints.Where(x => x.IsActive && x.Id != activeId && !pinned.Contains(x.Id))) ids.Add(m.Id);
         return ids;
     }
 

@@ -438,7 +438,7 @@
 
                         <!-- ISLAND PAGE 0: AUDIO SWITCHER -->
                         <StackPanel x:Name="AudioIslandPage" Visibility="Visible">
-                            <!-- Outputs | Microphones Sub-Tabs -->
+                            <!-- Outputs | Microphones | Apps Sub-Tabs -->
                             <Border CornerRadius="9"
                                     Background="#40090D16"
                                     BorderBrush="#26FFFFFF"
@@ -447,6 +447,7 @@
                                     Margin="0,0,0,6">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
@@ -465,6 +466,7 @@
 
                                     <Button x:Name="OutputTabBtn" Grid.Column="0" Height="22" FontSize="11" Style="{StaticResource SegmentTabButtonStyle}" Foreground="#FFFFFF" Content="Outputs" Click="OutputTabBtn_Click"/>
                                     <Button x:Name="MicTabBtn" Grid.Column="1" Height="22" FontSize="11" Style="{StaticResource SegmentTabButtonStyle}" Content="Microphones" Click="MicTabBtn_Click"/>
+                                    <Button x:Name="AppsTabBtn" Grid.Column="2" Height="22" FontSize="11" Style="{StaticResource SegmentTabButtonStyle}" Content="Apps" Click="AppsTabBtn_Click"/>
                                 </Grid>
                             </Border>
 
@@ -846,6 +848,80 @@
                                 </Border>
 
                                 <CheckBox x:Name="ShowAuxMicCheck" IsChecked="False" Content="Show AUX jack mic (wired headset)" Foreground="#94A3B8" FontSize="9.8" Margin="2,0,0,5" Checked="ShowAuxMicCheck_Changed" Unchecked="ShowAuxMicCheck_Changed"/>
+                            </StackPanel>
+
+                            <!-- PANEL 3: PER-APP AUDIO ROUTER -->
+                            <StackPanel x:Name="AppsPanel" Visibility="Collapsed">
+                                <StackPanel.RenderTransform>
+                                    <TranslateTransform x:Name="AppsPanelSlide" X="0"/>
+                                </StackPanel.RenderTransform>
+
+                                <Border x:Name="QuickSplitCard" Style="{StaticResource GlassCardStyle}" Background="#4E101929" Padding="8,6" Margin="0,0,0,5">
+                                    <StackPanel>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel VerticalAlignment="Center">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="Dual Split" FontSize="11.4" FontWeight="SemiBold" Foreground="#F1F5F9"/>
+                                                    <Border x:Name="SplitActiveBadge" CornerRadius="5" Padding="5,1" Margin="6,0,0,0" Background="#064E3B" Visibility="Collapsed">
+                                                        <TextBlock Text="ACTIVE" FontSize="8" FontWeight="Bold" Foreground="#34D399"/>
+                                                    </Border>
+                                                </StackPanel>
+                                                <TextBlock x:Name="SplitHintText" Text="Play songs on AUX while Discord uses headset" FontSize="9.2" Foreground="#94A3B8" TextTrimming="CharacterEllipsis"/>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                                <Button x:Name="RefreshAppsBtn" Content="↻" ToolTip="Scan running audio apps" Style="{StaticResource GlassActionButtonStyle}" FontSize="10.5" Padding="6,2" Margin="0,0,4,0" Click="RefreshAppsBtn_Click"/>
+                                                <Button x:Name="ResetAppRoutesBtn" Content="Reset" ToolTip="Return all apps to Windows Default" Style="{StaticResource GlassActionButtonStyle}" FontSize="9.5" Padding="7,2" Click="ResetAppRoutesBtn_Click"/>
+                                            </StackPanel>
+                                        </Grid>
+
+                                        <Button x:Name="AutoSplitBtn"
+                                                Margin="0,5,0,0"
+                                                Padding="8,4.5"
+                                                FontSize="10"
+                                                FontWeight="SemiBold"
+                                                Foreground="#ECFEFF"
+                                                Style="{StaticResource GlassActionButtonStyle}"
+                                                Content="Split: Music → AUX  +  Calls → Bluetooth"
+                                                Click="AutoSplitBtn_Click"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <Border x:Name="AppRoutesEmptyCard" Style="{StaticResource GlassCardStyle}" Padding="10,9" Margin="0,0,0,5" Visibility="Collapsed">
+                                    <TextBlock Text="No audio or call apps open yet. Launch Spotify, Chrome, or Discord to route individually." FontSize="9.8" Foreground="#94A3B8" TextWrapping="Wrap" HorizontalAlignment="Center" TextAlignment="Center"/>
+                                </Border>
+
+                                <ItemsControl x:Name="AppRouteItems" Margin="0,0,0,2">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Style="{StaticResource GlassCardStyle}" Background="#5C151D2D" Padding="8,5.5" Margin="0,0,0,4">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="154"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <StackPanel VerticalAlignment="Center" Margin="0,0,8,0">
+                                                        <TextBlock Text="{Binding DisplayName}" FontSize="11.2" FontWeight="SemiBold" Foreground="#F1F5F9" TextTrimming="CharacterEllipsis"/>
+                                                        <TextBlock Text="{Binding SubtitleText}" FontSize="8.8" Foreground="{Binding SubtitleBrush}" TextTrimming="CharacterEllipsis"/>
+                                                    </StackPanel>
+                                                    <ComboBox Grid.Column="1"
+                                                              ItemsSource="{Binding EndpointOptions}"
+                                                              DisplayMemberPath="Label"
+                                                              SelectedIndex="{Binding SelectedOptionIndex, Mode=OneWay}"
+                                                              Tag="{Binding ProcessName}"
+                                                              Style="{StaticResource DarkComboBoxStyle}"
+                                                              VerticalAlignment="Center"
+                                                              DropDownOpened="AppRouteCombo_DropDownOpened"
+                                                              DropDownClosed="AppRouteCombo_DropDownClosed"
+                                                              SelectionChanged="AppRouteCombo_SelectionChanged"/>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
                             </StackPanel>
 
                             <!-- Options & Live Status Footer -->

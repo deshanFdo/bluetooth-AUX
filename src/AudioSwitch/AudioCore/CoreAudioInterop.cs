@@ -362,6 +362,135 @@ internal interface IAudioRenderClient
     int ReleaseBuffer(uint numFramesWritten, uint dwFlags);
 }
 
+internal enum AudioSessionState
+{
+    Inactive = 0,
+    Active = 1,
+    Expired = 2
+}
+
+[ComImport]
+[Guid("77AA99A0-1BD6-484F-8BC7-2C654C9A9B6F")]
+[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+internal interface IAudioSessionManager2
+{
+    [PreserveSig]
+    int GetAudioSessionControl(IntPtr audioSessionGuid, uint streamFlags, out IAudioSessionControl? sessionControl);
+
+    [PreserveSig]
+    int GetSimpleAudioVolume(IntPtr audioSessionGuid, uint streamFlags, [MarshalAs(UnmanagedType.IUnknown)] out object? audioVolume);
+
+    [PreserveSig]
+    int GetSessionEnumerator(out IAudioSessionEnumerator? sessionEnum);
+
+    [PreserveSig]
+    int RegisterSessionNotification(IntPtr sessionNotification);
+
+    [PreserveSig]
+    int UnregisterSessionNotification(IntPtr sessionNotification);
+
+    [PreserveSig]
+    int RegisterDuckNotification([MarshalAs(UnmanagedType.LPWStr)] string sessionID, IntPtr duckNotification);
+
+    [PreserveSig]
+    int UnregisterDuckNotification(IntPtr duckNotification);
+}
+
+[ComImport]
+[Guid("E2F5BB11-0570-40CA-ACDD-3AA01277DEE8")]
+[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+internal interface IAudioSessionEnumerator
+{
+    [PreserveSig]
+    int GetCount(out int sessionCount);
+
+    [PreserveSig]
+    int GetSession(int sessionIndex, out IAudioSessionControl? session);
+}
+
+[ComImport]
+[Guid("F4B1A599-7266-4319-A8CA-E70ACB11E8CD")]
+[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+internal interface IAudioSessionControl
+{
+    [PreserveSig]
+    int GetState(out AudioSessionState pRetVal);
+
+    [PreserveSig]
+    int GetDisplayName([MarshalAs(UnmanagedType.LPWStr)] out string pRetVal);
+
+    [PreserveSig]
+    int SetDisplayName([MarshalAs(UnmanagedType.LPWStr)] string value, ref Guid eventContext);
+
+    [PreserveSig]
+    int GetIconPath([MarshalAs(UnmanagedType.LPWStr)] out string pRetVal);
+
+    [PreserveSig]
+    int SetIconPath([MarshalAs(UnmanagedType.LPWStr)] string value, ref Guid eventContext);
+
+    [PreserveSig]
+    int GetGroupingParam(out Guid pRetVal);
+
+    [PreserveSig]
+    int SetGroupingParam(ref Guid overrideValue, ref Guid eventContext);
+
+    [PreserveSig]
+    int RegisterAudioSessionNotification(IntPtr newNotifications);
+
+    [PreserveSig]
+    int UnregisterAudioSessionNotification(IntPtr newNotifications);
+}
+
+[ComImport]
+[Guid("BFB7FF88-7239-4FC9-8FA2-07C950BE9C6D")]
+[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+internal interface IAudioSessionControl2
+{
+    // IAudioSessionControl base slots
+    [PreserveSig]
+    int GetState(out AudioSessionState pRetVal);
+
+    [PreserveSig]
+    int GetDisplayName([MarshalAs(UnmanagedType.LPWStr)] out string pRetVal);
+
+    [PreserveSig]
+    int SetDisplayName([MarshalAs(UnmanagedType.LPWStr)] string value, ref Guid eventContext);
+
+    [PreserveSig]
+    int GetIconPath([MarshalAs(UnmanagedType.LPWStr)] out string pRetVal);
+
+    [PreserveSig]
+    int SetIconPath([MarshalAs(UnmanagedType.LPWStr)] string value, ref Guid eventContext);
+
+    [PreserveSig]
+    int GetGroupingParam(out Guid pRetVal);
+
+    [PreserveSig]
+    int SetGroupingParam(ref Guid overrideValue, ref Guid eventContext);
+
+    [PreserveSig]
+    int RegisterAudioSessionNotification(IntPtr newNotifications);
+
+    [PreserveSig]
+    int UnregisterAudioSessionNotification(IntPtr newNotifications);
+
+    // IAudioSessionControl2 slots
+    [PreserveSig]
+    int GetSessionIdentifier([MarshalAs(UnmanagedType.LPWStr)] out string pRetVal);
+
+    [PreserveSig]
+    int GetSessionInstanceIdentifier([MarshalAs(UnmanagedType.LPWStr)] out string pRetVal);
+
+    [PreserveSig]
+    int GetProcessId(out uint pRetVal);
+
+    [PreserveSig]
+    int IsSystemSoundsSession();
+
+    [PreserveSig]
+    int SetDuckingPreference(bool optOut);
+}
+
 [StructLayout(LayoutKind.Sequential)]
 internal struct WaveFormatEx
 {
@@ -381,6 +510,7 @@ internal static class ComIds
     public static readonly Guid IID_IAudioClient = new("1CB9AD4C-DBFA-4C32-B178-C2F568A703B2");
     public static readonly Guid IID_IAudioCaptureClient = new("C8ADBD64-E71E-48A0-A4DE-185C395CD317");
     public static readonly Guid IID_IAudioRenderClient = new("F294ACFC-3146-4483-A7BF-ADDCA7C260E2");
+    public static readonly Guid IID_IAudioSessionManager2 = new("77AA99A0-1BD6-484F-8BC7-2C654C9A9B6F");
     public const uint CLSCTX_ALL = 0x17;
     public const int STGM_READ = 0;
 }
