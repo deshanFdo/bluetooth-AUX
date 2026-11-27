@@ -48,7 +48,7 @@
 
                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
                     <TextBlock Text="Audio Switch" FontSize="17" FontWeight="Bold" Foreground="#F8FAFC"/>
-                    <TextBlock x:Name="SubtitleText" Text="Dynamic Island Setup • v1.1.1 (Windows x64)" FontSize="11.2" Foreground="#94A3B8"/>
+                    <TextBlock x:Name="SubtitleText" Text="Dynamic Island Setup • v1.1.2 (Windows x64)" FontSize="11.2" Foreground="#94A3B8"/>
                 </StackPanel>
 
                 <Button Grid.Column="2" Content="✕" Style="{StaticResource IconButtonStyle}" Click="CloseBtn_Click"/>
