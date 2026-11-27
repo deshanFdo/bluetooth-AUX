@@ -10,8 +10,8 @@ Audio Switch solves five common Windows 10/11 desktop audio problems in a single
 1. Fast switching between 3.5mm AUX headphones, Bluetooth headsets, speakers, and microphones without opening Windows Sound Settings.
 2. Per-app split audio routing (`Apps` tab & 1-click Dual Split) via Windows `AudioPolicyConfig` + `IAudioSessionManager2`: play music (Spotify, Chrome, Brave, Edge) through wired AUX while Discord / Teams / Zoom voice calls and headset microphone use Bluetooth simultaneously.
 3. Playing audio to wired AUX headphones/speakers and Bluetooth headphones simultaneously while compensating for Bluetooth A2DP latency (`0–350 ms` circular FIFO buffer in user-mode WASAPI loopback).
-4. Providing an iOS-inspired Dynamic Island floating at the top edge of the active screen: rests unobtrusively (`~0%` CPU, all background samplers and timers stopped), reveals a rounded capsule on hover, and expands when clicked with horizontal click-and-drag sliding across three views: Audio, Spotify/Media, and Battery/System.
-5. Showing connected Bluetooth headset battery percentages alongside laptop charge, RAM, CPU, and clock.
+4. Providing an iOS-inspired Dynamic Island floating at the top edge of the active screen: rests unobtrusively (`~0%` CPU, all background samplers and timers stopped) with event-driven `HWND_TOPMOST` / `Win+D` / display-shift persistence, reveals a rounded capsule on hover, and expands when clicked with horizontal click-and-drag sliding across three views: Audio (`Outputs | Microphones | Apps`), Spotify/Media (with auto-launch on Play and hidden tray mode off the taskbar), and Battery/System.
+5. Showing connected-only Bluetooth headset battery percentages (`DEVPKEY_Device_IsConnected`) alongside laptop charge, RAM, CPU, and clock.
 
 ## Installation & Removal
 - Per-user install location: `%LocalAppData%\Programs\AudioSwitch\AudioSwitch.exe` (no UAC admin prompt required).

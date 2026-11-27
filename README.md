@@ -20,10 +20,12 @@ Audio Switch is a lightweight Windows 10 / 11 desktop utility that eliminates ha
 - **Per-App Split Audio (`Apps` tab)** — Play songs through wired AUX while Discord uses your Bluetooth headset and microphone simultaneously via Windows `AudioPolicyConfig`
 - **Multi-Output Mirroring with Sync Delay (`0–350 ms`)**
   - Play audio simultaneously on wired AUX headphones/speakers and Bluetooth headsets via a user-mode WASAPI loopback capture & render pipeline with an adjustable `170 ms` default FIFO delay compensator.
-- **Live Spotify & Browser Media Island (Windows SMTC)**
-  - Displays album art, track/artist metadata, play/pause/skip controls, and an interpolated real-time timeline progress bar for Spotify, Chrome, Edge, YouTube, Apple Music, and VLC.
-- **iOS-Style Battery & Telemetry Rings**
-  - Shows circular progress gauges for laptop charge state and Bluetooth headset battery percentages (via Windows PnP HID/HFP battery properties), alongside RAM, CPU, and clock.
+- **Live Spotify Auto-Launch, Media Island & Hidden Tray Mode**
+  - Clicking **Play (`▶`)** starts Spotify automatically even when closed, shows album art and live SMTC timeline progress, and tucks Spotify off the Windows taskbar into a dedicated Hidden Tray icon (`^`) with show/hide & playback controls.
+- **Connected-Only Bluetooth Battery Rings & Telemetry**
+  - Shows circular gauges exclusively for actively connected Bluetooth headsets (`DEVPKEY_Device_IsConnected`) alongside laptop battery, RAM, CPU, and clock.
+- **Persistent Top-Edge Capsule (`~0%` Idle CPU)**
+  - Event-driven `HWND_TOPMOST` recovery (`SetWinEventHook`), `Win+D` minimize guard, display/DPI recentering, and crisp contrast rim across light and dark windows.
 - **Built-In Self-Contained Setup Wizard & Clean Uninstaller**
   - Bundles the `.NET 8` desktop runtime and native WPF libraries into a single `74.4 MB` executable (`AudioSwitch-Setup.exe`) with Start Menu/Desktop shortcuts, Windows startup toggle, and clean **Windows Settings → Installed Apps** removal (`--uninstall`).
 
