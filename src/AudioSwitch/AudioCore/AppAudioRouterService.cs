@@ -71,7 +71,8 @@ internal sealed class AppAudioRouterService : IDisposable
 
     private static readonly string[] KnownMediaProcesses =
     [
-        "spotify", "chrome", "msedge", "firefox", "brave", "opera",
+        "spotify", "youtube music", "ytmdesktop", "pear-desktop", "chrome_proxy", "msedge_proxy",
+        "chrome", "msedge", "firefox", "brave", "opera",
         "vlc", "tidal", "foobar2000", "musicbee", "itunes"
     ];
 
@@ -592,6 +593,7 @@ internal sealed class AppAudioRouterService : IDisposable
         {
             "discord" => "Discord",
             "spotify" => "Spotify",
+            "youtube music" or "ytmdesktop" or "pear-desktop" or "chrome_proxy" or "msedge_proxy" => "YouTube Music",
             "chrome" => "Google Chrome",
             "msedge" => "Microsoft Edge",
             "firefox" => "Firefox",

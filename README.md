@@ -1,8 +1,8 @@
 # Audio Switch — Dynamic Island Audio & Media Control for Windows
 
 **Live Website & Download:** https://audio-switch.vercel.app  
-**Direct Windows Installer (`v1.1.2`, 74.4 MB, Self-Contained):** https://audio-switch.vercel.app/download  
-**Portable Executable (`v1.1.2`, 74.4 MB):** https://audio-switch.vercel.app/portable
+**Direct Windows Installer (`v1.2.0`, 74.4 MB, Self-Contained):** https://audio-switch.vercel.app/download  
+**Portable Executable (`v1.2.0`, 74.4 MB):** https://audio-switch.vercel.app/portable
 
 Audio Switch is a lightweight Windows 10 / 11 desktop utility that eliminates having to manually unplug your 3.5mm AUX cable just to listen through an already-connected Bluetooth headset. It lives quietly in the Windows System Tray (**Hidden Icons**) and reveals an iOS-inspired **Dynamic Island** at the top center of your active monitor.
 
@@ -20,8 +20,8 @@ Audio Switch is a lightweight Windows 10 / 11 desktop utility that eliminates ha
 - **Per-App Split Audio (`Apps` tab)** — Play songs through wired AUX while Discord uses your Bluetooth headset and microphone simultaneously via Windows `AudioPolicyConfig`
 - **Multi-Output Mirroring with Sync Delay (`0–350 ms`)**
   - Play audio simultaneously on wired AUX headphones/speakers and Bluetooth headsets via a user-mode WASAPI loopback capture & render pipeline with an adjustable `170 ms` default FIFO delay compensator.
-- **Live Spotify Auto-Launch, Media Island & Hidden Tray Mode**
-  - Clicking **Play (`▶`)** starts Spotify automatically even when closed, shows album art and live SMTC timeline progress, and tucks Spotify off the Windows taskbar into a dedicated Hidden Tray icon (`^`) with show/hide & playback controls.
+- **Spotify & YouTube Music Auto-Launch & Hidden Tray Mode**
+  - Clicking **Play (`▶`)** starts Spotify or YouTube Music automatically even when closed, shows album art and live SMTC progress, and tucks the window off the Windows taskbar into a dedicated Hidden Tray icon (`^`) with show/hide & playback controls.
 - **Connected-Only Bluetooth Battery Rings & Telemetry**
   - Shows circular gauges exclusively for actively connected Bluetooth headsets (`DEVPKEY_Device_IsConnected`) alongside laptop battery, RAM, CPU, and clock.
 - **Persistent Top-Edge Capsule (`~0%` Idle CPU)**
@@ -57,8 +57,8 @@ Diagnostics check (lists detected endpoints, COM interface probe, and Bluetooth 
 .\dist\AudioSwitch.exe --diag
 ```
 
-### Installer SHA-256 (`v1.1.2`)
+### Installer SHA-256 (`v1.2.0`)
 
 ```text
-7BBC79BF3FAD729549B55DE7BAD3990E2FD38EAA36653B625BE0336BE4511F76  AudioSwitch-Setup.exe
+16474956AD06B0215BC462B6F8302AE2B318D4138BD3D97003D233DB58FEDA43  AudioSwitch-Setup.exe
 ```

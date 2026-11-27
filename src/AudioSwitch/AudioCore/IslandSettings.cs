@@ -24,6 +24,7 @@ internal sealed class IslandSettings
     public bool HardDisableAux { get; set; } = false;
     public bool ShowAuxJackMic { get; set; } = false;
     public bool HideSpotifyToTray { get; set; } = true;
+    public bool UseYouTubeMusicDefault { get; set; } = false;
 
     public static IslandSettings Load()
     {

@@ -16,7 +16,7 @@ internal sealed record InstallOptions(
 internal static class InstallerService
 {
     public const string AppDisplayName = "Audio Switch";
-    public const string AppVersion = "1.1.2";
+    public const string AppVersion = "1.2.0";
     public const string PublisherName = "Deshan Fernando";
     public const string RepoUrl = "https://github.com/deshanFdo/bluetooth-AUX";
 
@@ -26,6 +26,9 @@ internal static class InstallerService
 
     public static string DefaultInstallDir =>
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", "AudioSwitch");
+
+    public static string SettingsDataDir =>
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "AudioSwitch");
 
     public static string DefaultExePath => Path.Combine(DefaultInstallDir, "AudioSwitch.exe");
 
@@ -142,7 +145,7 @@ internal static class InstallerService
         progress?.Report((100, "Installation complete!"));
     }
 
-    public static async Task UninstallAsync()
+    public static async Task UninstallAsync(bool scheduleDeferredSelfDelete = true)
     {
         await StopOtherAudioSwitchInstancesAsync();
 
@@ -162,27 +165,126 @@ internal static class InstallerService
         }
         catch { }
 
-        string installDir = DefaultInstallDir;
-        string? curExe = Environment.ProcessPath;
-        bool runningFromInstallDir = !string.IsNullOrWhiteSpace(curExe)
-            && Path.GetFullPath(curExe).StartsWith(Path.GetFullPath(installDir), StringComparison.OrdinalIgnoreCase);
-
-        if (runningFromInstallDir)
+        // Remove saved settings folder (%LocalAppData%\AudioSwitch)
+        try
         {
-            // Schedule deferred cleanup after this process exits cleanly
-            Process.Start(new ProcessStartInfo
+            if (Directory.Exists(SettingsDataDir))
             {
-                FileName = "cmd.exe",
-                Arguments = $"/c timeout /t 2 /nobreak >nul & rmdir /s /q \"{installDir}\"",
-                WindowStyle = ProcessWindowStyle.Hidden,
-                CreateNoWindow = true,
-                UseShellExecute = false
-            });
+                Directory.Delete(SettingsDataDir, recursive: true);
+            }
+        }
+        catch { }
+
+        string installDir = Path.GetFullPath(DefaultInstallDir).TrimEnd('\\');
+        if (IsRunningFromInstallDir())
+        {
+            // Release CWD handle immediately so cmd.exe rmdir can delete the directory cleanly after exit
+            try { Environment.CurrentDirectory = Path.GetTempPath(); } catch { }
+
+            // Delete any extra files inside installDir right away
+            DeleteNonLockedFilesInDirectory(installDir);
+
+            if (scheduleDeferredSelfDelete)
+            {
+                ScheduleSelfDeleteIfRunningFromInstallDir();
+            }
         }
         else if (Directory.Exists(installDir))
         {
-            try { Directory.Delete(installDir, recursive: true); } catch { }
+            for (int attempt = 0; attempt < 8; attempt++)
+            {
+                try
+                {
+                    Directory.Delete(installDir, recursive: true);
+                    break;
+                }
+                catch (IOException) when (attempt < 7)
+                {
+                    await Task.Delay(250);
+                }
+                catch
+                {
+                    break;
+                }
+            }
+            CleanupSingleFileExtractionCache();
         }
+    }
+
+    public static bool IsRunningFromInstallDir()
+    {
+        string installDir = Path.GetFullPath(DefaultInstallDir).TrimEnd('\\') + Path.DirectorySeparatorChar;
+        string? curExe = Environment.ProcessPath;
+        return !string.IsNullOrWhiteSpace(curExe)
+            && Path.GetFullPath(curExe).StartsWith(installDir, StringComparison.OrdinalIgnoreCase);
+    }
+
+    public static void ScheduleSelfDeleteIfRunningFromInstallDir()
+    {
+        if (!IsRunningFromInstallDir()) return;
+
+        string installDir = Path.GetFullPath(DefaultInstallDir).TrimEnd('\\');
+        string settingsDir = Path.GetFullPath(SettingsDataDir).TrimEnd('\\');
+        string bundleCache = Path.Combine(Path.GetTempPath(), ".net", "AudioSwitch").TrimEnd('\\');
+        string batchPath = Path.Combine(Path.GetTempPath(), $"audioswitch_cleanup_{Guid.NewGuid():N}.cmd");
+        try { Environment.CurrentDirectory = Path.GetTempPath(); } catch { }
+
+        string script = string.Join("\r\n",
+        [
+            "@echo off",
+            "for /L %%i in (1,1,25) do (",
+            $"  if exist \"{settingsDir}\" rmdir /s /q \"{settingsDir}\" >nul 2>&1",
+            $"  if exist \"{installDir}\" rmdir /s /q \"{installDir}\" >nul 2>&1",
+            $"  if not exist \"{installDir}\" if not exist \"{settingsDir}\" goto :done",
+            "  ping -n 2 127.0.0.1 >nul",
+            ")",
+            ":done",
+            "ping -n 2 127.0.0.1 >nul",
+            $"if exist \"{bundleCache}\" rmdir /s /q \"{bundleCache}\" >nul 2>&1",
+            "del /f /q \"%~f0\" >nul 2>&1"
+        ]);
+        File.WriteAllText(batchPath, script, Encoding.ASCII);
+
+        Process.Start(new ProcessStartInfo
+        {
+            FileName = "cmd.exe",
+            Arguments = $"/c \"\"{batchPath}\"\"",
+            WorkingDirectory = Path.GetTempPath(),
+            WindowStyle = ProcessWindowStyle.Hidden,
+            CreateNoWindow = true,
+            UseShellExecute = false
+        });
+    }
+
+    private static void DeleteNonLockedFilesInDirectory(string dir)
+    {
+        if (!Directory.Exists(dir)) return;
+        string? selfExe = Environment.ProcessPath != null ? Path.GetFullPath(Environment.ProcessPath) : null;
+        try
+        {
+            foreach (string file in Directory.EnumerateFiles(dir, "*", SearchOption.AllDirectories))
+            {
+                if (selfExe != null && string.Equals(Path.GetFullPath(file), selfExe, StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+                try { File.Delete(file); } catch { }
+            }
+        }
+        catch { }
+    }
+
+    private static void CleanupSingleFileExtractionCache()
+    {
+        try
+        {
+            string bundleCache = Path.Combine(Path.GetTempPath(), ".net", "AudioSwitch");
+            if (Directory.Exists(bundleCache))
+            {
+                Directory.Delete(bundleCache, recursive: true);
+            }
+        }
+        catch { }
     }
 
     public static void LaunchInstalledApp()
@@ -199,22 +301,49 @@ internal static class InstallerService
     private static async Task StopOtherAudioSwitchInstancesAsync()
     {
         int myPid = Environment.ProcessId;
-        foreach (var proc in Process.GetProcessesByName("AudioSwitch"))
+        string installDirPrefix = Path.GetFullPath(DefaultInstallDir).TrimEnd('\\') + Path.DirectorySeparatorChar;
+
+        foreach (var proc in Process.GetProcesses())
         {
-            if (proc.Id == myPid) continue;
+            if (proc.Id == myPid)
+            {
+                proc.Dispose();
+                continue;
+            }
+
+            bool isAudioSwitch = false;
             try
             {
-                proc.Kill(entireProcessTree: true);
-                await proc.WaitForExitAsync().WaitAsync(TimeSpan.FromSeconds(4));
+                if (proc.ProcessName.Equals("AudioSwitch", StringComparison.OrdinalIgnoreCase))
+                {
+                    isAudioSwitch = true;
+                }
+                else
+                {
+                    string? path = proc.MainModule?.FileName;
+                    if (!string.IsNullOrWhiteSpace(path) &&
+                        Path.GetFullPath(path).StartsWith(installDirPrefix, StringComparison.OrdinalIgnoreCase))
+                    {
+                        isAudioSwitch = true;
+                    }
+                }
             }
             catch
             {
-                // Best effort
+                // Protected/system process
             }
-            finally
+
+            if (isAudioSwitch)
             {
-                proc.Dispose();
+                try
+                {
+                    proc.Kill(entireProcessTree: true);
+                    await proc.WaitForExitAsync().WaitAsync(TimeSpan.FromSeconds(4));
+                }
+                catch { }
             }
+
+            proc.Dispose();
         }
         await Task.Delay(300);
     }

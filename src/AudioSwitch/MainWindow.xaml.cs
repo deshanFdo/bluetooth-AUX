@@ -186,8 +186,8 @@ public partial class MainWindow : Window
     }
 
     private readonly AppAudioRouterService _appRouter = new();
-    private SpotifyControllerService? _spotify;
-    private bool _isLaunchingSpotify;
+    private MusicAppControllerService? _musicApp;
+    private bool _isLaunchingMusicApp;
     private AudioSubTab _activeAudioSubTab = AudioSubTab.Outputs;
     private bool _isAppRouteComboOpen;
     private IntPtr _hwnd;
@@ -249,7 +249,7 @@ public partial class MainWindow : Window
         _mediaProgressTimer.Interval = TimeSpan.FromMilliseconds(500);
         _mediaProgressTimer.Tick += (_, _) => UpdateMediaProgressVisuals();
 
-        _spotify = new SpotifyControllerService(
+        _musicApp = new MusicAppControllerService(
             Dispatcher,
             () => HandlePlayPauseOrLaunchAsync(),
             () => _media.NextAsync(),
@@ -268,7 +268,7 @@ public partial class MainWindow : Window
             // Keep meters, telemetry, & beacon animations stopped while resting as ThinLine (0% idle CPU)
             AnimateInitialLineEntrance();
             await _media.InitializeAsync();
-            _spotify?.SyncState(_settings.HideSpotifyToTray);
+            _musicApp?.SyncAllStates(_settings.HideSpotifyToTray);
         };
 
         Deactivated += (_, _) =>
@@ -317,7 +317,7 @@ public partial class MainWindow : Window
             }
             _trayIconHandle?.Dispose();
             _trayIconHandle = null;
-            _spotify?.Dispose();
+            _musicApp?.Dispose();
             _media.Dispose();
             _peakSampler.Dispose();
             _mirror.Dispose();
@@ -371,7 +371,7 @@ public partial class MainWindow : Window
         Dispatcher.BeginInvoke(() =>
         {
             EnsureTopmostNoActivate();
-            _spotify?.SyncState(_settings.HideSpotifyToTray);
+            _musicApp?.SyncAllStates(_settings.HideSpotifyToTray);
         });
     }
 
@@ -467,6 +467,9 @@ public partial class MainWindow : Window
         var centerItem = new Forms.ToolStripMenuItem("Recenter at Top");
         centerItem.Click += (_, _) => Dispatcher.Invoke(PositionTopCenter);
 
+        var uninstallItem = new Forms.ToolStripMenuItem("Uninstall Audio Switch...");
+        uninstallItem.Click += (_, _) => _ = Dispatcher.InvokeAsync(UninstallFromTrayAsync);
+
         var exitItem = new Forms.ToolStripMenuItem("Exit Audio Switch");
         exitItem.Click += (_, _) => Dispatcher.Invoke(Close);
 
@@ -476,6 +479,7 @@ public partial class MainWindow : Window
         menu.Items.Add(collapseItem);
         menu.Items.Add(centerItem);
         menu.Items.Add(new Forms.ToolStripSeparator());
+        menu.Items.Add(uninstallItem);
         menu.Items.Add(exitItem);
 
         _trayIcon = new Forms.NotifyIcon
@@ -2614,12 +2618,15 @@ public partial class MainWindow : Window
     {
         _lastMedia = snap;
 
+        var activeKind = GetActiveOrPreferredMusicKind();
+        string providerLabel = activeKind == MusicAppKind.YouTubeMusic ? "YouTube Music" : "Spotify";
+
         if (!snap.HasSession)
         {
             MediaSourceBadge.Visibility = Visibility.Collapsed;
-            MediaStatusTag.Text = _isLaunchingSpotify ? "Starting Spotify..." : "Ready";
-            MediaTitleText.Text = "Play Spotify";
-            MediaArtistText.Text = _isLaunchingSpotify
+            MediaStatusTag.Text = _isLaunchingMusicApp ? $"Starting {providerLabel}..." : "Ready";
+            MediaTitleText.Text = $"Play {providerLabel}";
+            MediaArtistText.Text = _isLaunchingMusicApp
                 ? "Launching in hidden tray..."
                 : "Click ▶ to launch & play";
             MediaAlbumArt.Visibility = Visibility.Collapsed;
@@ -2627,9 +2634,9 @@ public partial class MainWindow : Window
             PillMediaArt.Visibility = Visibility.Collapsed;
             PillMediaFallbackIcon.Visibility = Visibility.Visible;
             MediaPrevBtn.IsEnabled = false;
-            MediaPlayPauseBtn.IsEnabled = !_isLaunchingSpotify;
+            MediaPlayPauseBtn.IsEnabled = !_isLaunchingMusicApp;
             MediaNextBtn.IsEnabled = false;
-            PillPlayBtn.IsEnabled = !_isLaunchingSpotify;
+            PillPlayBtn.IsEnabled = !_isLaunchingMusicApp;
             SetPlayIcons(isPlaying: false);
         }
         else
@@ -2637,12 +2644,17 @@ public partial class MainWindow : Window
             MediaSourceBadge.Visibility = Visibility.Visible;
             MediaSourceText.Text = snap.SourceApp;
             bool isSpotify = snap.SourceApp.Contains("Spotify", StringComparison.OrdinalIgnoreCase);
+            bool isYtMusic = IsYouTubeMusicSource(snap.SourceApp);
             MediaSourceBadge.Background = new SolidColorBrush(isSpotify
                 ? Color.FromRgb(0x14, 0x53, 0x2D)
-                : Color.FromRgb(0x1E, 0x3A, 0x8A));
+                : isYtMusic
+                    ? Color.FromRgb(0x7F, 0x1D, 0x1D)
+                    : Color.FromRgb(0x1E, 0x3A, 0x8A));
             MediaSourceText.Foreground = new SolidColorBrush(isSpotify
                 ? Color.FromRgb(0x4A, 0xDE, 0x80)
-                : Color.FromRgb(0x93, 0xC5, 0xFD));
+                : isYtMusic
+                    ? Color.FromRgb(0xFC, 0xA5, 0xA5)
+                    : Color.FromRgb(0x93, 0xC5, 0xFD));
 
             MediaStatusTag.Text = snap.IsPlaying ? "Now Playing" : "Paused";
             MediaTitleText.Text = snap.Title;
@@ -2671,8 +2683,8 @@ public partial class MainWindow : Window
             }
         }
 
-        UpdateSpotifyWindowButtonText();
-        _spotify?.SyncState(_settings.HideSpotifyToTray);
+        UpdateMusicWindowAndProviderUi();
+        _musicApp?.SyncAllStates(_settings.HideSpotifyToTray);
         UpdateCompactPillMediaAndRoute();
         UpdateMediaProgressVisuals();
         UpdateMediaProgressState();
@@ -2705,9 +2717,21 @@ public partial class MainWindow : Window
 
     private void UpdateMediaProgressVisuals()
     {
-        bool isSpotify = !_lastMedia.HasSession || _lastMedia.SourceApp.Contains("Spotify", StringComparison.OrdinalIgnoreCase);
-        MediaProgressStart.Color = isSpotify ? Color.FromRgb(0x22, 0xC5, 0x5E) : Color.FromRgb(0x3B, 0x82, 0xF6);
-        MediaProgressEnd.Color = isSpotify ? Color.FromRgb(0x4A, 0xDE, 0x80) : Color.FromRgb(0x60, 0xA5, 0xFA);
+        bool isYtMusic = (!_lastMedia.HasSession && _settings.UseYouTubeMusicDefault)
+                         || (_lastMedia.HasSession && IsYouTubeMusicSource(_lastMedia.SourceApp));
+        bool isSpotify = (!_lastMedia.HasSession && !_settings.UseYouTubeMusicDefault)
+                         || (_lastMedia.HasSession && _lastMedia.SourceApp.Contains("Spotify", StringComparison.OrdinalIgnoreCase));
+
+        MediaProgressStart.Color = isYtMusic
+            ? Color.FromRgb(0xEF, 0x44, 0x44)
+            : isSpotify
+                ? Color.FromRgb(0x22, 0xC5, 0x5E)
+                : Color.FromRgb(0x3B, 0x82, 0xF6);
+        MediaProgressEnd.Color = isYtMusic
+            ? Color.FromRgb(0xF8, 0x71, 0x71)
+            : isSpotify
+                ? Color.FromRgb(0x4A, 0xDE, 0x80)
+                : Color.FromRgb(0x60, 0xA5, 0xFA);
         PillMediaProgressFill.Background = new SolidColorBrush(MediaProgressEnd.Color);
 
         if (!_lastMedia.HasSession || _lastMedia.Duration <= TimeSpan.Zero)
@@ -2760,10 +2784,11 @@ public partial class MainWindow : Window
 
     private void UpdateCompactPillMediaAndRoute()
     {
-        PillMediaTitle.Text = _lastMedia.HasSession ? _lastMedia.Title : "Play Spotify";
+        string provider = _settings.UseYouTubeMusicDefault ? "YouTube Music" : "Spotify";
+        PillMediaTitle.Text = _lastMedia.HasSession ? _lastMedia.Title : $"Play {provider}";
         PillMediaArtist.Text = _lastMedia.HasSession
             ? (string.IsNullOrWhiteSpace(_lastMedia.Artist) ? _lastMedia.SourceApp : _lastMedia.Artist)
-            : (_isLaunchingSpotify ? "Starting..." : "Click ▶ to start");
+            : (_isLaunchingMusicApp ? "Starting..." : "Click ▶ to start");
 
         if (_settings.ShowPillMediaTitle && _lastMedia.HasSession && _lastMedia.IsPlaying && !_mirror.IsRunning)
         {
@@ -2866,7 +2891,7 @@ public partial class MainWindow : Window
 
         _settings.ShowMediaPlayer = OptMediaPlayerCheck.IsChecked == true;
         _settings.HideSpotifyToTray = OptHideSpotifyTrayCheck.IsChecked == true;
-        _spotify?.SyncState(_settings.HideSpotifyToTray);
+        _musicApp?.SyncAllStates(_settings.HideSpotifyToTray);
         _settings.ShowLaptopBattery = OptLaptopBatCheck.IsChecked == true;
         _settings.ShowBluetoothBatteries = OptBtBatCheck.IsChecked == true;
         _settings.ShowSystemStats = OptSysStatsCheck.IsChecked == true;
@@ -2897,21 +2922,59 @@ public partial class MainWindow : Window
     private async void MediaPlayPauseBtn_Click(object sender, RoutedEventArgs e) => await HandlePlayPauseOrLaunchAsync();
     private async void MediaNextBtn_Click(object sender, RoutedEventArgs e) => await _media.NextAsync();
 
-    private void SpotifyWindowBtn_Click(object sender, RoutedEventArgs e)
+    private static bool IsYouTubeMusicSource(string? source)
     {
-        _spotify?.ToggleSpotifyWindowVisibility();
-        UpdateSpotifyWindowButtonText();
+        if (string.IsNullOrWhiteSpace(source)) return false;
+        return source.Contains("YouTube", StringComparison.OrdinalIgnoreCase);
     }
 
-    private void UpdateSpotifyWindowButtonText()
+    private MusicAppKind GetActiveOrPreferredMusicKind()
     {
-        if (_spotify == null || !_spotify.IsSpotifyRunning())
+        if (_lastMedia.HasSession)
         {
-            SpotifyWindowBtn.Content = "Open";
+            if (_lastMedia.SourceApp.Contains("Spotify", StringComparison.OrdinalIgnoreCase)) return MusicAppKind.Spotify;
+            if (IsYouTubeMusicSource(_lastMedia.SourceApp) || _lastMedia.SourceApp.Equals("Brave", StringComparison.OrdinalIgnoreCase))
+            {
+                return MusicAppKind.YouTubeMusic;
+            }
+        }
+        return _settings.UseYouTubeMusicDefault ? MusicAppKind.YouTubeMusic : MusicAppKind.Spotify;
+    }
+
+    private void MusicProviderBtn_Click(object sender, RoutedEventArgs e)
+    {
+        _settings.UseYouTubeMusicDefault = !_settings.UseYouTubeMusicDefault;
+        _settings.Save();
+        UpdateMusicWindowAndProviderUi();
+        UpdateMediaUi(_lastMedia);
+        SetStatus(_settings.UseYouTubeMusicDefault
+            ? "Quick Play launcher set to YouTube Music."
+            : "Quick Play launcher set to Spotify.");
+    }
+
+    private void MusicWindowBtn_Click(object sender, RoutedEventArgs e)
+    {
+        var kind = GetActiveOrPreferredMusicKind();
+        _musicApp?.ToggleWindowVisibility(kind);
+        UpdateMusicWindowAndProviderUi();
+    }
+
+    private void UpdateMusicWindowAndProviderUi()
+    {
+        bool useYt = _settings.UseYouTubeMusicDefault;
+        MusicProviderBtn.Content = useYt ? "YT Music" : "Spotify";
+        MusicProviderBtn.Foreground = new SolidColorBrush(useYt
+            ? Color.FromRgb(0xFC, 0xA5, 0xA5)
+            : Color.FromRgb(0x4A, 0xDE, 0x80));
+
+        var kind = GetActiveOrPreferredMusicKind();
+        if (_musicApp == null || !_musicApp.IsAppRunning(kind))
+        {
+            MusicWindowBtn.Content = "Open";
         }
         else
         {
-            SpotifyWindowBtn.Content = _spotify.IsAnySpotifyWindowVisible() ? "Hide" : "Show";
+            MusicWindowBtn.Content = _musicApp.IsAnyWindowVisible(kind) ? "Hide" : "Show";
         }
     }
 
@@ -2920,16 +2983,18 @@ public partial class MainWindow : Window
         if (_lastMedia.HasSession || _media.HasAnySession)
         {
             await _media.TogglePlayPauseAsync();
-            _spotify?.SyncState(_settings.HideSpotifyToTray);
+            _musicApp?.SyncAllStates(_settings.HideSpotifyToTray);
             return;
         }
 
-        if (_spotify == null || _isLaunchingSpotify) return;
-        _isLaunchingSpotify = true;
+        if (_musicApp == null || _isLaunchingMusicApp) return;
+        _isLaunchingMusicApp = true;
+        var kind = _settings.UseYouTubeMusicDefault ? MusicAppKind.YouTubeMusic : MusicAppKind.Spotify;
         UpdateMediaUi(_lastMedia);
         try
         {
-            var res = await _spotify.LaunchAndPlayAsync(
+            var res = await _musicApp.LaunchAndPlayAsync(
+                kind,
                 _media,
                 _settings.HideSpotifyToTray,
                 msg => Dispatcher.BeginInvoke(() =>
@@ -2942,9 +3007,28 @@ public partial class MainWindow : Window
         }
         finally
         {
-            _isLaunchingSpotify = false;
+            _isLaunchingMusicApp = false;
             UpdateMediaUi(_media.Current);
         }
+    }
+
+    private async Task UninstallFromTrayAsync()
+    {
+        var confirm = System.Windows.MessageBox.Show(
+            "Remove Audio Switch, all installed files, settings, shortcuts, and Windows startup entry?",
+            "Uninstall Audio Switch",
+            MessageBoxButton.YesNo,
+            MessageBoxImage.Question);
+        if (confirm != MessageBoxResult.Yes) return;
+
+        await InstallerService.UninstallAsync(scheduleDeferredSelfDelete: false);
+        System.Windows.MessageBox.Show(
+            "Audio Switch and all its files have been uninstalled.",
+            "Audio Switch",
+            MessageBoxButton.OK,
+            MessageBoxImage.Information);
+        InstallerService.ScheduleSelfDeleteIfRunningFromInstallDir();
+        Close();
     }
 
     private static void OpenBluetoothSettings()

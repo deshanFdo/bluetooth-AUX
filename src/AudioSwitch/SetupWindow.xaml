@@ -48,7 +48,7 @@
 
                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
                     <TextBlock Text="Audio Switch" FontSize="17" FontWeight="Bold" Foreground="#F8FAFC"/>
-                    <TextBlock x:Name="SubtitleText" Text="Dynamic Island Setup • v1.1.2 (Windows x64)" FontSize="11.2" Foreground="#94A3B8"/>
+                    <TextBlock x:Name="SubtitleText" Text="Dynamic Island Setup • v1.2.0 (Windows x64)" FontSize="11.2" Foreground="#94A3B8"/>
                 </StackPanel>
 
                 <Button Grid.Column="2" Content="✕" Style="{StaticResource IconButtonStyle}" Click="CloseBtn_Click"/>
@@ -92,12 +92,25 @@
             <!-- Buttons -->
             <Grid>
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <Button x:Name="CancelBtn" Content="Cancel" Style="{StaticResource GlassActionButtonStyle}" HorizontalAlignment="Left" Padding="14,7" Click="CloseBtn_Click"/>
-                <Button x:Name="PrimaryActionBtn"
+                <Button x:Name="CancelBtn" Content="Cancel" Style="{StaticResource GlassActionButtonStyle}" Padding="14,7" Click="CloseBtn_Click"/>
+                <Button x:Name="UninstallBtn"
                         Grid.Column="1"
+                        Content="Uninstall"
+                        Visibility="Collapsed"
+                        Style="{StaticResource GlassActionButtonStyle}"
+                        Background="#44991B1B"
+                        BorderBrush="#66EF4444"
+                        Foreground="#FCA5A5"
+                        HorizontalAlignment="Right"
+                        Margin="0,0,8,0"
+                        Padding="12,7"
+                        Click="UninstallBtn_Click"/>
+                <Button x:Name="PrimaryActionBtn"
+                        Grid.Column="2"
                         Content="Install Audio Switch"
                         Style="{StaticResource GlassActionButtonStyle}"
                         Background="#CC2563EB"

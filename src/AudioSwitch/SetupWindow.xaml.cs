@@ -17,6 +17,7 @@ public partial class SetupWindow : Window
         {
             SubtitleText.Text = $"Update / Repair Installation • v{InstallerService.AppVersion}";
             PrimaryActionBtn.Content = "Update & Launch";
+            UninstallBtn.Visibility = Visibility.Visible;
         }
     }
 
@@ -43,6 +44,7 @@ public partial class SetupWindow : Window
         }
 
         PrimaryActionBtn.IsEnabled = false;
+        UninstallBtn.IsEnabled = false;
         CancelBtn.IsEnabled = false;
         OptionsCard.IsEnabled = false;
         ProgressPanel.Visibility = Visibility.Visible;
@@ -73,6 +75,48 @@ public partial class SetupWindow : Window
         {
             ProgressLabel.Text = $"Install error: {ex.Message}";
             PrimaryActionBtn.IsEnabled = true;
+            UninstallBtn.IsEnabled = true;
+            CancelBtn.IsEnabled = true;
+            OptionsCard.IsEnabled = true;
+        }
+    }
+
+    private async void UninstallBtn_Click(object sender, RoutedEventArgs e)
+    {
+        var confirm = System.Windows.MessageBox.Show(
+            "Remove Audio Switch, all installed files, settings, shortcuts, and Windows startup entry?",
+            "Uninstall Audio Switch",
+            MessageBoxButton.YesNo,
+            MessageBoxImage.Question);
+        if (confirm != MessageBoxResult.Yes) return;
+
+        PrimaryActionBtn.IsEnabled = false;
+        UninstallBtn.IsEnabled = false;
+        CancelBtn.IsEnabled = false;
+        OptionsCard.IsEnabled = false;
+        ProgressPanel.Visibility = Visibility.Visible;
+        ProgressLabel.Text = "Removing all Audio Switch files and shortcuts...";
+        ProgressScale.ScaleX = 0.55;
+
+        try
+        {
+            await InstallerService.UninstallAsync(scheduleDeferredSelfDelete: true);
+            ProgressScale.ScaleX = 1.0;
+            ProgressLabel.Text = "All Audio Switch files, settings, and shortcuts removed.";
+            SubtitleText.Text = "Uninstalled cleanly.";
+            UninstallBtn.Visibility = Visibility.Collapsed;
+            _isInstalledDone = false;
+            PrimaryActionBtn.Content = "Install Audio Switch";
+            PrimaryActionBtn.IsEnabled = true;
+            CancelBtn.Content = "Close";
+            CancelBtn.IsEnabled = true;
+            OptionsCard.IsEnabled = true;
+        }
+        catch (Exception ex)
+        {
+            ProgressLabel.Text = $"Uninstall error: {ex.Message}";
+            PrimaryActionBtn.IsEnabled = true;
+            UninstallBtn.IsEnabled = true;
             CancelBtn.IsEnabled = true;
             OptionsCard.IsEnabled = true;
         }
