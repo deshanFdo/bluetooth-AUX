@@ -1,8 +1,8 @@
 # Audio Switch — Dynamic Island Audio & Media Control for Windows
 
 **Live Website & Download:** https://audio-switch.vercel.app  
-**Direct Windows Installer (`v1.2.0`, 74.4 MB, Self-Contained):** https://audio-switch.vercel.app/download  
-**Portable Executable (`v1.2.0`, 74.4 MB):** https://audio-switch.vercel.app/portable
+**Direct Windows Installer (`v1.2.1`, 74.4 MB, Self-Contained):** https://audio-switch.vercel.app/download  
+**Portable Executable (`v1.2.1`, 74.4 MB):** https://audio-switch.vercel.app/portable
 
 Audio Switch is a lightweight Windows 10 / 11 desktop utility that eliminates having to manually unplug your 3.5mm AUX cable just to listen through an already-connected Bluetooth headset. It lives quietly in the Windows System Tray (**Hidden Icons**) and reveals an iOS-inspired **Dynamic Island** at the top center of your active monitor.
 
@@ -21,7 +21,7 @@ Audio Switch is a lightweight Windows 10 / 11 desktop utility that eliminates ha
 - **Multi-Output Mirroring with Sync Delay (`0–350 ms`)**
   - Play audio simultaneously on wired AUX headphones/speakers and Bluetooth headsets via a user-mode WASAPI loopback capture & render pipeline with an adjustable `170 ms` default FIFO delay compensator.
 - **Spotify & YouTube Music Auto-Launch & Hidden Tray Mode**
-  - Clicking **Play (`▶`)** starts Spotify or YouTube Music automatically even when closed, shows album art and live SMTC progress, and tucks the window off the Windows taskbar into a dedicated Hidden Tray icon (`^`) with show/hide & playback controls.
+  - Switch seamlessly between **Spotify** and **YouTube Music** with 1 tap (auto-pauses the other player), auto-launch on **Play (`▶`)** even when closed, and keep windows off the taskbar in Hidden Tray icons (`^`). Protected local settings (`settings.dat` via Windows DPAPI) and clean zero-leftover uninstaller.
 - **Connected-Only Bluetooth Battery Rings & Telemetry**
   - Shows circular gauges exclusively for actively connected Bluetooth headsets (`DEVPKEY_Device_IsConnected`) alongside laptop battery, RAM, CPU, and clock.
 - **Persistent Top-Edge Capsule (`~0%` Idle CPU)**
@@ -57,8 +57,8 @@ Diagnostics check (lists detected endpoints, COM interface probe, and Bluetooth 
 .\dist\AudioSwitch.exe --diag
 ```
 
-### Installer SHA-256 (`v1.2.0`)
+### Installer SHA-256 (`v1.2.1`)
 
 ```text
-16474956AD06B0215BC462B6F8302AE2B318D4138BD3D97003D233DB58FEDA43  AudioSwitch-Setup.exe
+F077F5406ED8D4C70C6252C294844F4C483185B62D7C5650BBAB55EA65661944  AudioSwitch-Setup.exe
 ```

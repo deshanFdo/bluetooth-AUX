@@ -255,15 +255,25 @@
                                     <TextBlock x:Name="PillMediaArtist" Text="Spotify / Media" FontSize="9.2" Foreground="#94A3B8" TextTrimming="CharacterEllipsis" MaxWidth="136"/>
                                 </StackPanel>
 
-                                <Button x:Name="PillPlayBtn"
-                                        Grid.Column="2"
-                                        Style="{StaticResource GlassActionButtonStyle}"
-                                        Width="24" Height="24"
-                                        Padding="0"
-                                        Margin="6,0,2,0"
-                                        Click="MediaPlayPauseBtn_Click">
-                                    <Path x:Name="PillPlayIcon" Data="{StaticResource IconPlay}" Fill="#FFFFFF" Width="10" Height="10" Stretch="Uniform"/>
-                                </Button>
+                                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="6,0,2,0">
+                                    <Button x:Name="PillProviderBtn"
+                                            Content="SP"
+                                            ToolTip="Switch Spotify &lt;-&gt; YouTube Music"
+                                            Style="{StaticResource GlassActionButtonStyle}"
+                                            Height="22"
+                                            FontSize="8.5"
+                                            FontWeight="Bold"
+                                            Padding="5,0"
+                                            Margin="0,0,4,0"
+                                            Click="PillProviderBtn_Click"/>
+                                    <Button x:Name="PillPlayBtn"
+                                            Style="{StaticResource GlassActionButtonStyle}"
+                                            Width="24" Height="24"
+                                            Padding="0"
+                                            Click="MediaPlayPauseBtn_Click">
+                                        <Path x:Name="PillPlayIcon" Data="{StaticResource IconPlay}" Fill="#FFFFFF" Width="10" Height="10" Stretch="Uniform"/>
+                                    </Button>
+                                </StackPanel>
                             </Grid>
 
                             <Border Grid.Row="1" Height="2" CornerRadius="1" Background="#1FFFFFFF" Margin="1,2,3,0" ClipToBounds="True">
@@ -975,8 +985,13 @@
                                                     <TextBlock x:Name="MediaStatusTag" Text="Ready" FontSize="9.8" Foreground="#94A3B8" VerticalAlignment="Center"/>
                                                 </StackPanel>
                                                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                                                    <Button x:Name="MusicProviderBtn" Content="Spotify" ToolTip="Switch Play launcher between Spotify and YouTube Music" FontSize="8.8" Padding="6,1.5" Margin="0,0,4,0" Style="{StaticResource GlassActionButtonStyle}" Click="MusicProviderBtn_Click"/>
-                                                    <Button x:Name="MusicWindowBtn" Content="Open" ToolTip="Show player window or tuck into hidden tray" FontSize="8.8" Padding="6,1.5" Style="{StaticResource GlassActionButtonStyle}" Click="MusicWindowBtn_Click"/>
+                                                    <Border CornerRadius="6" Background="#36090D16" BorderBrush="#26FFFFFF" BorderThickness="1" Padding="1" Margin="0,0,4,0">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <Button x:Name="SpotifySelectBtn" Content="Spotify" ToolTip="Switch active player to Spotify" FontSize="8.5" FontWeight="SemiBold" Padding="6,1.5" Style="{StaticResource GlassActionButtonStyle}" BorderThickness="0" Click="SpotifySelectBtn_Click"/>
+                                                            <Button x:Name="YtMusicSelectBtn" Content="YT Music" ToolTip="Switch active player to YouTube Music" FontSize="8.5" FontWeight="SemiBold" Padding="6,1.5" Style="{StaticResource GlassActionButtonStyle}" BorderThickness="0" Click="YtMusicSelectBtn_Click"/>
+                                                        </StackPanel>
+                                                    </Border>
+                                                    <Button x:Name="MusicWindowBtn" Content="Open" ToolTip="Show player window or tuck into hidden tray" FontSize="8.5" Padding="6,1.5" Style="{StaticResource GlassActionButtonStyle}" Click="MusicWindowBtn_Click"/>
                                                 </StackPanel>
                                             </Grid>
                                             <TextBlock x:Name="MediaTitleText" Text="Play Spotify" FontSize="12.5" FontWeight="Bold" Foreground="#F8FAFC" TextTrimming="CharacterEllipsis"/>

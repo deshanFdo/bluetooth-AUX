@@ -9,7 +9,9 @@
     <UseWindowsForms>true</UseWindowsForms>
     <AssemblyName>AudioSwitch</AssemblyName>
     <RootNamespace>AudioSwitch</RootNamespace>
-    <Version>1.2.0</Version>
+    <Version>1.2.1</Version>
+    <DebugType Condition="'$(Configuration)' == 'Release'">none</DebugType>
+    <DebugSymbols Condition="'$(Configuration)' == 'Release'">false</DebugSymbols>
     <ApplicationIcon>Assets\AudioSwitch.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <NoWarn>WFAC010</NoWarn>

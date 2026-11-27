@@ -25,6 +25,7 @@ internal sealed class MediaPlayerService : IDisposable
     private GlobalSystemMediaTransportControlsSessionManager? _manager;
     private GlobalSystemMediaTransportControlsSession? _currentSession;
     private readonly SemaphoreSlim _syncLock = new(1, 1);
+    private bool _preferYouTubeMusic;
     private bool _disposed;
 
     public event Action<MediaSessionSnapshot>? MediaUpdated;
@@ -51,6 +52,58 @@ internal sealed class MediaPlayerService : IDisposable
 
     public bool HasAnySession => (_currentSession ?? _manager?.GetCurrentSession()) != null;
 
+    public bool HasSessionForProvider(bool preferYouTubeMusic)
+    {
+        if (_manager == null) return false;
+        try
+        {
+            return FindSessionForProvider(_manager.GetSessions(), preferYouTubeMusic) != null;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    public void SetPreferredProvider(bool preferYouTubeMusic)
+    {
+        _preferYouTubeMusic = preferYouTubeMusic;
+        if (_manager == null) return;
+
+        try
+        {
+            var preferred = FindSessionForProvider(_manager.GetSessions(), preferYouTubeMusic);
+            if (preferred != null && preferred != _currentSession)
+            {
+                _ = BindSessionAsync(preferred);
+            }
+        }
+        catch { }
+    }
+
+    public async Task PauseCompetingSessionsAsync(bool targetIsYouTubeMusic)
+    {
+        if (_manager == null) return;
+        try
+        {
+            foreach (var session in _manager.GetSessions())
+            {
+                bool isTarget = targetIsYouTubeMusic
+                    ? (IsYouTubeMusicAppId(session.SourceAppUserModelId) || IsBrowserAppId(session.SourceAppUserModelId))
+                    : (session.SourceAppUserModelId?.Contains("spotify", StringComparison.OrdinalIgnoreCase) == true);
+
+                if (isTarget) continue;
+
+                var info = session.GetPlaybackInfo();
+                if (info.PlaybackStatus == GlobalSystemMediaTransportControlsSessionPlaybackStatus.Playing)
+                {
+                    await session.TryPauseAsync();
+                }
+            }
+        }
+        catch { }
+    }
+
     public async Task<bool> TryPlaySpotifyAsync()
         => await TryPlayMatchingAsync(preferYouTubeMusic: false);
 
@@ -59,41 +112,44 @@ internal sealed class MediaPlayerService : IDisposable
         if (_manager == null) return false;
         try
         {
-            var sessions = _manager.GetSessions();
-            GlobalSystemMediaTransportControlsSession? matched = null;
-
-            if (preferYouTubeMusic)
+            var matched = FindSessionForProvider(_manager.GetSessions(), preferYouTubeMusic);
+            if (matched == null)
             {
-                matched = sessions.FirstOrDefault(s => IsYouTubeMusicAppId(s.SourceAppUserModelId))
-                          ?? sessions.FirstOrDefault(s => IsBrowserAppId(s.SourceAppUserModelId));
-            }
-            else
-            {
-                matched = sessions.FirstOrDefault(s =>
-                    s.SourceAppUserModelId.Contains("spotify", StringComparison.OrdinalIgnoreCase));
+                return false;
             }
 
-            var target = matched ?? _currentSession ?? _manager.GetCurrentSession() ?? sessions.FirstOrDefault();
-            if (target == null) return false;
-
-            if (target != _currentSession)
+            if (matched != _currentSession)
             {
-                await BindSessionAsync(target);
+                await BindSessionAsync(matched);
             }
 
-            if (target.GetPlaybackInfo().PlaybackStatus == GlobalSystemMediaTransportControlsSessionPlaybackStatus.Playing)
+            if (matched.GetPlaybackInfo().PlaybackStatus == GlobalSystemMediaTransportControlsSessionPlaybackStatus.Playing)
             {
                 return true;
             }
 
-            bool ok = await target.TryPlayAsync();
-            await RefreshFromSessionAsync(target);
-            return ok || target.GetPlaybackInfo().PlaybackStatus == GlobalSystemMediaTransportControlsSessionPlaybackStatus.Playing;
+            bool ok = await matched.TryPlayAsync();
+            await RefreshFromSessionAsync(matched);
+            return ok || matched.GetPlaybackInfo().PlaybackStatus == GlobalSystemMediaTransportControlsSessionPlaybackStatus.Playing;
         }
         catch
         {
             return false;
         }
+    }
+
+    private static GlobalSystemMediaTransportControlsSession? FindSessionForProvider(
+        IReadOnlyList<GlobalSystemMediaTransportControlsSession> sessions,
+        bool preferYouTubeMusic)
+    {
+        if (preferYouTubeMusic)
+        {
+            return sessions.FirstOrDefault(s => IsYouTubeMusicAppId(s.SourceAppUserModelId))
+                   ?? sessions.FirstOrDefault(s => IsBrowserAppId(s.SourceAppUserModelId));
+        }
+
+        return sessions.FirstOrDefault(s =>
+            s.SourceAppUserModelId?.Contains("spotify", StringComparison.OrdinalIgnoreCase) == true);
     }
 
     private static bool IsYouTubeMusicAppId(string? appId)
@@ -138,7 +194,15 @@ internal sealed class MediaPlayerService : IDisposable
         CurrentSessionChangedEventArgs args)
     {
         if (_disposed) return;
-        await BindSessionAsync(sender.GetCurrentSession());
+        var next = sender.GetCurrentSession();
+        if (next != null && next.GetPlaybackInfo().PlaybackStatus == GlobalSystemMediaTransportControlsSessionPlaybackStatus.Playing)
+        {
+            await BindSessionAsync(next);
+            return;
+        }
+
+        var preferred = FindSessionForProvider(sender.GetSessions(), _preferYouTubeMusic);
+        await BindSessionAsync(preferred ?? next);
     }
 
     private async void Manager_SessionsChanged(
@@ -146,7 +210,10 @@ internal sealed class MediaPlayerService : IDisposable
         SessionsChangedEventArgs args)
     {
         if (_disposed) return;
-        var next = sender.GetCurrentSession() ?? sender.GetSessions().FirstOrDefault();
+        var sessions = sender.GetSessions();
+        var next = FindSessionForProvider(sessions, _preferYouTubeMusic)
+                   ?? sender.GetCurrentSession()
+                   ?? sessions.FirstOrDefault();
         if (next != null && next != _currentSession)
         {
             await BindSessionAsync(next);
