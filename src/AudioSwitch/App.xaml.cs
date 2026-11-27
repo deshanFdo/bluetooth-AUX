@@ -38,8 +38,8 @@ public partial class App : System.Windows.Application
             if (!silent)
             {
                 var confirm = System.Windows.MessageBox.Show(
-                    "Remove Audio Switch, its shortcuts, and Windows startup entry?",
-                    "Uninstall Audio Switch",
+                    "Remove WaveDock, its shortcuts, and Windows startup entry?",
+                    "Uninstall WaveDock",
                     MessageBoxButton.YesNo,
                     MessageBoxImage.Question);
                 if (confirm != MessageBoxResult.Yes)
@@ -53,8 +53,8 @@ public partial class App : System.Windows.Application
             if (!silent)
             {
                 System.Windows.MessageBox.Show(
-                    "Audio Switch and all its files have been uninstalled.",
-                    "Audio Switch",
+                    "WaveDock and all its files have been uninstalled.",
+                    "WaveDock",
                     MessageBoxButton.OK,
                     MessageBoxImage.Information);
             }
@@ -75,9 +75,9 @@ public partial class App : System.Windows.Application
         if (!InstallerService.VerifyInstalledBinaryIntegrity())
         {
             var res = System.Windows.MessageBox.Show(
-                "Audio Switch detected that its installed binary was modified outside the installer (SHA-256 / DPAPI seal mismatch).\n\n" +
+                "WaveDock detected that its installed binary was modified outside the installer (SHA-256 / DPAPI seal mismatch).\n\n" +
                 "Continue launching anyway?",
-                "Audio Switch — File Integrity Warning",
+                "WaveDock — File Integrity Warning",
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Warning);
             if (res != MessageBoxResult.Yes)

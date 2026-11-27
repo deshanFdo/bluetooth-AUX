@@ -49,7 +49,7 @@ public partial class App : Application
         var collapseItem = new NativeMenuItem("Collapse to Top Line");
         collapseItem.Click += (_, _) => _mainWindow?.CollapseToThinLine();
 
-        var exitItem = new NativeMenuItem("Quit Audio Switch");
+        var exitItem = new NativeMenuItem("Quit WaveDock");
         exitItem.Click += (_, _) =>
         {
             _trayIcon?.Dispose();
@@ -68,7 +68,7 @@ public partial class App : Application
         _trayIcon = new TrayIcon
         {
             Icon = icon,
-            ToolTipText = "Audio Switch — Dynamic Island for Linux",
+            ToolTipText = "WaveDock — Dynamic Island for Linux",
             Menu = menu,
             IsVisible = true
         };

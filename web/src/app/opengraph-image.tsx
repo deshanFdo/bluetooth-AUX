@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
-export const alt = "Audio Switch — Top-edge Dynamic Island for Windows & Linux audio";
+export const alt = "WaveDock — Top-edge Dynamic Island for Windows & Linux audio";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -45,7 +45,7 @@ export default function OpenGraphImage() {
                 backgroundColor: "#34d399",
               }}
             />
-            <span style={{ fontSize: 22, fontWeight: 600 }}>Audio Switch</span>
+            <span style={{ fontSize: 22, fontWeight: 600 }}>WaveDock</span>
           </div>
           <span style={{ fontSize: 16, color: "#9ca3af" }}>AUX · BT · Spotify · YT Music</span>
         </div>

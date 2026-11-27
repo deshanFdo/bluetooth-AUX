@@ -17,20 +17,20 @@ internal static class Program
         if (args.Any(a => a.Equals("--install", StringComparison.OrdinalIgnoreCase)))
         {
             LinuxInstallerService.InstallUserLocal(autostart: true);
-            Console.WriteLine($"Installed Audio Switch to {LinuxInstallerService.UserInstallDir}");
+            Console.WriteLine($"Installed WaveDock to {LinuxInstallerService.UserInstallDir}");
             return 0;
         }
 
         if (args.Any(a => a.Equals("--uninstall", StringComparison.OrdinalIgnoreCase)))
         {
             LinuxInstallerService.UninstallAll();
-            Console.WriteLine("Audio Switch uninstalled cleanly.");
+            Console.WriteLine("WaveDock uninstalled cleanly.");
             return 0;
         }
 
         if (!LinuxInstallerService.VerifyInstalledIntegrity())
         {
-            Console.Error.WriteLine("Audio Switch integrity check failed: installed binary was modified outside the installer.");
+            Console.Error.WriteLine("WaveDock integrity check failed: installed binary was modified outside the installer.");
             return 1;
         }
 
@@ -46,7 +46,7 @@ internal static class Program
 
     private static void RunDiagnostics()
     {
-        Console.WriteLine($"Audio Switch Linux v1.3.0 | Session={Environment.GetEnvironmentVariable("XDG_SESSION_TYPE") ?? "unknown"}");
+        Console.WriteLine($"WaveDock Linux v1.3.0 | Session={Environment.GetEnvironmentVariable("XDG_SESSION_TYPE") ?? "unknown"}");
 
         var audio = new PipeWireAudioService();
         var sinks = audio.GetSinks();

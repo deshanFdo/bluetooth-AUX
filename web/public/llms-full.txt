@@ -1,16 +1,16 @@
-# Audio Switch — Complete Technical Reference (v1.3.0)
+# WaveDock (formerly Audio Switch) — Complete Technical Reference (v1.3.0)
 
 URL: https://audio-switch.vercel.app
 Direct Windows Installer (`v1.3.0`, `AudioSwitch-Setup.exe`): https://audio-switch.vercel.app/download
 Portable Windows Executable (`v1.3.0`, `AudioSwitch.exe`): https://audio-switch.vercel.app/portable
 Ubuntu / Debian `.deb` (`v1.3.0`, `audioswitch_1.3.0_amd64.deb`): https://audio-switch.vercel.app/download-deb
 Linux `.tar.gz` (`v1.3.0`, `AudioSwitch-linux-x64.tar.gz`): https://audio-switch.vercel.app/download-linux
-SHA-256 (`AudioSwitch-Setup.exe` & `AudioSwitch.exe`): 8BF943E92676DB8FACDAB45DA71C6A94CDBED496BE8D57A8F8661754A9B21B29
-SHA-256 (`audioswitch_1.3.0_amd64.deb`): 260A067D84F4954ABCE53A7D1295EDBA7453ECF888D344DB6EA7D30B67C138A8
-SHA-256 (`AudioSwitch-linux-x64.tar.gz`): 8324A04F556901AB0437F3298C35C5939EBB5B97C2B922746C4387CD3B64804F
+SHA-256 (`AudioSwitch-Setup.exe` & `AudioSwitch.exe`): 3F3FD15181C871C8789E94D9C685C2ECAAB92BF165413239497853B3D585DF9B
+SHA-256 (`audioswitch_1.3.0_amd64.deb`): 87FCE9DF8A6036FBFD2FB7345DA72A64D1F4D8CDC01CE10CA6B0A8458ED95601
+SHA-256 (`AudioSwitch-linux-x64.tar.gz`): 804DF760AF8F611912948DD906B086C790394AF9FC9F85CBF2561449177E6F87
 
 ## Summary
-Audio Switch solves five common desktop audio problems across Windows 10/11 (`net8.0-windows10.0.19041.0` WPF) and Ubuntu/Debian Linux (`net8.0` Avalonia UI self-contained `linux-x64`, zero runtime prerequisites):
+WaveDock (formerly Audio Switch) solves five common desktop audio problems across Windows 10/11 (`net8.0-windows10.0.19041.0` WPF) and Ubuntu/Debian Linux (`net8.0` Avalonia UI self-contained `linux-x64`, zero runtime prerequisites):
 1. Fast switching between 3.5mm AUX headphones, Bluetooth headsets, speakers, and microphones without opening system sound settings.
 2. Per-app split audio routing (`Apps` tab & 1-click Dual Split): play music (Spotify, Chrome, Brave, Edge, YouTube Music) through wired AUX while Discord / Teams / Zoom voice calls and headset microphone use Bluetooth simultaneously (`AudioPolicyConfig` on Windows; PipeWire/PulseAudio `pactl move-sink-input` / `move-source-output` on Linux).
 3. Playing audio to wired AUX headphones/speakers and Bluetooth headphones simultaneously while compensating for Bluetooth A2DP latency (`0–350 ms` circular FIFO buffer on Windows WASAPI loopback; `module-loopback latency_msec` on Linux).

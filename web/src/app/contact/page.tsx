@@ -3,9 +3,9 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Contact & Support — Audio Switch",
+  title: "Contact & Support — WaveDock",
   description:
-    "Contact Audio Switch maintainer Deshan Fernando, report Windows audio bugs, or open feature requests on GitHub.",
+    "Contact WaveDock maintainer Deshan Fernando, report Windows or Linux audio bugs, or open feature requests on GitHub.",
   alternates: { canonical: "/contact" },
 };
 
@@ -13,11 +13,11 @@ export default function ContactPage() {
   return (
     <main className="mx-auto min-h-screen max-w-3xl bg-[#050507] px-6 py-16 text-[#f4f4f6]">
       <Link href="/" className="font-mono text-xs text-neutral-400 hover:text-white">
-        ← Audio Switch
+        ← WaveDock
       </Link>
       <h1 className="mt-6 text-3xl font-semibold tracking-tight text-white">Contact &amp; Support</h1>
       <p className="mt-4 text-sm leading-relaxed text-neutral-300">
-        Audio Switch is maintained by Deshan Fernando. For bug reports, Bluetooth headset battery
+        WaveDock is maintained by Deshan Fernando. For bug reports, Bluetooth headset battery
         compatibility logs, multi-output sync delay feedback, or feature requests, reach out using
         any of the channels below.
       </p>

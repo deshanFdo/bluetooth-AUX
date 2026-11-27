@@ -11,15 +11,15 @@ fi
 
 chmod +x "${BINARY_SRC}"
 
-echo "Installing Audio Switch v1.3.0 for user '${USER}'..."
+echo "Installing WaveDock v1.3.0 for user '${USER}'..."
 "${BINARY_SRC}" --install
 
 echo ""
-echo "Audio Switch installed cleanly."
+echo "WaveDock installed cleanly."
 echo "  Binary:    ${HOME}/.local/share/AudioSwitch/AudioSwitch"
 echo "  Settings:  ${HOME}/.config/AudioSwitch/settings.dat (AES-256-GCM encrypted)"
 echo "  Uninstall: ${HOME}/.local/share/AudioSwitch/AudioSwitch --uninstall (or run ./uninstall.sh)"
 echo ""
-echo "Launching Audio Switch in the background..."
+echo "Launching WaveDock in the background..."
 nohup "${HOME}/.local/share/AudioSwitch/AudioSwitch" >/dev/null 2>&1 &
 disown || true

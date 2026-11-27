@@ -14,9 +14,9 @@ const PUBLIC_PASSTHROUGH_PATHS = new Set([
   "/a8f4d9c2e1b7403892c5f1a6e3d8b402.txt",
 ]);
 
-const HOME_MARKDOWN = `# Audio Switch — Dynamic Island for Windows 10/11 & Ubuntu / Debian Linux (v1.3.0)
+const HOME_MARKDOWN = `# WaveDock — Dynamic Island for Windows 10/11 & Ubuntu / Debian Linux (v1.3.0)
 
-No longer need to unplug your 3.5mm AUX cable just to listen through an already-connected Bluetooth headset — switch outputs & mics, split Spotify/YouTube Music onto AUX while Discord uses Bluetooth, and monitor connected battery rings at ~0% idle CPU.
+WaveDock (formerly Audio Switch) lets you switch between wired AUX, Bluetooth headsets, speakers, and mics from a top-edge Dynamic Island without unplugging cables — plus per-app Dual Split audio, Spotify/YT Music switching, and connected battery rings.
 
 - **Homepage:** https://audio-switch.vercel.app
 - **Windows Installer (\`v1.3.0\`, 74.4 MB, Self-Contained):** https://audio-switch.vercel.app/download
@@ -34,13 +34,13 @@ No longer need to unplug your 3.5mm AUX cable just to listen through an already-
 
 function markdownForPath(pathname: string): string {
   if (pathname === "/about") {
-    return `# About Audio Switch\n\nAudio Switch is a free, open-source Windows 10/11 (.NET 8 WPF) & Ubuntu/Debian Linux (.NET 8 Avalonia + PipeWire) Dynamic Island desktop utility built by Deshan Fernando.\n\n- Source: https://github.com/deshanFdo/bluetooth-AUX\n- Windows: https://audio-switch.vercel.app/download\n- Ubuntu / Debian: https://audio-switch.vercel.app/download-deb\n- Technical reference: https://audio-switch.vercel.app/llms-full.txt\n`;
+    return `# About WaveDock\n\nWaveDock (formerly Audio Switch) is a free, open-source Windows 10/11 (.NET 8 WPF) & Ubuntu/Debian Linux (.NET 8 Avalonia + PipeWire) Dynamic Island desktop utility built by Deshan Fernando.\n\n- Source: https://github.com/deshanFdo/bluetooth-AUX\n- Windows: https://audio-switch.vercel.app/download\n- Ubuntu / Debian: https://audio-switch.vercel.app/download-deb\n- Technical reference: https://audio-switch.vercel.app/llms-full.txt\n`;
   }
   if (pathname === "/privacy") {
-    return `# Privacy & Security — Audio Switch\n\nAudio Switch runs 100% locally offline with zero analytics or telemetry. Settings and install seals are encrypted via Windows DPAPI (\`%LocalAppData%\\AudioSwitch\\settings.dat\`) or Linux AES-256-GCM (\`~/.config/AudioSwitch/settings.dat\`).\n\n- Homepage: https://audio-switch.vercel.app\n- Source audit: https://github.com/deshanFdo/bluetooth-AUX\n`;
+    return `# Privacy & Security — WaveDock\n\nWaveDock runs 100% locally offline with zero analytics or telemetry. Settings and install seals are encrypted via Windows DPAPI (\`%LocalAppData%\\AudioSwitch\\settings.dat\`) or Linux AES-256-GCM (\`~/.config/AudioSwitch/settings.dat\`).\n\n- Homepage: https://audio-switch.vercel.app\n- Source audit: https://github.com/deshanFdo/bluetooth-AUX\n`;
   }
   if (pathname === "/contact") {
-    return `# Contact & Support — Audio Switch\n\n- GitHub Issues & Source: https://github.com/deshanFdo/bluetooth-AUX/issues\n- Maintainer: Deshan Fernando\n- Email: deshanfernando67@gmail.com\n- Diagnostics: AudioSwitch.exe --diag (Windows) / AudioSwitch --diag (Linux)\n`;
+    return `# Contact & Support — WaveDock\n\n- GitHub Issues & Source: https://github.com/deshanFdo/bluetooth-AUX/issues\n- Maintainer: Deshan Fernando\n- Email: deshanfernando67@gmail.com\n- Diagnostics: AudioSwitch.exe --diag (Windows) / AudioSwitch --diag (Linux)\n`;
   }
   return HOME_MARKDOWN;
 }

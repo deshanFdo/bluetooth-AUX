@@ -66,7 +66,7 @@ public partial class SetupWindow : Window
             await InstallerService.InstallAsync(options, progress);
             _isInstalledDone = true;
             PrimaryActionBtn.IsEnabled = true;
-            PrimaryActionBtn.Content = "Launch Audio Switch";
+            PrimaryActionBtn.Content = "Launch WaveDock";
             CancelBtn.IsEnabled = true;
             CancelBtn.Content = "Close";
             SubtitleText.Text = "Installed cleanly! Ready to run from Top Edge or System Tray.";
@@ -84,8 +84,8 @@ public partial class SetupWindow : Window
     private async void UninstallBtn_Click(object sender, RoutedEventArgs e)
     {
         var confirm = System.Windows.MessageBox.Show(
-            "Remove Audio Switch, all installed files, settings, shortcuts, and Windows startup entry?",
-            "Uninstall Audio Switch",
+            "Remove WaveDock, all installed files, settings, shortcuts, and Windows startup entry?",
+            "Uninstall WaveDock",
             MessageBoxButton.YesNo,
             MessageBoxImage.Question);
         if (confirm != MessageBoxResult.Yes) return;
@@ -95,18 +95,18 @@ public partial class SetupWindow : Window
         CancelBtn.IsEnabled = false;
         OptionsCard.IsEnabled = false;
         ProgressPanel.Visibility = Visibility.Visible;
-        ProgressLabel.Text = "Removing all Audio Switch files and shortcuts...";
+        ProgressLabel.Text = "Removing all WaveDock files and shortcuts...";
         ProgressScale.ScaleX = 0.55;
 
         try
         {
             await InstallerService.UninstallAsync(scheduleDeferredSelfDelete: true);
             ProgressScale.ScaleX = 1.0;
-            ProgressLabel.Text = "All Audio Switch files, settings, and shortcuts removed.";
+            ProgressLabel.Text = "All WaveDock files, settings, and shortcuts removed.";
             SubtitleText.Text = "Uninstalled cleanly.";
             UninstallBtn.Visibility = Visibility.Collapsed;
             _isInstalledDone = false;
-            PrimaryActionBtn.Content = "Install Audio Switch";
+            PrimaryActionBtn.Content = "Install WaveDock";
             PrimaryActionBtn.IsEnabled = true;
             CancelBtn.Content = "Close";
             CancelBtn.IsEnabled = true;

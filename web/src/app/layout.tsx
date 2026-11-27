@@ -16,10 +16,11 @@ const mono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://audio-switch.vercel.app"),
-  title: "Audio Switch — Dynamic Island Audio Switcher for Windows & Ubuntu Linux",
+  title: "WaveDock — Top-Edge Dynamic Island Audio Switcher for Windows & Linux",
   description:
-    "Free lightweight Dynamic Island for Windows 10/11 & Ubuntu/Debian Linux. Stop unplugging your 3.5mm AUX cable just to listen through an already-connected Bluetooth headset — switch outputs & mics, split apps onto AUX vs Discord, control Spotify & YouTube Music, and monitor headset battery at ~0% idle CPU.",
+    "Free lightweight top-edge Dynamic Island (formerly Audio Switch) for Windows 10/11 & Ubuntu/Debian Linux. Stop unplugging your 3.5mm AUX cable just to listen through an already-connected Bluetooth headset — switch outputs & mics, split apps onto AUX vs Discord, control Spotify & YouTube Music, and monitor headset battery at ~0% idle CPU.",
   keywords: [
+    "WaveDock",
     "switch AUX and Bluetooth audio without unplugging Windows",
     "Ubuntu PipeWire Dynamic Island audio switcher",
     "Windows 11 Dynamic Island",
@@ -38,14 +39,14 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     url: "https://audio-switch.vercel.app",
-    siteName: "Audio Switch",
-    title: "Audio Switch — Dynamic Island for Windows & Linux Audio, Split Apps & Spotify",
+    siteName: "WaveDock",
+    title: "WaveDock — Dynamic Island for Windows & Linux Audio, Split Apps & Spotify",
     description:
-      "Top-of-screen iOS-style Dynamic Island for Windows 10/11 & Ubuntu/Debian Linux. Instant AUX/Bluetooth routing, per-app split audio, Spotify/YT Music switcher, and headset battery rings.",
+      "Top-edge iOS-style Dynamic Island for Windows 10/11 & Ubuntu/Debian Linux. Instant AUX/Bluetooth routing, per-app split audio, Spotify/YT Music switcher, and headset battery rings.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Audio Switch — Dynamic Island for Windows & Ubuntu Linux Audio",
+    title: "WaveDock — Dynamic Island for Windows & Ubuntu Linux Audio",
     description:
       "Switch AUX, Bluetooth & microphones from a top-edge Dynamic Island, split music onto AUX while Discord uses Bluetooth, and monitor headset battery rings.",
   },

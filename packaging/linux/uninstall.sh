@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-echo "Uninstalling Audio Switch cleanly..."
+echo "Uninstalling WaveDock cleanly..."
 
 pkill -u "${USER}" -x "AudioSwitch" >/dev/null 2>&1 || true
 sleep 0.3
@@ -22,4 +22,4 @@ if command -v update-desktop-database >/dev/null 2>&1; then
   update-desktop-database "${HOME}/.local/share/applications" >/dev/null 2>&1 || true
 fi
 
-echo "Audio Switch and all local settings/files have been removed."
+echo "WaveDock and all local settings/files have been removed."

@@ -64,7 +64,7 @@ def build_tar_gz(binary_bytes: bytes, icon_bytes: bytes, mtime: int) -> None:
     install_bytes = _lf_bytes(INSTALL_SH)
     uninstall_bytes = _lf_bytes(UNINSTALL_SH)
     readme_bytes = (
-        f"Audio Switch v{VERSION} (Linux x64)\n\n"
+        f"WaveDock v{VERSION} (Linux x64)\n\n"
         "Quick User Install (no sudo):\n"
         "  chmod +x install.sh AudioSwitch\n"
         "  ./install.sh\n\n"
@@ -105,8 +105,8 @@ def build_deb(binary_bytes: bytes, icon_bytes: bytes, mtime: int) -> None:
     desktop_file = (
         "[Desktop Entry]\n"
         "Type=Application\n"
-        "Name=Audio Switch\n"
-        "Comment=Dynamic Island Audio Switcher, Split Router, Spotify/YT Music & Battery Monitor\n"
+        "Name=WaveDock\n"
+        "Comment=WaveDock Dynamic Island Audio Switcher, Split Router, Spotify/YT Music & Battery Monitor\n"
         "Exec=/usr/bin/audioswitch\n"
         "Icon=/usr/share/pixmaps/audioswitch.ico\n"
         "Terminal=false\n"
@@ -150,7 +150,7 @@ def build_deb(binary_bytes: bytes, icon_bytes: bytes, mtime: int) -> None:
         f"Homepage: https://audio-switch.vercel.app\n"
         f"Depends: libfontconfig1, libx11-6, libice6, libsm6, pulseaudio-utils, libglib2.0-bin\n"
         f"Recommends: pipewire-pulse, bluez, wmctrl\n"
-        f"Description: Dynamic Island Audio Switcher & Split Router for Ubuntu/Debian\n"
+        f"Description: WaveDock — Dynamic Island Audio Switcher & Split Router for Ubuntu/Debian\n"
         f" Top-of-screen Dynamic Island for PipeWire/PulseAudio switching, per-app\n"
         f" split routing, Spotify & YouTube Music MPRIS control, and connected\n"
         f" Bluetooth headset battery rings.\n"

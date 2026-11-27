@@ -1,7 +1,7 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="AudioSwitch.Linux.MainWindow"
-        Title="Audio Switch"
+        Title="WaveDock"
         Width="376"
         SizeToContent="Height"
         SystemDecorations="None"
@@ -99,7 +99,7 @@
                         <!-- Header -->
                         <Grid ColumnDefinitions="*,Auto,Auto">
                             <StackPanel VerticalAlignment="Center">
-                                <TextBlock Text="Audio Switch" FontSize="13.5" FontWeight="Bold" Foreground="#F8FAFC"/>
+                                <TextBlock Text="WaveDock" FontSize="13.5" FontWeight="Bold" Foreground="#F8FAFC"/>
                                 <TextBlock x:Name="HeaderSubText" Text="PipeWire • Dynamic Island" FontSize="10" Foreground="#94A3B8" TextTrimming="CharacterEllipsis"/>
                             </StackPanel>
                             <Button Grid.Column="1" Classes="glassBtn" Content="Swap ⇄" Margin="0,0,6,0" Click="SwapBtn_Click"/>
@@ -300,7 +300,7 @@
                                 </Grid>
                             </Border>
 
-                            <Button Classes="glassBtn" Background="#33991B1B" BorderBrush="#55EF4444" Foreground="#FCA5A5" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Content="Uninstall Audio Switch..." Click="UninstallBtn_Click"/>
+                            <Button Classes="glassBtn" Background="#33991B1B" BorderBrush="#55EF4444" Foreground="#FCA5A5" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Content="Uninstall WaveDock..." Click="UninstallBtn_Click"/>
                         </StackPanel>
 
                         <!-- Footer Options + Status -->
@@ -310,7 +310,7 @@
                                     <CheckBox x:Name="AutoMuteCheck" IsChecked="True" Content="Auto-mute idle" FontSize="10" IsCheckedChanged="SettingsCheck_Changed"/>
                                     <CheckBox x:Name="HideMusicCheck" Grid.Column="1" IsChecked="True" Content="Hide music to tray" FontSize="10" IsCheckedChanged="SettingsCheck_Changed"/>
                                 </Grid>
-                                <TextBlock x:Name="StatusBanner" Text="Audio Switch Linux v1.3.0" FontSize="9.5" Foreground="#93C5FD" TextTrimming="CharacterEllipsis"/>
+                                <TextBlock x:Name="StatusBanner" Text="WaveDock Linux v1.3.0" FontSize="9.5" Foreground="#93C5FD" TextTrimming="CharacterEllipsis"/>
                             </StackPanel>
                         </Border>
                     </StackPanel>

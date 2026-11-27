@@ -1,4 +1,6 @@
-# Audio Switch — Dynamic Island Audio & Media Control for Windows & Linux
+# WaveDock — Dynamic Island Audio & Media Control for Windows & Linux
+
+*(Formerly **Audio Switch** — all `/download`, `/download-deb`, and GitHub links remain active.)*
 
 **Live Website & Download:** https://audio-switch.vercel.app  
 **Windows Installer (`v1.3.0`, 74.4 MB, Self-Contained):** https://audio-switch.vercel.app/download  
@@ -6,7 +8,7 @@
 **Ubuntu / Debian `.deb` (`v1.3.0`, 36.3 MB, Self-Contained):** https://audio-switch.vercel.app/download-deb  
 **Linux Generic `.tar.gz` (`v1.3.0`, 36.3 MB):** https://audio-switch.vercel.app/download-linux
 
-Audio Switch is a lightweight desktop utility for **Windows 10/11** and **Ubuntu / Debian Linux (PipeWire & PulseAudio)** that eliminates having to manually unplug your 3.5mm AUX cable just to listen through an already-connected Bluetooth headset. It reveals an iOS-inspired **Dynamic Island** at the top center of your active monitor.
+WaveDock is a lightweight desktop utility for **Windows 10/11** and **Ubuntu / Debian Linux (PipeWire & PulseAudio)** that eliminates having to manually unplug your 3.5mm AUX cable just to listen through an already-connected Bluetooth headset. It reveals an iOS-inspired **Dynamic Island** at the top center of your active monitor.
 
 ---
 
@@ -68,8 +70,8 @@ sudo apt install ./dist-linux/audioswitch_1.3.0_amd64.deb
 ### Artifact SHA-256 Checksums (`v1.3.0`)
 
 ```text
-8BF943E92676DB8FACDAB45DA71C6A94CDBED496BE8D57A8F8661754A9B21B29  AudioSwitch-Setup.exe (Windows v1.3.0)
-8BF943E92676DB8FACDAB45DA71C6A94CDBED496BE8D57A8F8661754A9B21B29  AudioSwitch.exe (Windows Portable v1.3.0)
-260A067D84F4954ABCE53A7D1295EDBA7453ECF888D344DB6EA7D30B67C138A8  audioswitch_1.3.0_amd64.deb (Linux v1.3.0)
-8324A04F556901AB0437F3298C35C5939EBB5B97C2B922746C4387CD3B64804F  AudioSwitch-linux-x64.tar.gz (Linux v1.3.0)
+3F3FD15181C871C8789E94D9C685C2ECAAB92BF165413239497853B3D585DF9B  AudioSwitch-Setup.exe (Windows v1.3.0)
+3F3FD15181C871C8789E94D9C685C2ECAAB92BF165413239497853B3D585DF9B  AudioSwitch.exe (Windows Portable v1.3.0)
+87FCE9DF8A6036FBFD2FB7345DA72A64D1F4D8CDC01CE10CA6B0A8458ED95601  audioswitch_1.3.0_amd64.deb (Linux v1.3.0)
+804DF760AF8F611912948DD906B086C790394AF9FC9F85CBF2561449177E6F87  AudioSwitch-linux-x64.tar.gz (Linux v1.3.0)
 ```

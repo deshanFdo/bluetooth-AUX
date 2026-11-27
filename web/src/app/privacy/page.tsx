@@ -3,9 +3,9 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Privacy & Security — Audio Switch",
+  title: "Privacy & Security — WaveDock",
   description:
-    "Audio Switch runs 100% locally on Windows and Ubuntu/Debian Linux with encrypted local settings, zero telemetry, and clean removal.",
+    "WaveDock runs 100% locally on Windows and Ubuntu/Debian Linux with encrypted local settings, zero telemetry, and clean removal.",
   alternates: { canonical: "/privacy" },
 };
 
@@ -13,11 +13,11 @@ export default function PrivacyPage() {
   return (
     <main className="mx-auto min-h-screen max-w-3xl bg-[#050507] px-6 py-16 text-[#f4f4f6]">
       <Link href="/" className="font-mono text-xs text-neutral-400 hover:text-white">
-        ← Audio Switch
+        ← WaveDock
       </Link>
       <h1 className="mt-6 text-3xl font-semibold tracking-tight text-white">Privacy &amp; Local Encryption</h1>
       <p className="mt-4 text-sm leading-relaxed text-neutral-300">
-        Audio Switch operates strictly offline on your local Windows or Ubuntu / Debian Linux
+        WaveDock operates strictly offline on your local Windows or Ubuntu / Debian Linux
         machine. The desktop app does not contain telemetry SDKs, analytics trackers, crash-upload
         beacons, ads, or user accounts, and it never records or transmits microphone input, system
         audio streams, or media playback history over the network.

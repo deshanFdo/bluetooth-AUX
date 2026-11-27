@@ -47,8 +47,8 @@ internal static class LinuxInstallerService
         string desktopContent = $"""
             [Desktop Entry]
             Type=Application
-            Name=Audio Switch
-            Comment=Dynamic Island Audio Switcher, Split Audio & Spotify / YouTube Music Control
+            Name=WaveDock
+            Comment=WaveDock Dynamic Island Audio Switcher, Split Audio & Spotify / YouTube Music Control
             Exec={targetExe}
             Terminal=false
             Categories=AudioVideo;Audio;Utility;

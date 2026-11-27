@@ -3,9 +3,9 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "About — Audio Switch",
+  title: "About — WaveDock",
   description:
-    "Architecture, security design, and cross-platform implementation behind Audio Switch for Windows 10/11 (.NET 8 WPF + Core Audio COM) and Ubuntu/Debian Linux (.NET 8 Avalonia + PipeWire).",
+    "Architecture, security design, and cross-platform implementation behind WaveDock (formerly Audio Switch) for Windows 10/11 (.NET 8 WPF + Core Audio COM) and Ubuntu/Debian Linux (.NET 8 Avalonia + PipeWire).",
   alternates: { canonical: "/about" },
 };
 
@@ -13,18 +13,18 @@ export default function AboutPage() {
   return (
     <main className="mx-auto min-h-screen max-w-3xl bg-[#050507] px-6 py-16 text-[#f4f4f6]">
       <Link href="/" className="font-mono text-xs text-neutral-400 hover:text-white">
-        ← Audio Switch
+        ← WaveDock
       </Link>
-      <h1 className="mt-6 text-3xl font-semibold tracking-tight text-white">About Audio Switch</h1>
+      <h1 className="mt-6 text-3xl font-semibold tracking-tight text-white">About WaveDock</h1>
       <p className="mt-4 text-sm leading-relaxed text-neutral-300">
-        Audio Switch was created by Deshan Fernando to solve a daily annoyance across Windows and
-        Linux laptops: switching rapidly between wired 3.5mm AUX headphones, Bluetooth headsets,
-        laptop speakers, and microphones — or splitting music onto AUX while voice calls stay on
-        Bluetooth — without digging through system settings.
+        WaveDock (formerly Audio Switch) was created by Deshan Fernando to solve a daily annoyance
+        across Windows and Linux laptops: switching rapidly between wired 3.5mm AUX headphones,
+        Bluetooth headsets, laptop speakers, and microphones — or splitting music onto AUX while
+        voice calls stay on Bluetooth — without digging through system settings.
       </p>
       <p className="mt-4 text-sm leading-relaxed text-neutral-400">
         On <strong className="font-medium text-neutral-200">Windows 10 / 11</strong> (.NET 8 WPF),
-        Audio Switch uses Win32 Core Audio COM (<code className="text-neutral-200">IMMDeviceEnumerator</code>,{" "}
+        WaveDock uses Win32 Core Audio COM (<code className="text-neutral-200">IMMDeviceEnumerator</code>,{" "}
         <code className="text-neutral-200">IPolicyConfig</code>, and <code className="text-neutral-200">AudioPolicyConfig</code>),
         user-mode WASAPI loopback with a 0–350 ms FIFO delay compensator, Windows SMTC + Hidden Tray
         hosting for Spotify &amp; YouTube Music, and PnP{" "}

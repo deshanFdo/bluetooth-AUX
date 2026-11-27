@@ -16,7 +16,7 @@ internal sealed record InstallOptions(
 
 internal static class InstallerService
 {
-    public const string AppDisplayName = "Audio Switch";
+    public const string AppDisplayName = "WaveDock";
     public const string AppVersion = "1.3.0";
     public const string PublisherName = "Deshan Fernando";
     public const string RepoUrl = "https://github.com/deshanFdo/bluetooth-AUX";
@@ -39,9 +39,15 @@ internal static class InstallerService
     public static string DefaultExePath => Path.Combine(DefaultInstallDir, "AudioSwitch.exe");
 
     public static string StartMenuShortcutPath =>
-        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.StartMenu), "Programs", "Audio Switch.lnk");
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.StartMenu), "Programs", "WaveDock.lnk");
 
     public static string DesktopShortcutPath =>
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), "WaveDock.lnk");
+
+    private static string LegacyStartMenuShortcutPath =>
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.StartMenu), "Programs", "Audio Switch.lnk");
+
+    private static string LegacyDesktopShortcutPath =>
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), "Audio Switch.lnk");
 
     public static bool IsAlreadyInstalled() => File.Exists(DefaultExePath);
@@ -73,7 +79,7 @@ internal static class InstallerService
         string sourceExe = Environment.ProcessPath
             ?? throw new InvalidOperationException("Cannot locate running executable path.");
 
-        progress?.Report((15, "Stopping any running Audio Switch instance..."));
+        progress?.Report((15, "Stopping any running WaveDock instance..."));
         await StopOtherAudioSwitchInstancesAsync();
 
         progress?.Report((35, "Copying application to LocalAppData..."));
@@ -104,9 +110,11 @@ internal static class InstallerService
         SealInstalledBinary(targetExe);
 
         progress?.Report((65, "Creating shortcuts..."));
+        try { if (File.Exists(LegacyStartMenuShortcutPath)) File.Delete(LegacyStartMenuShortcutPath); } catch { }
+        try { if (File.Exists(LegacyDesktopShortcutPath)) File.Delete(LegacyDesktopShortcutPath); } catch { }
         if (options.CreateStartMenuShortcut)
         {
-            CreateShortcut(StartMenuShortcutPath, targetExe, DefaultInstallDir, "Dynamic Island Audio Switcher for Windows");
+            CreateShortcut(StartMenuShortcutPath, targetExe, DefaultInstallDir, "WaveDock Dynamic Island Audio Switcher");
         }
         else if (File.Exists(StartMenuShortcutPath))
         {
@@ -115,7 +123,7 @@ internal static class InstallerService
 
         if (options.CreateDesktopShortcut)
         {
-            CreateShortcut(DesktopShortcutPath, targetExe, DefaultInstallDir, "Dynamic Island Audio Switcher for Windows");
+            CreateShortcut(DesktopShortcutPath, targetExe, DefaultInstallDir, "WaveDock Dynamic Island Audio Switcher");
         }
         else if (File.Exists(DesktopShortcutPath))
         {
@@ -160,6 +168,8 @@ internal static class InstallerService
 
         try { if (File.Exists(StartMenuShortcutPath)) File.Delete(StartMenuShortcutPath); } catch { }
         try { if (File.Exists(DesktopShortcutPath)) File.Delete(DesktopShortcutPath); } catch { }
+        try { if (File.Exists(LegacyStartMenuShortcutPath)) File.Delete(LegacyStartMenuShortcutPath); } catch { }
+        try { if (File.Exists(LegacyDesktopShortcutPath)) File.Delete(LegacyDesktopShortcutPath); } catch { }
 
         try
         {

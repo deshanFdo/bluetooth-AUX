@@ -469,10 +469,10 @@ public partial class MainWindow : Window
         var centerItem = new Forms.ToolStripMenuItem("Recenter at Top");
         centerItem.Click += (_, _) => Dispatcher.Invoke(PositionTopCenter);
 
-        var uninstallItem = new Forms.ToolStripMenuItem("Uninstall Audio Switch...");
+        var uninstallItem = new Forms.ToolStripMenuItem("Uninstall WaveDock...");
         uninstallItem.Click += (_, _) => _ = Dispatcher.InvokeAsync(UninstallFromTrayAsync);
 
-        var exitItem = new Forms.ToolStripMenuItem("Exit Audio Switch");
+        var exitItem = new Forms.ToolStripMenuItem("Exit WaveDock");
         exitItem.Click += (_, _) => Dispatcher.Invoke(Close);
 
         menu.Items.Add(openItem);
@@ -487,7 +487,7 @@ public partial class MainWindow : Window
         _trayIcon = new Forms.NotifyIcon
         {
             Icon = _trayIconHandle ?? Drawing.SystemIcons.Application,
-            Text = "Audio Switch",
+            Text = "WaveDock",
             Visible = true,
             ContextMenuStrip = menu
         };
@@ -1230,8 +1230,8 @@ public partial class MainWindow : Window
         if (_trayIcon != null)
         {
             string tip = _mirror.IsRunning
-                ? $"Audio Switch • Mirroring {_multiSelectedIds.Count} | {micLabel}"
-                : $"Audio Switch • {outLabel} | {micLabel}";
+                ? $"WaveDock • Mirroring {_multiSelectedIds.Count} | {micLabel}"
+                : $"WaveDock • {outLabel} | {micLabel}";
             _trayIcon.Text = tip.Length > 63 ? tip[..63] : tip;
         }
     }
@@ -3099,16 +3099,16 @@ public partial class MainWindow : Window
     private async Task UninstallFromTrayAsync()
     {
         var confirm = System.Windows.MessageBox.Show(
-            "Remove Audio Switch, all installed files, settings, shortcuts, and Windows startup entry?",
-            "Uninstall Audio Switch",
+            "Remove WaveDock, all installed files, settings, shortcuts, and Windows startup entry?",
+            "Uninstall WaveDock",
             MessageBoxButton.YesNo,
             MessageBoxImage.Question);
         if (confirm != MessageBoxResult.Yes) return;
 
         await InstallerService.UninstallAsync(scheduleDeferredSelfDelete: false);
         System.Windows.MessageBox.Show(
-            "Audio Switch and all its files have been uninstalled.",
-            "Audio Switch",
+            "WaveDock and all its files have been uninstalled.",
+            "WaveDock",
             MessageBoxButton.OK,
             MessageBoxImage.Information);
         InstallerService.ScheduleSelfDeleteIfRunningFromInstallDir();

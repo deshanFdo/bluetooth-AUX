@@ -42,20 +42,20 @@ const TAR_LINUX_URL =
   "https://github.com/deshanFdo/bluetooth-AUX/releases/download/v1.3.0/AudioSwitch-linux-x64.tar.gz";
 const GITHUB_URL = "https://github.com/deshanFdo/bluetooth-AUX";
 const SHA256_SETUP =
-  "8BF943E92676DB8FACDAB45DA71C6A94CDBED496BE8D57A8F8661754A9B21B29";
+  "3F3FD15181C871C8789E94D9C685C2ECAAB92BF165413239497853B3D585DF9B";
 const SHA256_DEB =
-  "260A067D84F4954ABCE53A7D1295EDBA7453ECF888D344DB6EA7D30B67C138A8";
+  "87FCE9DF8A6036FBFD2FB7345DA72A64D1F4D8CDC01CE10CA6B0A8458ED95601";
 const SHA256_TAR_LINUX =
-  "8324A04F556901AB0437F3298C35C5939EBB5B97C2B922746C4387CD3B64804F";
+  "804DF760AF8F611912948DD906B086C790394AF9FC9F85CBF2561449177E6F87";
 
 const FAQS = [
   {
     q: "How do I listen through an already-connected Bluetooth headset without unplugging my AUX cable?",
-    a: "Hover the top edge of your screen, click the Audio Switch pill, and toggle Bluetooth on. It switches your default output in <1ms on Windows (<5ms on PipeWire) and can mute the idle 3.5mm jack automatically — so you never have to unplug your AUX cable again.",
+    a: "Hover the top edge of your screen, click the WaveDock pill, and toggle Bluetooth on. It switches your default output in <1ms on Windows (<5ms on PipeWire) and can mute the idle 3.5mm jack automatically — so you never have to unplug your AUX cable again.",
   },
   {
     q: "Can I play songs on AUX while using my Bluetooth headset and mic for a Discord call?",
-    a: "Yes. Open the Apps tab inside Audio Island and click Dual Split (Music → AUX + Calls → Bluetooth), or pick endpoints per app. Windows uses AudioPolicyConfig across child PIDs; Ubuntu/Debian Linux moves live PipeWire/PulseAudio sink-inputs and source-outputs via pactl.",
+    a: "Yes. Open the Apps tab inside WaveDock and click Dual Split (Music → AUX + Calls → Bluetooth), or pick endpoints per app. Windows uses AudioPolicyConfig across child PIDs; Ubuntu/Debian Linux moves live PipeWire/PulseAudio sink-inputs and source-outputs via pactl.",
   },
   {
     q: "What happens if I click Play when Spotify or YouTube Music is closed, and can I switch between them?",
@@ -67,7 +67,7 @@ const FAQS = [
   },
   {
     q: "How does Ubuntu / Debian Linux support work, and what desktop sessions are supported?",
-    a: "Audio Switch Linux v1.3.0 uses Avalonia (.NET 8 self-contained linux-x64), PipeWire/PulseAudio (pactl + module-loopback), MPRIS2 over D-Bus (gdbus), BlueZ org.bluez.Battery1 / UPower, and AES-256-GCM encrypted settings. X11 docks cleanly at the top edge; GNOME Wayland shows the top-center capsule and full tray icon.",
+    a: "WaveDock Linux v1.3.0 uses Avalonia (.NET 8 self-contained linux-x64), PipeWire/PulseAudio (pactl + module-loopback), MPRIS2 over D-Bus (gdbus), BlueZ org.bluez.Battery1 / UPower, and AES-256-GCM encrypted settings. X11 docks cleanly at the top edge; GNOME Wayland shows the top-center capsule and full tray icon.",
   },
   {
     q: "How do I play the same audio on Bluetooth headphones and wired AUX together without echo?",
@@ -80,7 +80,8 @@ const JSON_LD = {
   "@graph": [
     {
       "@type": "SoftwareApplication",
-      name: "Audio Switch",
+      name: "WaveDock",
+      alternateName: "Audio Switch",
       applicationCategory: "UtilitiesApplication",
       operatingSystem: "Windows 10, Windows 11, Ubuntu / Debian Linux (x64)",
       softwareVersion: "1.3.0",
@@ -138,7 +139,7 @@ export default function HomePage() {
             <span className="flex h-7 w-7 items-center justify-center rounded-lg border border-white/15 bg-white/[0.04]">
               <Headphones className="h-3.5 w-3.5 text-emerald-400" />
             </span>
-            <span className="text-sm font-semibold tracking-tight text-white">Audio Switch</span>
+            <span className="text-sm font-semibold tracking-tight text-white">WaveDock</span>
             <span className="rounded border border-white/10 bg-white/[0.03] px-1.5 py-0.5 font-mono text-[10.5px] text-neutral-400">
               v1.3.0
             </span>
@@ -548,7 +549,7 @@ export default function HomePage() {
 
       <footer className="border-t border-white/[0.07] py-6 text-center text-xs text-neutral-500">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-center gap-x-5 gap-y-2 px-6">
-          <span>Audio Switch v1.3.0 · Windows &amp; Ubuntu/Debian Linux · Deshan Fernando</span>
+          <span>WaveDock v1.3.0 · Windows &amp; Ubuntu/Debian Linux · Deshan Fernando</span>
           <Link href="/about" className="inline-flex items-center gap-1 hover:text-neutral-300">
             <Info className="h-3 w-3" />
             About
