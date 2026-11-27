@@ -5,7 +5,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "About — Audio Switch",
   description:
-    "Architecture, design principles, and background behind Audio Switch, an open-source Windows 10/11 Dynamic Island audio router built with .NET 8, Core Audio COM, and WASAPI.",
+    "Architecture, security design, and cross-platform implementation behind Audio Switch for Windows 10/11 (.NET 8 WPF + Core Audio COM) and Ubuntu/Debian Linux (.NET 8 Avalonia + PipeWire).",
   alternates: { canonical: "/about" },
 };
 
@@ -17,24 +17,33 @@ export default function AboutPage() {
       </Link>
       <h1 className="mt-6 text-3xl font-semibold tracking-tight text-white">About Audio Switch</h1>
       <p className="mt-4 text-sm leading-relaxed text-neutral-300">
-        Audio Switch was created by Deshan Fernando to solve a daily annoyance on Windows laptops:
-        switching rapidly between wired 3.5mm AUX headphones, Bluetooth headsets, laptop speakers,
-        and microphones without digging through Windows Sound Settings or leaving bloated tray
-        utilities burning CPU in the background.
+        Audio Switch was created by Deshan Fernando to solve a daily annoyance across Windows and
+        Linux laptops: switching rapidly between wired 3.5mm AUX headphones, Bluetooth headsets,
+        laptop speakers, and microphones — or splitting music onto AUX while voice calls stay on
+        Bluetooth — without digging through system settings.
       </p>
       <p className="mt-4 text-sm leading-relaxed text-neutral-400">
-        Built in native C# on .NET 8 WPF, Audio Switch interfaces directly with Win32 Core Audio COM
-        interfaces (<code className="text-neutral-200">IMMDeviceEnumerator</code> and{" "}
-        <code className="text-neutral-200">IPolicyConfig</code>) for sub-millisecond default
-        device switching, pairs a user-mode WASAPI loopback buffer with adjustable 0–350 ms FIFO
-        delay for simultaneous AUX + Bluetooth listening, reads Bluetooth headset battery metrics
-        via Windows PnP HID/HFP keys, and binds to Windows SMTC sessions for Spotify and browser
-        playback control.
+        On <strong className="font-medium text-neutral-200">Windows 10 / 11</strong> (.NET 8 WPF),
+        Audio Switch uses Win32 Core Audio COM (<code className="text-neutral-200">IMMDeviceEnumerator</code>,{" "}
+        <code className="text-neutral-200">IPolicyConfig</code>, and <code className="text-neutral-200">AudioPolicyConfig</code>),
+        user-mode WASAPI loopback with a 0–350 ms FIFO delay compensator, Windows SMTC + Hidden Tray
+        hosting for Spotify &amp; YouTube Music, and PnP{" "}
+        <code className="text-neutral-200">DEVPKEY_Device_ContainerId</code> Bluetooth battery lookup.
       </p>
       <p className="mt-4 text-sm leading-relaxed text-neutral-400">
-        At rest, background peak meters, media progress timers, and spring loops shut down
-        completely — resulting in ~0% idle CPU usage (`0.047s` CPU over 6 seconds measured). Full
-        source code is published openly on{" "}
+        On <strong className="font-medium text-neutral-200">Ubuntu / Debian Linux</strong> (.NET 8
+        Avalonia), it drives PipeWire / PulseAudio (<code className="text-neutral-200">pactl</code>,{" "}
+        <code className="text-neutral-200">module-loopback</code>, and <code className="text-neutral-200">sink-inputs</code>),
+        controls Spotify &amp; YouTube Music over <code className="text-neutral-200">MPRIS2</code>,
+        and reads connected-only headset batteries via <code className="text-neutral-200">org.bluez.Battery1</code>{" "}
+        and UPower.
+      </p>
+      <p className="mt-4 text-sm leading-relaxed text-neutral-400">
+        Settings (<code className="text-neutral-200">settings.dat</code>) and installed binary seals
+        (<code className="text-neutral-200">install.sig</code>) are protected with Windows DPAPI or
+        Linux AES-256-GCM + read-only permissions, and everything removes cleanly via Installed Apps,{" "}
+        <code className="text-neutral-200">sudo apt purge audioswitch</code>, or{" "}
+        <code className="text-neutral-200">--uninstall</code>. Full source is published openly on{" "}
         <a
           href="https://github.com/deshanFdo/bluetooth-AUX"
           target="_blank"

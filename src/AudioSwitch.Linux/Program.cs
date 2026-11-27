@@ -28,6 +28,12 @@ internal static class Program
             return 0;
         }
 
+        if (!LinuxInstallerService.VerifyInstalledIntegrity())
+        {
+            Console.Error.WriteLine("Audio Switch integrity check failed: installed binary was modified outside the installer.");
+            return 1;
+        }
+
         BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
         return 0;
     }

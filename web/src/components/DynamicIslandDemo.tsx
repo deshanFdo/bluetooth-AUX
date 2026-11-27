@@ -24,6 +24,7 @@ export default function DynamicIslandDemo() {
   const [micRoute, setMicRoute] = useState<"bt" | "laptop" | "aux">("bt");
   const [spotifyOut, setSpotifyOut] = useState<"default" | "aux" | "bt">("aux");
   const [discordOut, setDiscordOut] = useState<"default" | "aux" | "bt">("bt");
+  const [musicProvider, setMusicProvider] = useState<"spotify" | "ytmusic">("spotify");
   const [spotifyInTray, setSpotifyInTray] = useState(true);
   const [mirror, setMirror] = useState(false);
   const [vol, setVol] = useState(68);
@@ -86,7 +87,9 @@ export default function DynamicIslandDemo() {
 
   const accentColor =
     page === 1
-      ? "#22c55e"
+      ? musicProvider === "spotify"
+        ? "#22c55e"
+        : "#ef4444"
       : page === 2
       ? "#10b981"
       : mirror
@@ -204,10 +207,12 @@ export default function DynamicIslandDemo() {
                       <div className="flex items-center justify-between">
                         <div className="min-w-0">
                           <p className="truncate text-[11px] font-semibold leading-tight text-white">
-                            Teardrop
+                            {musicProvider === "spotify" ? "Teardrop" : "Midnight City"}
                           </p>
                           <p className="truncate text-[9px] leading-tight text-neutral-400">
-                            Massive Attack · Spotify
+                            {musicProvider === "spotify"
+                              ? "Massive Attack · Spotify"
+                              : "M83 · YouTube Music"}
                           </p>
                         </div>
                         <button
@@ -226,7 +231,9 @@ export default function DynamicIslandDemo() {
                       </div>
                       <div className="mt-1 h-[2px] w-full overflow-hidden rounded-full bg-white/15">
                         <div
-                          className="h-full bg-emerald-400 transition-all duration-500"
+                          className={`h-full transition-all duration-500 ${
+                            musicProvider === "spotify" ? "bg-emerald-400" : "bg-red-500"
+                          }`}
                           style={{ width: `${(sec / totalSec) * 100}%` }}
                         />
                       </div>
@@ -289,7 +296,9 @@ export default function DynamicIslandDemo() {
                           {page === 0
                             ? "Audio Island"
                             : page === 1
-                            ? "Spotify"
+                            ? musicProvider === "spotify"
+                              ? "Spotify"
+                              : "YouTube Music"
                             : "Battery & System"}
                         </p>
                         <p className="text-[9.5px] text-neutral-400">{routeName}</p>
@@ -307,7 +316,7 @@ export default function DynamicIslandDemo() {
                   <div className="mb-2 grid grid-cols-3 gap-1 rounded-[9px] border border-white/10 bg-black/40 p-0.5">
                     {[
                       { id: 0 as Page, name: "Audio" },
-                      { id: 1 as Page, name: "Spotify" },
+                      { id: 1 as Page, name: "Media" },
                       { id: 2 as Page, name: "Battery" },
                     ].map((t) => (
                       <button
@@ -571,15 +580,47 @@ export default function DynamicIslandDemo() {
 
                     {page === 1 && (
                       <div className="space-y-2">
+                        <div className="grid grid-cols-2 gap-1 rounded-[8px] border border-white/10 bg-black/40 p-0.5">
+                          <button
+                            onClick={() => setMusicProvider("spotify")}
+                            className={`h-5 rounded-[6px] text-[10px] font-medium transition ${
+                              musicProvider === "spotify"
+                                ? "bg-emerald-600 text-white"
+                                : "text-neutral-400 hover:text-white"
+                            }`}
+                          >
+                            Spotify
+                          </button>
+                          <button
+                            onClick={() => setMusicProvider("ytmusic")}
+                            className={`h-5 rounded-[6px] text-[10px] font-medium transition ${
+                              musicProvider === "ytmusic"
+                                ? "bg-red-600 text-white"
+                                : "text-neutral-400 hover:text-white"
+                            }`}
+                          >
+                            YouTube Music
+                          </button>
+                        </div>
+
                         <div className="rounded-[12px] border border-white/10 bg-white/[0.03] p-3">
                           <div className="mb-2.5 flex items-center gap-3">
-                            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-white/15 bg-neutral-900 text-base text-emerald-400">
+                            <div
+                              className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-white/15 bg-neutral-900 text-base ${
+                                musicProvider === "spotify" ? "text-emerald-400" : "text-red-400"
+                              }`}
+                            >
                               ♪
                             </div>
                             <div className="min-w-0 flex-1">
                               <div className="flex items-center justify-between gap-2">
-                                <p className="text-[9.5px] font-medium text-emerald-400">
-                                  Spotify · {playing ? "Now Playing" : "Paused"}
+                                <p
+                                  className={`text-[9.5px] font-medium ${
+                                    musicProvider === "spotify" ? "text-emerald-400" : "text-red-400"
+                                  }`}
+                                >
+                                  {musicProvider === "spotify" ? "Spotify" : "YT Music"} ·{" "}
+                                  {playing ? "Now Playing" : "Paused"}
                                 </p>
                                 <button
                                   onClick={() => setSpotifyInTray((v) => !v)}
@@ -589,16 +630,19 @@ export default function DynamicIslandDemo() {
                                 </button>
                               </div>
                               <p className="truncate text-[13px] font-semibold text-white">
-                                Teardrop
+                                {musicProvider === "spotify" ? "Teardrop" : "Midnight City"}
                               </p>
                               <p className="truncate text-[10.5px] text-neutral-400">
-                                Massive Attack · {spotifyInTray ? "Hidden Tray" : "Taskbar"}
+                                {musicProvider === "spotify" ? "Massive Attack" : "M83"} ·{" "}
+                                {spotifyInTray ? "Hidden Tray" : "Taskbar"}
                               </p>
                             </div>
                           </div>
                           <div className="h-1 w-full overflow-hidden rounded-full bg-white/15">
                             <div
-                              className="h-full bg-emerald-400 transition-all duration-500"
+                              className={`h-full transition-all duration-500 ${
+                                musicProvider === "spotify" ? "bg-emerald-400" : "bg-red-500"
+                              }`}
                               style={{ width: `${(sec / totalSec) * 100}%` }}
                             />
                           </div>

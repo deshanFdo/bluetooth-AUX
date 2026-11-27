@@ -1,13 +1,13 @@
 # Audio Switch — Complete Technical Reference (v1.3.0)
 
 URL: https://audio-switch.vercel.app
-Direct Windows Installer (`v1.2.1`, `AudioSwitch-Setup.exe`): https://audio-switch.vercel.app/download
-Portable Windows Executable (`v1.2.1`, `AudioSwitch.exe`): https://audio-switch.vercel.app/portable
+Direct Windows Installer (`v1.3.0`, `AudioSwitch-Setup.exe`): https://audio-switch.vercel.app/download
+Portable Windows Executable (`v1.3.0`, `AudioSwitch.exe`): https://audio-switch.vercel.app/portable
 Ubuntu / Debian `.deb` (`v1.3.0`, `audioswitch_1.3.0_amd64.deb`): https://audio-switch.vercel.app/download-deb
 Linux `.tar.gz` (`v1.3.0`, `AudioSwitch-linux-x64.tar.gz`): https://audio-switch.vercel.app/download-linux
-SHA-256 (`AudioSwitch-Setup.exe`): F077F5406ED8D4C70C6252C294844F4C483185B62D7C5650BBAB55EA65661944
-SHA-256 (`audioswitch_1.3.0_amd64.deb`): 91C8F14043A782821870CAA813CC041973EEBB8E2D4CDDDAC65E6CDB70FBB0B6
-SHA-256 (`AudioSwitch-linux-x64.tar.gz`): 6523EA7E218126127B91B5B8C423BFF0335D331025B8564D5D3D1B0DC1725DE5
+SHA-256 (`AudioSwitch-Setup.exe` & `AudioSwitch.exe`): 87E37AD8D5E9F818A9893AD9B776A06C2D9BE4AB3C95C64EA666D8625520784F
+SHA-256 (`audioswitch_1.3.0_amd64.deb`): 11AC66B69D93279FE031F07E1863F05CC95B1C0D906241074A6E1F03B416EF14
+SHA-256 (`AudioSwitch-linux-x64.tar.gz`): 8241511A464651FB166B308BCD86C9EDCC88F636C1B7EE46F4E15FCDFFBA4489
 
 ## Summary
 Audio Switch solves five common desktop audio problems across Windows 10/11 (`net8.0-windows10.0.19041.0` WPF) and Ubuntu/Debian Linux (`net8.0` Avalonia UI self-contained `linux-x64`, zero runtime prerequisites):

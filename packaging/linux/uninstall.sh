@@ -10,6 +10,8 @@ if [[ -x "${HOME}/.local/share/AudioSwitch/AudioSwitch" ]]; then
   "${HOME}/.local/share/AudioSwitch/AudioSwitch" --uninstall >/dev/null 2>&1 || true
 fi
 
+chmod -R u+w "${HOME}/.local/share/AudioSwitch" >/dev/null 2>&1 || true
+chmod -R u+w "${HOME}/.config/AudioSwitch" >/dev/null 2>&1 || true
 rm -rf "${HOME}/.local/share/AudioSwitch"
 rm -rf "${HOME}/.config/AudioSwitch"
 rm -f "${HOME}/.local/share/applications/audioswitch.desktop"

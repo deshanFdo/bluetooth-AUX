@@ -34,20 +34,10 @@ internal sealed class LinuxSettings
 
             byte[] key = Convert.FromBase64String(File.ReadAllText(KeyPath, Encoding.UTF8).Trim());
             byte[] blob = File.ReadAllBytes(EncryptedPath);
-            if (key.Length != 32 || blob.Length < 28)
-            {
-                return new LinuxSettings();
-            }
-
-            ReadOnlySpan<byte> nonce = blob.AsSpan(0, 12);
-            ReadOnlySpan<byte> tag = blob.AsSpan(12, 16);
-            ReadOnlySpan<byte> cipher = blob.AsSpan(28);
-            byte[] plain = new byte[cipher.Length];
-
-            using var aes = new AesGcm(key, 16);
-            aes.Decrypt(nonce, cipher, tag, plain, AssociatedData);
-
-            return JsonSerializer.Deserialize<LinuxSettings>(plain) ?? new LinuxSettings();
+            byte[]? plain = DecryptWithAad(key, blob, AssociatedData);
+            return plain != null
+                ? JsonSerializer.Deserialize<LinuxSettings>(plain) ?? new LinuxSettings()
+                : new LinuxSettings();
         }
         catch
         {
@@ -61,26 +51,45 @@ internal sealed class LinuxSettings
         try
         {
             Directory.CreateDirectory(ConfigDir);
-            byte[] key = GetOrCreateKey();
             byte[] plain = JsonSerializer.SerializeToUtf8Bytes(this);
-            byte[] nonce = RandomNumberGenerator.GetBytes(12);
-            byte[] tag = new byte[16];
-            byte[] cipher = new byte[plain.Length];
-
-            using var aes = new AesGcm(key, 16);
-            aes.Encrypt(nonce, plain, cipher, tag, AssociatedData);
-
-            byte[] output = new byte[12 + 16 + cipher.Length];
-            nonce.CopyTo(output, 0);
-            tag.CopyTo(output, 12);
-            cipher.CopyTo(output, 28);
+            byte[] output = EncryptWithAad(GetOrCreateKey(), plain, AssociatedData);
             File.WriteAllBytes(EncryptedPath, output);
-            RestrictOwnerOnly(EncryptedPath);
+            RestrictOwnerOnly(EncryptedPath, readOnly: false);
         }
         catch { }
     }
 
-    private static byte[] GetOrCreateKey()
+    public static byte[] EncryptWithAad(byte[] key, byte[] plain, byte[] aad)
+    {
+        byte[] nonce = RandomNumberGenerator.GetBytes(12);
+        byte[] tag = new byte[16];
+        byte[] cipher = new byte[plain.Length];
+
+        using var aes = new AesGcm(key, 16);
+        aes.Encrypt(nonce, plain, cipher, tag, aad);
+
+        byte[] output = new byte[12 + 16 + cipher.Length];
+        nonce.CopyTo(output, 0);
+        tag.CopyTo(output, 12);
+        cipher.CopyTo(output, 28);
+        return output;
+    }
+
+    public static byte[]? DecryptWithAad(byte[] key, byte[] blob, byte[] aad)
+    {
+        if (key.Length != 32 || blob.Length < 28) return null;
+
+        ReadOnlySpan<byte> nonce = blob.AsSpan(0, 12);
+        ReadOnlySpan<byte> tag = blob.AsSpan(12, 16);
+        ReadOnlySpan<byte> cipher = blob.AsSpan(28);
+        byte[] plain = new byte[cipher.Length];
+
+        using var aes = new AesGcm(key, 16);
+        aes.Decrypt(nonce, cipher, tag, plain, aad);
+        return plain;
+    }
+
+    public static byte[] GetOrCreateKey()
     {
         if (File.Exists(KeyPath))
         {
@@ -93,18 +102,23 @@ internal sealed class LinuxSettings
         }
 
         byte[] key = RandomNumberGenerator.GetBytes(32);
+        Directory.CreateDirectory(ConfigDir);
         File.WriteAllText(KeyPath, Convert.ToBase64String(key), Encoding.UTF8);
-        RestrictOwnerOnly(KeyPath);
+        RestrictOwnerOnly(KeyPath, readOnly: false);
         return key;
     }
 
-    private static void RestrictOwnerOnly(string filePath)
+    public static void RestrictOwnerOnly(string filePath, bool readOnly)
     {
         if (OperatingSystem.IsLinux())
         {
             try
             {
-                File.SetUnixFileMode(filePath, UnixFileMode.UserRead | UnixFileMode.UserWrite);
+                File.SetUnixFileMode(
+                    filePath,
+                    readOnly
+                        ? UnixFileMode.UserRead
+                        : UnixFileMode.UserRead | UnixFileMode.UserWrite);
             }
             catch { }
         }

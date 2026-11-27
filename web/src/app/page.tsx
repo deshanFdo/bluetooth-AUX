@@ -33,20 +33,20 @@ import CopyShaButton from "@/components/CopyShaButton";
 import DownloadButton from "@/components/DownloadButton";
 
 const INSTALLER_URL =
-  "https://github.com/deshanFdo/bluetooth-AUX/releases/download/v1.2.1/AudioSwitch-Setup.exe";
+  "https://github.com/deshanFdo/bluetooth-AUX/releases/download/v1.3.0/AudioSwitch-Setup.exe";
 const PORTABLE_URL =
-  "https://github.com/deshanFdo/bluetooth-AUX/releases/download/v1.2.1/AudioSwitch.exe";
+  "https://github.com/deshanFdo/bluetooth-AUX/releases/download/v1.3.0/AudioSwitch.exe";
 const DEB_URL =
   "https://github.com/deshanFdo/bluetooth-AUX/releases/download/v1.3.0/audioswitch_1.3.0_amd64.deb";
 const TAR_LINUX_URL =
   "https://github.com/deshanFdo/bluetooth-AUX/releases/download/v1.3.0/AudioSwitch-linux-x64.tar.gz";
 const GITHUB_URL = "https://github.com/deshanFdo/bluetooth-AUX";
 const SHA256_SETUP =
-  "F077F5406ED8D4C70C6252C294844F4C483185B62D7C5650BBAB55EA65661944";
+  "87E37AD8D5E9F818A9893AD9B776A06C2D9BE4AB3C95C64EA666D8625520784F";
 const SHA256_DEB =
-  "91C8F14043A782821870CAA813CC041973EEBB8E2D4CDDDAC65E6CDB70FBB0B6";
+  "11AC66B69D93279FE031F07E1863F05CC95B1C0D906241074A6E1F03B416EF14";
 const SHA256_TAR_LINUX =
-  "6523EA7E218126127B91B5B8C423BFF0335D331025B8564D5D3D1B0DC1725DE5";
+  "8241511A464651FB166B308BCD86C9EDCC88F636C1B7EE46F4E15FCDFFBA4489";
 
 const FAQS = [
   {
@@ -58,8 +58,12 @@ const FAQS = [
     a: "Yes. Open the Apps tab inside Audio Island and click Dual Split (Music → AUX + Calls → Bluetooth), or pick endpoints per app. Windows uses AudioPolicyConfig across child PIDs; Ubuntu/Debian Linux moves live PipeWire/PulseAudio sink-inputs and source-outputs via pactl.",
   },
   {
-    q: "What happens if I click Play when Spotify or YouTube Music is closed, and do they stay off my taskbar?",
-    a: "Clicking Play launches Spotify or YouTube Music automatically (Microsoft Store, desktop wrapper, Snap/Flatpak on Linux, or standalone browser app), starts playback, and hides clutter off the taskbar on Windows (Hidden Icons) with MPRIS2 switcher support on Linux.",
+    q: "What happens if I click Play when Spotify or YouTube Music is closed, and can I switch between them?",
+    a: "Yes. Pick Spotify or YT Music in the Media card (it auto-pauses the other player). Clicking Play launches Spotify or YouTube Music automatically even when closed, and on Windows hides both windows off your taskbar into Hidden Icons (^).",
+  },
+  {
+    q: "Are installed files and settings encrypted so nobody can change them after downloading?",
+    a: "Settings (settings.dat) and installed binary seals (install.sig) are encrypted via Windows DPAPI or Linux AES-256-GCM, and installed binaries are locked ReadOnly (Windows) / 0500 or root:root .deb (Linux) with startup SHA-256 verification. Because unsigned binaries must remain unencrypted for OS execution, verify your download with the SHA-256 hashes below.",
   },
   {
     q: "How does Ubuntu / Debian Linux support work, and what desktop sessions are supported?",
@@ -68,10 +72,6 @@ const FAQS = [
   {
     q: "How do I play the same audio on Bluetooth headphones and wired AUX together without echo?",
     a: "Use Multi-Output Mirror under Outputs. Windows captures via user-mode WASAPI loopback with a 0–350 ms FIFO buffer; Linux spawns module-loopback with configurable latency_msec (170 ms default) so wired AUX aligns with wireless Bluetooth latency.",
-  },
-  {
-    q: "Does Audio Switch require installing .NET Runtime or virtual cables, and how do I uninstall?",
-    a: "No runtime or virtual cable is needed — both Windows (74.4 MB) and Linux (.deb / .tar.gz, 36.3 MB) are self-contained. Uninstall cleanly via Windows Installed Apps, sudo apt purge audioswitch, or AudioSwitch --uninstall with zero leftover files.",
   },
 ];
 
@@ -358,7 +358,7 @@ export default function HomePage() {
                 <li className="flex items-start gap-2.5">
                   <ArrowDownToLine className="mt-0.5 h-4 w-4 shrink-0 text-blue-400" />
                   <span>
-                    <strong className="font-medium text-white">Windows (v1.2.1):</strong> Download{" "}
+                    <strong className="font-medium text-white">Windows (v1.3.0):</strong> Download{" "}
                     <a
                       href={INSTALLER_URL}
                       download="AudioSwitch-Setup.exe"
@@ -441,7 +441,7 @@ export default function HomePage() {
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <span className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wider text-neutral-500">
                       <Terminal className="h-3 w-3" />
-                      SHA-256 (Windows v1.2.1 Setup)
+                      SHA-256 (Windows v1.3.0 Setup &amp; Portable)
                     </span>
                     <CopyShaButton value={SHA256_SETUP} />
                   </div>
@@ -460,6 +460,19 @@ export default function HomePage() {
                   </div>
                   <p className="mt-1.5 break-all font-mono text-[11px] text-neutral-300">
                     {SHA256_DEB}
+                  </p>
+                </div>
+
+                <div className="min-w-0 rounded-xl border border-white/[0.08] bg-black/50 p-3">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <span className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wider text-neutral-500">
+                      <Terminal className="h-3 w-3 text-cyan-400" />
+                      SHA-256 (Linux v1.3.0 .tar.gz)
+                    </span>
+                    <CopyShaButton value={SHA256_TAR_LINUX} />
+                  </div>
+                  <p className="mt-1.5 break-all font-mono text-[11px] text-neutral-300">
+                    {SHA256_TAR_LINUX}
                   </p>
                 </div>
               </div>
@@ -486,7 +499,7 @@ export default function HomePage() {
 
       <footer className="border-t border-white/[0.07] py-6 text-center text-xs text-neutral-500">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-center gap-x-5 gap-y-2 px-6">
-          <span>Audio Switch v1.3.0 (Linux) · v1.2.1 (Windows) · Deshan Fernando</span>
+          <span>Audio Switch v1.3.0 · Windows &amp; Ubuntu/Debian Linux · Deshan Fernando</span>
           <Link href="/about" className="inline-flex items-center gap-1 hover:text-neutral-300">
             <Info className="h-3 w-3" />
             About

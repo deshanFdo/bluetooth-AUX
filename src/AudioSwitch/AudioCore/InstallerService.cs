@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
+using System.Security.Cryptography;
 using System.Text;
 using Microsoft.Win32;
 
@@ -16,9 +17,12 @@ internal sealed record InstallOptions(
 internal static class InstallerService
 {
     public const string AppDisplayName = "Audio Switch";
-    public const string AppVersion = "1.2.1";
+    public const string AppVersion = "1.3.0";
     public const string PublisherName = "Deshan Fernando";
     public const string RepoUrl = "https://github.com/deshanFdo/bluetooth-AUX";
+
+    private static readonly byte[] InstallSealEntropy =
+        Encoding.UTF8.GetBytes("AudioSwitch::InstallSeal::v1");
 
     private const string UninstallRegKey = @"Software\Microsoft\Windows\CurrentVersion\Uninstall\AudioSwitch";
     private const string RunRegKey = @"Software\Microsoft\Windows\CurrentVersion\Run";
@@ -29,6 +33,8 @@ internal static class InstallerService
 
     public static string SettingsDataDir =>
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "AudioSwitch");
+
+    public static string InstallSealPath => Path.Combine(SettingsDataDir, "install.sig");
 
     public static string DefaultExePath => Path.Combine(DefaultInstallDir, "AudioSwitch.exe");
 
@@ -78,6 +84,7 @@ internal static class InstallerService
         {
             await Task.Run(() =>
             {
+                ClearReadOnly(targetExe);
                 for (int attempt = 0; attempt < 10; attempt++)
                 {
                     try
@@ -93,6 +100,8 @@ internal static class InstallerService
                 File.Copy(sourceExe, targetExe, overwrite: true);
             });
         }
+
+        SealInstalledBinary(targetExe);
 
         progress?.Report((65, "Creating shortcuts..."));
         if (options.CreateStartMenuShortcut)
@@ -170,12 +179,14 @@ internal static class InstallerService
         {
             if (Directory.Exists(SettingsDataDir))
             {
+                ClearReadOnlyRecursive(SettingsDataDir);
                 Directory.Delete(SettingsDataDir, recursive: true);
             }
         }
         catch { }
 
         string installDir = Path.GetFullPath(DefaultInstallDir).TrimEnd('\\');
+        ClearReadOnlyRecursive(installDir);
         if (IsRunningFromInstallDir())
         {
             // Release CWD handle immediately so cmd.exe rmdir can delete the directory cleanly after exit
@@ -233,8 +244,8 @@ internal static class InstallerService
         [
             "@echo off",
             "for /L %%i in (1,1,25) do (",
-            $"  if exist \"{settingsDir}\" rmdir /s /q \"{settingsDir}\" >nul 2>&1",
-            $"  if exist \"{installDir}\" rmdir /s /q \"{installDir}\" >nul 2>&1",
+            $"  if exist \"{settingsDir}\" (attrib -r -s -h \"{settingsDir}\\*.*\" /s /d >nul 2>&1 & rmdir /s /q \"{settingsDir}\" >nul 2>&1)",
+            $"  if exist \"{installDir}\" (attrib -r -s -h \"{installDir}\\*.*\" /s /d >nul 2>&1 & rmdir /s /q \"{installDir}\" >nul 2>&1)",
             $"  if not exist \"{installDir}\" if not exist \"{settingsDir}\" goto :done",
             "  ping -n 2 127.0.0.1 >nul",
             ")",
@@ -282,6 +293,101 @@ internal static class InstallerService
             if (Directory.Exists(bundleCache))
             {
                 Directory.Delete(bundleCache, recursive: true);
+            }
+        }
+        catch { }
+    }
+
+    /// <summary>
+    /// Seals the installed executable SHA-256 under Windows DPAPI and sets ReadOnly attributes
+    /// so external edits after installation are blocked or detected at launch.
+    /// </summary>
+    public static void SealInstalledBinary(string exePath)
+    {
+        try
+        {
+            if (!File.Exists(exePath)) return;
+            string payload = ComputeBinaryDigestPayload(exePath);
+            byte[]? sealedBytes = IslandSettings.ProtectWithEntropy(
+                Encoding.UTF8.GetBytes(payload), InstallSealEntropy);
+
+            if (sealedBytes != null)
+            {
+                Directory.CreateDirectory(SettingsDataDir);
+                ClearReadOnly(InstallSealPath);
+                File.WriteAllBytes(InstallSealPath, sealedBytes);
+                SetReadOnly(InstallSealPath);
+            }
+
+            SetReadOnly(exePath);
+        }
+        catch { }
+    }
+
+    public static bool VerifyInstalledBinaryIntegrity()
+    {
+        if (!IsRunningFromInstallDir()) return true;
+        if (!File.Exists(InstallSealPath)) return true;
+
+        try
+        {
+            string? exePath = Environment.ProcessPath;
+            if (string.IsNullOrWhiteSpace(exePath) || !File.Exists(exePath)) return true;
+
+            byte[] sealedBytes = File.ReadAllBytes(InstallSealPath);
+            byte[]? plain = IslandSettings.UnprotectWithEntropy(sealedBytes, InstallSealEntropy);
+            if (plain == null) return false;
+
+            string expected = Encoding.UTF8.GetString(plain);
+            string actual = ComputeBinaryDigestPayload(exePath);
+            return string.Equals(expected, actual, StringComparison.Ordinal);
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    private static string ComputeBinaryDigestPayload(string path)
+    {
+        using var fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+        byte[] hash = SHA256.HashData(fs);
+        return $"{Convert.ToHexString(hash)}|{fs.Length}";
+    }
+
+    private static void ClearReadOnly(string path)
+    {
+        try
+        {
+            if (!File.Exists(path)) return;
+            var attrs = File.GetAttributes(path);
+            if ((attrs & FileAttributes.ReadOnly) != 0)
+            {
+                File.SetAttributes(path, attrs & ~FileAttributes.ReadOnly);
+            }
+        }
+        catch { }
+    }
+
+    private static void SetReadOnly(string path)
+    {
+        try
+        {
+            if (!File.Exists(path)) return;
+            var attrs = File.GetAttributes(path);
+            File.SetAttributes(path, attrs | FileAttributes.ReadOnly);
+        }
+        catch { }
+    }
+
+    private static void ClearReadOnlyRecursive(string dir)
+    {
+        try
+        {
+            if (!Directory.Exists(dir)) return;
+            foreach (string f in Directory.EnumerateFiles(dir, "*", SearchOption.AllDirectories))
+            {
+                ClearReadOnly(f);
             }
         }
         catch { }

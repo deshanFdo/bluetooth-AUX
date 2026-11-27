@@ -1,12 +1,19 @@
 using System.Diagnostics;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace AudioSwitch.Linux.LinuxCore;
 
 internal static class LinuxInstallerService
 {
+    private static readonly byte[] InstallSealAad =
+        Encoding.UTF8.GetBytes("AudioSwitch.Linux::InstallSeal::v1");
+
     public static string UserInstallDir => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         "AudioSwitch");
+
+    private static string InstallSealPath => Path.Combine(LinuxSettings.ConfigDir, "install.sig");
 
     public static string DesktopEntryPath => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
@@ -27,15 +34,15 @@ internal static class LinuxInstallerService
         string targetExe = Path.Combine(UserInstallDir, "AudioSwitch");
         if (!string.Equals(Path.GetFullPath(exe), Path.GetFullPath(targetExe), StringComparison.Ordinal))
         {
-            File.Copy(exe, targetExe, overwrite: true);
-            if (OperatingSystem.IsLinux())
+            if (OperatingSystem.IsLinux() && File.Exists(targetExe))
             {
                 File.SetUnixFileMode(targetExe,
-                    UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute |
-                    UnixFileMode.GroupRead | UnixFileMode.GroupExecute |
-                    UnixFileMode.OtherRead | UnixFileMode.OtherExecute);
+                    UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
             }
+            File.Copy(exe, targetExe, overwrite: true);
         }
+
+        SealInstalledBinary(targetExe);
 
         string desktopContent = $"""
             [Desktop Entry]
@@ -62,6 +69,25 @@ internal static class LinuxInstallerService
     {
         try { if (File.Exists(DesktopEntryPath)) File.Delete(DesktopEntryPath); } catch { }
         try { if (File.Exists(AutostartEntryPath)) File.Delete(AutostartEntryPath); } catch { }
+
+        if (OperatingSystem.IsLinux())
+        {
+            try
+            {
+                string targetExe = Path.Combine(UserInstallDir, "AudioSwitch");
+                if (File.Exists(targetExe))
+                {
+                    File.SetUnixFileMode(targetExe,
+                        UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
+                }
+                if (File.Exists(InstallSealPath))
+                {
+                    LinuxSettings.RestrictOwnerOnly(InstallSealPath, readOnly: false);
+                }
+            }
+            catch { }
+        }
+
         try { if (Directory.Exists(LinuxSettings.ConfigDir)) Directory.Delete(LinuxSettings.ConfigDir, recursive: true); } catch { }
 
         bool runningSystemDeb = File.Exists("/usr/lib/audioswitch/AudioSwitch");
@@ -73,7 +99,7 @@ internal static class LinuxInstallerService
             if (curExe != null && curExe.StartsWith(installDir, StringComparison.Ordinal))
             {
                 // Spawn detached sh cleanup after exit
-                Process.Start(new ProcessStartInfo("sh", $"-c \"sleep 1; rm -rf '{installDir}' '{LinuxSettings.ConfigDir}'\"")
+                Process.Start(new ProcessStartInfo("sh", $"-c \"sleep 1; chmod -R u+w '{installDir}' '{LinuxSettings.ConfigDir}' 2>/dev/null || true; rm -rf '{installDir}' '{LinuxSettings.ConfigDir}'\"")
                 {
                     UseShellExecute = false,
                     CreateNoWindow = true
@@ -89,5 +115,61 @@ internal static class LinuxInstallerService
         {
             LinuxCommandRunner.StartDetached("pkexec", ["apt-get", "purge", "-y", "audioswitch"]);
         }
+    }
+
+    private static void SealInstalledBinary(string targetExe)
+    {
+        try
+        {
+            if (File.Exists(targetExe))
+            {
+                Directory.CreateDirectory(LinuxSettings.ConfigDir);
+                LinuxSettings.RestrictOwnerOnly(InstallSealPath, readOnly: false);
+
+                string payload = ComputeBinaryDigestPayload(targetExe);
+                byte[] encrypted = LinuxSettings.EncryptWithAad(
+                    LinuxSettings.GetOrCreateKey(),
+                    Encoding.UTF8.GetBytes(payload),
+                    InstallSealAad);
+                File.WriteAllBytes(InstallSealPath, encrypted);
+                LinuxSettings.RestrictOwnerOnly(InstallSealPath, readOnly: true);
+
+                if (OperatingSystem.IsLinux())
+                {
+                    File.SetUnixFileMode(targetExe, UnixFileMode.UserRead | UnixFileMode.UserExecute);
+                }
+            }
+        }
+        catch { }
+    }
+
+    public static bool VerifyInstalledIntegrity()
+    {
+        string? exe = Environment.ProcessPath;
+        if (string.IsNullOrWhiteSpace(exe)) return true;
+
+        string userPrefix = Path.GetFullPath(UserInstallDir).TrimEnd('/') + "/";
+        if (!Path.GetFullPath(exe).StartsWith(userPrefix, StringComparison.Ordinal)) return true;
+        if (!File.Exists(InstallSealPath)) return true;
+
+        try
+        {
+            byte[] key = LinuxSettings.GetOrCreateKey();
+            byte[] blob = File.ReadAllBytes(InstallSealPath);
+            byte[]? plain = LinuxSettings.DecryptWithAad(key, blob, InstallSealAad);
+            if (plain == null) return false;
+
+            return string.Equals(Encoding.UTF8.GetString(plain), ComputeBinaryDigestPayload(exe), StringComparison.Ordinal);
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    private static string ComputeBinaryDigestPayload(string path)
+    {
+        using var fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+        return $"{Convert.ToHexString(SHA256.HashData(fs))}|{fs.Length}";
     }
 }

@@ -68,6 +68,21 @@ public partial class App : System.Windows.Application
             return;
         }
 
+        if (!InstallerService.VerifyInstalledBinaryIntegrity())
+        {
+            var res = System.Windows.MessageBox.Show(
+                "Audio Switch detected that its installed binary was modified outside the installer (SHA-256 / DPAPI seal mismatch).\n\n" +
+                "Continue launching anyway?",
+                "Audio Switch — File Integrity Warning",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+            if (res != MessageBoxResult.Yes)
+            {
+                Shutdown(1);
+                return;
+            }
+        }
+
         _instanceMutex = new Mutex(true, MutexName, out bool createdNew);
         if (!createdNew)
         {

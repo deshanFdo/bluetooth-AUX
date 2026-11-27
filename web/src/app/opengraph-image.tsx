@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
-export const alt = "Audio Switch — Top-edge Dynamic Island for Windows audio";
+export const alt = "Audio Switch — Top-edge Dynamic Island for Windows & Linux audio";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -27,7 +27,7 @@ export default function OpenGraphImage() {
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            width: 440,
+            width: 480,
             height: 68,
             borderRadius: 34,
             backgroundColor: "#0d1017",
@@ -47,31 +47,31 @@ export default function OpenGraphImage() {
             />
             <span style={{ fontSize: 22, fontWeight: 600 }}>Audio Switch</span>
           </div>
-          <span style={{ fontSize: 16, color: "#9ca3af" }}>AUX · Bluetooth · Spotify</span>
+          <span style={{ fontSize: 16, color: "#9ca3af" }}>AUX · BT · Spotify · YT Music</span>
         </div>
 
         <div
           style={{
-            fontSize: 64,
+            fontSize: 60,
             fontWeight: 700,
             letterSpacing: "-0.03em",
             textAlign: "center",
             lineHeight: 1.08,
-            maxWidth: 920,
+            maxWidth: 960,
           }}
         >
-          The top-edge Dynamic Island for Windows audio.
+          The top-edge Dynamic Island for Windows &amp; Linux audio.
         </div>
 
         <div
           style={{
             marginTop: 24,
-            fontSize: 24,
+            fontSize: 23,
             color: "#9ca3af",
             textAlign: "center",
           }}
         >
-          Switch outputs in &lt;1ms · Multi-output sync delay · ~0% idle CPU · Windows 10/11
+          Split music onto AUX + Discord on Bluetooth · Encrypted config · Windows 10/11 &amp; Ubuntu
         </div>
       </div>
     ),

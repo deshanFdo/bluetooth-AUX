@@ -5,6 +5,7 @@ obj/
 *.pdb
 dist/
 dist-linux/
+dist-release/
 dist-test/
 web/node_modules/
 web/.next/

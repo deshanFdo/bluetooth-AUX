@@ -43,9 +43,9 @@ export default function ContactPage() {
           </a>
         </div>
         <div>
-          <p className="font-mono text-xs text-neutral-500">Diagnostic Output Command</p>
+          <p className="font-mono text-xs text-neutral-500">Diagnostic Output Commands</p>
           <p className="mt-1 font-mono text-xs text-neutral-300">
-            AudioSwitch.exe --diag
+            Windows: AudioSwitch.exe --diag · Linux: AudioSwitch --diag
           </p>
           <p className="mt-1 text-xs text-neutral-400">
             Include output from <code className="text-neutral-200">--diag</code> when reporting

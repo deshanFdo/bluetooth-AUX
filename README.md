@@ -1,8 +1,8 @@
 # Audio Switch — Dynamic Island Audio & Media Control for Windows & Linux
 
 **Live Website & Download:** https://audio-switch.vercel.app  
-**Windows Installer (`v1.2.1`, 74.4 MB, Self-Contained):** https://audio-switch.vercel.app/download  
-**Windows Portable EXE (`v1.2.1`, 74.4 MB):** https://audio-switch.vercel.app/portable  
+**Windows Installer (`v1.3.0`, 74.4 MB, Self-Contained):** https://audio-switch.vercel.app/download  
+**Windows Portable EXE (`v1.3.0`, 74.4 MB):** https://audio-switch.vercel.app/portable  
 **Ubuntu / Debian `.deb` (`v1.3.0`, 36.3 MB, Self-Contained):** https://audio-switch.vercel.app/download-deb  
 **Linux Generic `.tar.gz` (`v1.3.0`, 36.3 MB):** https://audio-switch.vercel.app/download-linux
 
@@ -24,8 +24,8 @@ Audio Switch is a lightweight desktop utility for **Windows 10/11** and **Ubuntu
   - Play audio simultaneously on wired AUX headphones/speakers and Bluetooth headsets via user-mode WASAPI loopback + FIFO delay (`170 ms` default) on Windows or `module-loopback` (`latency_msec`) on Linux.
 - **Spotify & YouTube Music Switcher, Auto-Launch & Hidden Tray**
   - Switch seamlessly between **Spotify** and **YouTube Music** with 1 tap (auto-pauses the other player), auto-launch on **Play (`▶`)** even when closed, and keep windows tucked off the taskbar on Windows (**Hidden Icons `^`**) with `MPRIS2` control on Linux.
-- **Encrypted Settings & Zero-Leftover Uninstaller**
-  - Local settings are encrypted with Windows **DPAPI** (`CryptProtectData`) or Linux **AES-256-GCM** (`~/.config/AudioSwitch/settings.dat`). Uninstall cleanly via Windows **Installed Apps**, `sudo apt purge audioswitch`, or `AudioSwitch --uninstall`.
+- **Encrypted Settings, Tamper-Sealing & Zero-Leftover Uninstaller**
+  - Local settings (`settings.dat`) and installed binary integrity seals (`install.sig`) are encrypted with Windows **DPAPI** (`CryptProtectData` + `ReadOnly` attribute) or Linux **AES-256-GCM** (`0500` / `root:root` binary lock). Uninstall cleanly via Windows **Installed Apps**, `sudo apt purge audioswitch`, or `AudioSwitch --uninstall`.
 - **Connected-Only Bluetooth Battery Rings & Telemetry**
   - Shows circular gauges exclusively for actively connected Bluetooth headsets (`DEVPKEY_Device_IsConnected` + ContainerId matching on Windows; `org.bluez.Battery1` + UPower on Linux) alongside laptop battery, RAM, CPU, and clock.
 - **Persistent Top-Edge Capsule (`~0%` Idle CPU)**
@@ -63,10 +63,11 @@ python3 packaging/linux/build_packages.py
 sudo apt install ./dist-linux/audioswitch_1.3.0_amd64.deb
 ```
 
-### Artifact SHA-256 Checksums
+### Artifact SHA-256 Checksums (`v1.3.0`)
 
 ```text
-F077F5406ED8D4C70C6252C294844F4C483185B62D7C5650BBAB55EA65661944  AudioSwitch-Setup.exe (Windows v1.2.1)
-91C8F14043A782821870CAA813CC041973EEBB8E2D4CDDDAC65E6CDB70FBB0B6  audioswitch_1.3.0_amd64.deb (Linux v1.3.0)
-6523EA7E218126127B91B5B8C423BFF0335D331025B8564D5D3D1B0DC1725DE5  AudioSwitch-linux-x64.tar.gz (Linux v1.3.0)
+87E37AD8D5E9F818A9893AD9B776A06C2D9BE4AB3C95C64EA666D8625520784F  AudioSwitch-Setup.exe (Windows v1.3.0)
+87E37AD8D5E9F818A9893AD9B776A06C2D9BE4AB3C95C64EA666D8625520784F  AudioSwitch.exe (Windows Portable v1.3.0)
+11AC66B69D93279FE031F07E1863F05CC95B1C0D906241074A6E1F03B416EF14  audioswitch_1.3.0_amd64.deb (Linux v1.3.0)
+8241511A464651FB166B308BCD86C9EDCC88F636C1B7EE46F4E15FCDFFBA4489  AudioSwitch-linux-x64.tar.gz (Linux v1.3.0)
 ```

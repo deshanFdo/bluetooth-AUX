@@ -84,22 +84,28 @@ internal sealed class IslandSettings
         }
     }
 
-    private static byte[]? ProtectBytes(byte[] plain) => InvokeDpapi(plain, protect: true);
+    private static byte[]? ProtectBytes(byte[] plain) => InvokeDpapi(plain, DpapiEntropy, protect: true);
 
-    private static byte[]? UnprotectBytes(byte[] cipher) => InvokeDpapi(cipher, protect: false);
+    private static byte[]? UnprotectBytes(byte[] cipher) => InvokeDpapi(cipher, DpapiEntropy, protect: false);
 
-    private static byte[]? InvokeDpapi(byte[] input, bool protect)
+    public static byte[]? ProtectWithEntropy(byte[] plain, byte[] entropy) =>
+        InvokeDpapi(plain, entropy, protect: true);
+
+    public static byte[]? UnprotectWithEntropy(byte[] cipher, byte[] entropy) =>
+        InvokeDpapi(cipher, entropy, protect: false);
+
+    private static byte[]? InvokeDpapi(byte[] input, byte[] entropy, bool protect)
     {
         if (input.Length == 0) return null;
 
         var inHandle = GCHandle.Alloc(input, GCHandleType.Pinned);
-        var entHandle = GCHandle.Alloc(DpapiEntropy, GCHandleType.Pinned);
+        var entHandle = GCHandle.Alloc(entropy, GCHandleType.Pinned);
         var outBlob = default(DataBlob);
 
         try
         {
             var inBlob = new DataBlob { cbData = input.Length, pbData = inHandle.AddrOfPinnedObject() };
-            var entBlob = new DataBlob { cbData = DpapiEntropy.Length, pbData = entHandle.AddrOfPinnedObject() };
+            var entBlob = new DataBlob { cbData = entropy.Length, pbData = entHandle.AddrOfPinnedObject() };
 
             bool ok = protect
                 ? CryptProtectData(ref inBlob, "AudioSwitchConfig", ref entBlob, IntPtr.Zero, IntPtr.Zero, CryptProtectUiForbidden, out outBlob)
