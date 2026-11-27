@@ -30,12 +30,12 @@ import CopyShaButton from "@/components/CopyShaButton";
 import DownloadButton from "@/components/DownloadButton";
 
 const INSTALLER_URL =
-  "https://0hwpieezbnk7w7cc.public.blob.vercel-storage.com/v1.1.0/AudioSwitch-Setup.exe";
+  "https://0hwpieezbnk7w7cc.public.blob.vercel-storage.com/v1.1.1/AudioSwitch-Setup.exe";
 const PORTABLE_URL =
-  "https://0hwpieezbnk7w7cc.public.blob.vercel-storage.com/v1.1.0/AudioSwitch.exe";
+  "https://0hwpieezbnk7w7cc.public.blob.vercel-storage.com/v1.1.1/AudioSwitch.exe";
 const GITHUB_URL = "https://github.com/deshanFdo/bluetooth-AUX";
 const SHA256_SETUP =
-  "DA4AE686D533E06AF716B696D29BC9A6DE5BAD7C8BDC5267D7CEDE1003A159CA";
+  "491F132C95D7BCF1CF05C589EED88F57144486303AF10E063C87A815F214F48B";
 
 const FAQS = [
   {
@@ -64,7 +64,7 @@ const JSON_LD = {
       name: "Audio Switch",
       applicationCategory: "UtilitiesApplication",
       operatingSystem: "Windows 10, Windows 11 (x64)",
-      softwareVersion: "1.1.0",
+      softwareVersion: "1.1.1",
       fileSize: "74.4MB",
       downloadUrl: INSTALLER_URL,
       url: "https://audio-switch.vercel.app",
@@ -119,7 +119,7 @@ export default function HomePage() {
             </span>
             <span className="text-sm font-semibold tracking-tight text-white">Audio Switch</span>
             <span className="rounded border border-white/10 bg-white/[0.03] px-1.5 py-0.5 font-mono text-[10.5px] text-neutral-400">
-              v1.1.0
+              v1.1.1
             </span>
           </div>
 
@@ -333,7 +333,7 @@ export default function HomePage() {
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <span className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wider text-neutral-500">
                     <Terminal className="h-3 w-3" />
-                    SHA-256 (v1.1.0 Installer)
+                    SHA-256 (v1.1.1 Installer)
                   </span>
                   <CopyShaButton value={SHA256_SETUP} />
                 </div>
@@ -364,7 +364,7 @@ export default function HomePage() {
 
       <footer className="border-t border-white/[0.07] py-6 text-center text-xs text-neutral-500">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-center gap-x-5 gap-y-2 px-6">
-          <span>Audio Switch v1.1.0 · Deshan Fernando</span>
+          <span>Audio Switch v1.1.1 · Deshan Fernando</span>
           <Link href="/about" className="inline-flex items-center gap-1 hover:text-neutral-300">
             <Info className="h-3 w-3" />
             About
